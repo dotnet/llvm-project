@@ -18,6 +18,7 @@
 #include "WasmException.h"
 #include "WinCFGuard.h"
 #include "WinException.h"
+#include "MonoException.h"
 #include "llvm/ADT/APFloat.h"
 #include "llvm/ADT/APInt.h"
 #include "llvm/ADT/DenseMap.h"
@@ -144,6 +145,12 @@ const char PPGroupName[] = "pseudo probe";
 const char PPGroupDescription[] = "Pseudo Probe Emission";
 
 STATISTIC(EmittedInsts, "Number of machine instrs printed");
+
+cl::opt<bool> EnableMonoEH("enable-mono-eh-frame", cl::NotHidden,
+     cl::desc("Enable generation of Mono specific EH tables"));
+
+static cl::opt<bool> DisableGNUEH("disable-gnu-eh-frame", cl::NotHidden,
+                                  cl::desc("Disable generation of GNU .eh_frame"));
 
 char AsmPrinter::ID = 0;
 
@@ -545,10 +552,12 @@ bool AsmPrinter::doInitialization(Module &M) {
     [[fallthrough]];
   case ExceptionHandling::SjLj:
   case ExceptionHandling::DwarfCFI:
-    ES = new DwarfCFIException(this);
+    if (!DisableGNUEH)
+      ES = new DwarfCFIException(this);
     break;
   case ExceptionHandling::ARM:
-    ES = new ARMException(this);
+    if (!DisableGNUEH)
+      ES = new ARMException(this);
     break;
   case ExceptionHandling::WinEH:
     switch (MAI->getWinEHEncodingType()) {
@@ -583,6 +592,11 @@ bool AsmPrinter::doInitialization(Module &M) {
     NamedRegionTimer T(HI.TimerName, HI.TimerDescription, HI.TimerGroupName,
                        HI.TimerGroupDescription, TimePassesIsEnabled);
     HI.Handler->beginModule(&M);
+  }
+
+  if (EnableMonoEH) {
+      MonoException *mono_eh = new MonoException (this, DisableGNUEH);
+      Handlers.push_back(HandlerInfo(std::unique_ptr<MonoException> (mono_eh), EHTimerName, EHTimerDescription, DWARFGroupName, DWARFGroupDescription));
   }
 
   return false;
@@ -1614,7 +1628,8 @@ void AsmPrinter::emitFunctionBody() {
 
       switch (MI.getOpcode()) {
       case TargetOpcode::CFI_INSTRUCTION:
-        emitCFIInstruction(MI);
+        if (!EnableMonoEH)
+          emitCFIInstruction(MI);
         break;
       case TargetOpcode::LOCAL_ESCAPE:
         emitFrameAlloc(MI);
@@ -1795,7 +1810,7 @@ void AsmPrinter::emitFunctionBody() {
   // are automatically sized.
   bool EmitFunctionSize = MAI->hasDotTypeDotSizeDirective() && !TT.isWasm();
 
-  if (needFuncLabels(*MF) || EmitFunctionSize) {
+  if (needFuncLabels(*MF) || EmitFunctionSize || EnableMonoEH) {
     // Create a symbol for the end of function.
     CurrentFnEnd = createTempSymbol("func_end");
     OutStreamer->emitLabel(CurrentFnEnd);
@@ -2372,7 +2387,7 @@ void AsmPrinter::SetupMachineFunction(MachineFunction &MF) {
       F.hasFnAttribute("function-instrument") ||
       F.hasFnAttribute("xray-instruction-threshold") ||
       needFuncLabels(MF) || NeedsLocalForSize ||
-      MF.getTarget().Options.EmitStackSizeSection || MF.hasBBLabels()) {
+      MF.getTarget().Options.EmitStackSizeSection || MF.hasBBLabels() || EnableMonoEH) {
     CurrentFnBegin = createTempSymbol("func_begin");
     if (NeedsLocalForSize)
       CurrentFnSymForSize = CurrentFnBegin;
