@@ -126,4 +126,7 @@
 /* Define if plugins enabled */
 #cmakedefine LLVM_ENABLE_PLUGINS
 
+/* Mono api version */
+#cmakedefine MONO_API_VERSION ${MONO_API_VERSION}
+
 #endif
