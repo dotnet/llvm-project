@@ -85,9 +85,11 @@ void WinException::beginFunction(const MachineFunction *MF) {
                               !isNoOpWithoutInvoke(Per) &&
                               F.needsUnwindTableEntry();
 
-  shouldEmitPersonality =
-      forceEmitPersonality || ((hasLandingPads || hasEHFunclets) &&
-                               PerEncoding != dwarf::DW_EH_PE_omit && PerFn);
+  if (!disableEmitPersonality) {
+    shouldEmitPersonality =
+        forceEmitPersonality || ((hasLandingPads || hasEHFunclets) &&
+                                 PerEncoding != dwarf::DW_EH_PE_omit && PerFn);
+  }
 
   unsigned LSDAEncoding = TLOF.getLSDAEncoding();
   shouldEmitLSDA = shouldEmitPersonality &&
