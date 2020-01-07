@@ -29,9 +29,9 @@ stages:
   jobs:
   - template: /eng/common/templates/jobs/jobs.yml
     parameters:
-      enablePublishBuildArtifacts: false
-      enablePublishBuildAssets: false
-      enablePublishUsingPipelines: false
+      enablePublishBuildArtifacts: true
+      enablePublishBuildAssets: true
+      enablePublishUsingPipelines: true
       variables:
         - _BuildConfig: Release
       jobs:
