@@ -67,9 +67,9 @@ stages:
             ./build.sh --ci --restore --build --pack -c $(_BuildConfig)
           displayName: 'Build and package'
 
-#        - script: ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) /p:DotNetPublishUsingPipelines=true /p:DotNetPublishToBlobFeed=true /p:DotNetPublishBlobFeedUrl=$(_DotNetFeedUrl) /p:DotNetPublishBlobFeedKey=$(dotnetfeed-storage-access-key-1) /p:DotNetArtifactsCategory=$(_DotNetArtifactsCategory) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) --projects $(Build.SourcesDirectory)/eng/empty.csproj
-#          displayName: Publish packages
-#          condition: and(succeeded(), ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest'))
+        - script: ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) /p:DotNetPublishUsingPipelines=true /p:DotNetPublishToBlobFeed=true /p:DotNetPublishBlobFeedUrl=$(_DotNetFeedUrl) /p:DotNetPublishBlobFeedKey=$(dotnetfeed-storage-access-key-1) /p:DotNetArtifactsCategory=$(_DotNetArtifactsCategory) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) --projects $(Build.SourcesDirectory)/eng/empty.csproj
+          displayName: Publish packages
+          condition: and(succeeded(), ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest'))
 
       ############ MACOS BUILD ############
       - job: Build_macOS
@@ -98,9 +98,9 @@ stages:
             ./build.sh --ci --restore --build --pack -c $(_BuildConfig)
           displayName: 'Build and package'
 
-#        - script: ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) /p:DotNetPublishUsingPipelines=true /p:DotNetPublishToBlobFeed=true /p:DotNetPublishBlobFeedUrl=$(_DotNetFeedUrl) /p:DotNetPublishBlobFeedKey=$(dotnetfeed-storage-access-key-1) /p:DotNetArtifactsCategory=$(_DotNetArtifactsCategory) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) --projects $(Build.SourcesDirectory)/eng/empty.csproj
-#          displayName: Publish packages
-#          condition: and(succeeded(), ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest'))
+        - script: ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) /p:DotNetPublishUsingPipelines=true /p:DotNetPublishToBlobFeed=true /p:DotNetPublishBlobFeedUrl=$(_DotNetFeedUrl) /p:DotNetPublishBlobFeedKey=$(dotnetfeed-storage-access-key-1) /p:DotNetArtifactsCategory=$(_DotNetArtifactsCategory) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) --projects $(Build.SourcesDirectory)/eng/empty.csproj
+          displayName: Publish packages
+          condition: and(succeeded(), ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest'))
 
       ############ WINDOWS BUILD ############
       - job: Build_Windows
@@ -125,15 +125,15 @@ stages:
             build.cmd --ci --restore --build --pack -c $(_BuildConfig)
           displayName: 'Build and package'
 
-#        - powershell: eng\common\build.ps1 -ci -restore -publish -configuration $(_BuildConfig) /p:DotNetPublishUsingPipelines=true /p:DotNetPublishToBlobFeed=true /p:DotNetPublishBlobFeedUrl=$(_DotNetFeedUrl) /p:DotNetPublishBlobFeedKey=$(dotnetfeed-storage-access-key-1) /p:DotNetArtifactsCategory=$(_DotNetArtifactsCategory) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) -projects $(Build.SourcesDirectory)\eng\empty.csproj
-#          displayName: Publish packages
-#          condition: and(succeeded(), ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest'))
+        - powershell: eng\common\build.ps1 -ci -restore -publish -configuration $(_BuildConfig) /p:DotNetPublishUsingPipelines=true /p:DotNetPublishToBlobFeed=true /p:DotNetPublishBlobFeedUrl=$(_DotNetFeedUrl) /p:DotNetPublishBlobFeedKey=$(dotnetfeed-storage-access-key-1) /p:DotNetArtifactsCategory=$(_DotNetArtifactsCategory) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) -projects $(Build.SourcesDirectory)\eng\empty.csproj
+          displayName: Publish packages
+          condition: and(succeeded(), ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest'))
 
 ############ POST BUILD ARCADE LOGIC ############
-#- ${{ if and(ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest')) }}:
-#  - template: /eng/common/templates/post-build/post-build.yml
-#    parameters:
-#      enableSourceLinkValidation: false
-#      enableSigningValidation: false
-#      enableSymbolValidation: false
-#      enableNugetValidation: true
+- ${{ if and(ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest')) }}:
+  - template: /eng/common/templates/post-build/post-build.yml
+    parameters:
+      enableSourceLinkValidation: false
+      enableSigningValidation: false
+      enableSymbolValidation: false
+      enableNugetValidation: true
