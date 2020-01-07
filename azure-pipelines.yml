@@ -8,7 +8,8 @@ trigger:
 pr:
   branches:
     include:
-    - master
+    - release/6.x
+    - release/9.x
 
 variables:
 - ${{ if ne(variables['System.TeamProject'], 'public') }}:
