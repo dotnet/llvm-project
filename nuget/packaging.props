@@ -3,8 +3,7 @@
 
   <PropertyGroup>
     <PackageDescriptionFile>$(MSBuildThisFileDirectory)/descriptions.json</PackageDescriptionFile>
-    <PackageLicenseFile>$(RepoRoot)/LICENSE.TXT</PackageLicenseFile>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageLicenseFile>$(RepoRoot)/llvm/LICENSE.TXT</PackageLicenseFile>
     <PackageThirdPartyNoticesFile>$(RepoRoot)/THIRD-PARTY-NOTICES.TXT</PackageThirdPartyNoticesFile>
 
     <ReleaseNotes>https://go.microsoft.com/fwlink/?LinkID=799421</ReleaseNotes>
