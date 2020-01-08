@@ -12,17 +12,7 @@ pr:
     - release/9.x
 
 variables:
-- ${{ if ne(variables['System.TeamProject'], 'public') }}:
-  - group: DotNet-VSTS-Bot
-  - group: DotNet-Blob-Feed
-- ${{ if and(ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest')) }}:
-  # Variables used by arcade to publish packages
-  - name: _DotNetFeedUrl
-    value: https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json
-  - name: _DotNetValidationArtifactsCategory
-    value: .NETCore
-  - name: _DotNetArtifactsCategory
-    value: .NETCore
+- template: eng/common-variables.yml
 
 stages:
 - stage: build
@@ -65,10 +55,10 @@ stages:
           condition: and(succeeded(), eq(variables['installDependencies'], 'true'))
 
         - bash: |
-            ./build.sh --ci --restore --build --pack -c $(_BuildConfig)
+            ./build.sh --restore --build --pack --configuration $(_BuildConfig) $(_InternalBuildArgs)
           displayName: 'Build and package'
 
-        - script: ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) /p:DotNetPublishUsingPipelines=true /p:DotNetPublishToBlobFeed=true /p:DotNetPublishBlobFeedUrl=$(_DotNetFeedUrl) /p:DotNetPublishBlobFeedKey=$(dotnetfeed-storage-access-key-1) /p:DotNetArtifactsCategory=$(_DotNetArtifactsCategory) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) --projects $(Build.SourcesDirectory)/eng/empty.csproj
+        - script: ./eng/common/build.sh --restore --publish --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) --projects $(Build.SourcesDirectory)/eng/empty.csproj
           displayName: Publish packages
           condition: and(succeeded(), ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest'))
 
@@ -96,10 +86,10 @@ stages:
           displayName: 'Prepare macOS dependencies'
 
         - bash: |
-            ./build.sh --ci --restore --build --pack -c $(_BuildConfig)
+            ./build.sh --restore --build --pack --configuration $(_BuildConfig) $(_InternalBuildArgs)
           displayName: 'Build and package'
 
-        - script: ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) /p:DotNetPublishUsingPipelines=true /p:DotNetPublishToBlobFeed=true /p:DotNetPublishBlobFeedUrl=$(_DotNetFeedUrl) /p:DotNetPublishBlobFeedKey=$(dotnetfeed-storage-access-key-1) /p:DotNetArtifactsCategory=$(_DotNetArtifactsCategory) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) --projects $(Build.SourcesDirectory)/eng/empty.csproj
+        - script: ./eng/common/build.sh --restore --publish --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) --projects $(Build.SourcesDirectory)/eng/empty.csproj
           displayName: Publish packages
           condition: and(succeeded(), ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest'))
 
@@ -123,10 +113,10 @@ stages:
           displayName: 'Clean up working directory'
 
         - script: |
-            build.cmd --ci --restore --build --pack -c $(_BuildConfig)
+            build.cmd --ci --restore --build --pack --configuration $(_BuildConfig) $(_InternalBuildArgs)
           displayName: 'Build and package'
 
-        - powershell: eng\common\build.ps1 -ci -restore -publish -configuration $(_BuildConfig) /p:DotNetPublishUsingPipelines=true /p:DotNetPublishToBlobFeed=true /p:DotNetPublishBlobFeedUrl=$(_DotNetFeedUrl) /p:DotNetPublishBlobFeedKey=$(dotnetfeed-storage-access-key-1) /p:DotNetArtifactsCategory=$(_DotNetArtifactsCategory) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) -projects $(Build.SourcesDirectory)\eng\empty.csproj
+        - powershell: eng\common\build.ps1 -ci -restore -publish -configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) -projects $(Build.SourcesDirectory)\eng\empty.csproj
           displayName: Publish packages
           condition: and(succeeded(), ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest'))
 
