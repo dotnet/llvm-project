@@ -15,8 +15,8 @@
     <_distroRidIndex>$(_parseDistroRid.IndexOfAny("-"))</_distroRidIndex>
     <_archRidIndex>$([MSBuild]::Add($(_distroRidIndex), 1))</_archRidIndex>
     <OSRid Condition="'$(OSRid)' == '' and '$(_distroRidIndex)' != '-1'">$(_parseDistroRid.SubString(0, $(_distroRidIndex)))</OSRid>
-    <OSRid Condition="'$(OSRid)' == ''">linux-x64</OSRid>
-    <OSRid Condition="'$(OSRid)' == 'linux-x64' AND '$(OS)' == 'Windows_NT'">win10</OSRid>
+    <OSRid Condition="'$(OSRid)' == ''">linux</OSRid>
+    <OSRid Condition="'$(OSRid)' == 'linux' AND '$(OS)' == 'Windows_NT'">win10</OSRid>
 
     <ArchGroup Condition="'$(ArchGroup)' == '' and '$(_archRidIndex)' != '0'">$(_parseDistroRid.SubString($(_archRidIndex)))</ArchGroup>
     <ArchGroup Condition="'$(ArchGroup)' == '' and '$(Platform)' != ''">$(Platform)</ArchGroup>
