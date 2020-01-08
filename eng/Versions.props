@@ -5,6 +5,6 @@
     <PreReleaseVersionLabel>prerelease</PreReleaseVersionLabel>
   </PropertyGroup>
   <PropertyGroup>
-    <MicrosoftDotNetBuildTasksPackagingVersion>5.0.0-beta.20057.1</MicrosoftDotNetBuildTasksPackagingVersion>
+    <MicrosoftDotNetBuildTasksPackagingVersion>5.0.0-beta.20057.5</MicrosoftDotNetBuildTasksPackagingVersion>
   </PropertyGroup>
 </Project>
