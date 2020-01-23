@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project>
   <ItemGroup>
-    <File Include="..\..\artifacts\tmp\InstallRoot\bin\llc" TargetPath="tools\$(PackageRID)\bin\" />
-    <File Include="..\..\artifacts\tmp\InstallRoot\bin\opt" TargetPath="tools\$(PackageRID)\bin\" />
+    <File Include="..\..\artifacts\tmp\InstallRoot\bin\llc" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="..\..\artifacts\tmp\InstallRoot\bin\opt" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
   </ItemGroup>
 </Project>
