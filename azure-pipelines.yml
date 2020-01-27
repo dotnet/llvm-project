@@ -40,8 +40,7 @@ stages:
         pool:
           name: $(poolname)
         container:
-          image: centos-7-bfcd90a-20200121150017
-          registry: mcr
+          image: mcr.microsoft.com/dotnet-buildtools/prereqs:centos-7-bfcd90a-20200121150017
         steps:
         - bash: |
             set -ex
