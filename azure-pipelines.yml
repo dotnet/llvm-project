@@ -37,22 +37,17 @@ stages:
               poolname: Hosted Ubuntu 1604
               assetManifestOS: linux
               assetManifestPlatform: x64
-              installDependencies: true
         pool:
           name: $(poolname)
+        container:
+          image: centos-7-bfcd90a-20200121150017
+          registry: mcr
         steps:
         - bash: |
             set -ex
             git clean -ffdx
             git reset --hard HEAD
           displayName: 'Clean up working directory'
-
-        - bash: |
-            set -ex
-            sudo apt update
-            sudo apt -y install build-essential libtool libtool-bin cmake gettext
-          displayName: 'Install Linux dependencies'
-          condition: and(succeeded(), eq(variables['installDependencies'], 'true'))
 
         - bash: |
             ./build.sh --ci --restore --build --pack --configuration $(_BuildConfig) $(_InternalBuildArgs)
