@@ -52,7 +52,8 @@ stages:
             ./build.sh --ci --restore --build --pack --configuration $(_BuildConfig) $(_InternalBuildArgs)
           displayName: 'Build and package'
 
-        - script: ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) --projects $(Build.SourcesDirectory)/eng/empty.csproj
+        - bash: |
+            ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) --projects $(Build.SourcesDirectory)/eng/empty.csproj
           displayName: Publish packages
           condition: and(succeeded(), ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest'))
 
@@ -83,7 +84,8 @@ stages:
             ./build.sh --ci --restore --build --pack --configuration $(_BuildConfig) $(_InternalBuildArgs)
           displayName: 'Build and package'
 
-        - script: ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) --projects $(Build.SourcesDirectory)/eng/empty.csproj
+        - bash: 
+            ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) --projects $(Build.SourcesDirectory)/eng/empty.csproj
           displayName: Publish packages
           condition: and(succeeded(), ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest'))
 
