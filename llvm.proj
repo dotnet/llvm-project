@@ -16,6 +16,7 @@
     <RemoveDir Directories="$(_LLVMInstallDir)/share" />
     <ItemGroup>
       <FilesToDelete Include="$(_LLVMInstallDir)/lib/libLTO*" />
+      <FilesToDelete Include="$(_LLVMInstallDir)/lib/LLVMHello*" />
       <FilesToDelete Include="$(_LLVMInstallDir)/lib/BugpointPasses.*" />
     </ItemGroup>
     <Delete Files="@(FilesToDelete)" ContinueOnError="true" TreatErrorsAsWarnings="true" />
@@ -29,15 +30,16 @@
 
   <Target Name="_LLVMBuildNoneWindows" Condition="'$(OS)' != 'Windows_NT'">
     <ItemGroup>
-      <_LLLVMBuildArgs Include="-DCMAKE_BUILD_TYPE=Release" />
-      <_LLLVMBuildArgs Include="-DLLVM_INCLUDE_TESTS:BOOL=OFF" />
-      <_LLLVMBuildArgs Include='-DCMAKE_C_FLAGS="-I../llvm/include -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS"' />
-      <_LLLVMBuildArgs Include='-DCMAKE_CXX_FLAGS="-I../llvm/include -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS"' />
-      <_LLLVMBuildArgs Include='-DLLVM_TARGETS_TO_BUILD="X86%3BAArch64%3BARM"' />
+      <_LLVMBuildArgs Include="-DCMAKE_BUILD_TYPE=Release" />
+      <_LLVMBuildArgs Include="-DLLVM_INCLUDE_TESTS:BOOL=OFF" />
+      <_LLVMBuildArgs Include='-DCMAKE_C_FLAGS="-I../llvm/include -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS"' />
+      <_LLVMBuildArgs Include='-DCMAKE_CXX_FLAGS="-I../llvm/include -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS"' />
+      <_LLVMBuildArgs Include='-DCMAKE_EXE_LINKER_FLAGS="-Wl,--build-id"' />
+      <_LLVMBuildArgs Include='-DLLVM_TARGETS_TO_BUILD="X86%3BAArch64%3BARM"' />
     </ItemGroup>
 
     <Exec WorkingDirectory="$(_LLVMBuildDir)"
-          Command="cmake $(_LLVMSourceDir) @(_LLLVMBuildArgs->'%(Identity)',' ')"
+          Command="cmake $(_LLVMSourceDir) @(_LLVMBuildArgs->'%(Identity)',' ')"
           Condition="!Exists('$(_LLVMBuildDir)/CMakeCache.txt')"
           IgnoreStandardErrorWarningFormat="true" />
     <Exec WorkingDirectory="$(_LLVMBuildDir)"
