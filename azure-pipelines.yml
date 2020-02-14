@@ -37,10 +37,20 @@ stages:
               poolname: Hosted Ubuntu 1604
               assetManifestOS: linux
               assetManifestPlatform: x64
+              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:centos-7-bfcd90a-20200121150017
+              rootfs: 
+              archflag: --arch x64
+            arm64:
+              poolname: Hosted Ubuntu 1604
+              assetManifestOS: linux
+              assetManifestPlatform: arm64
+              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-16.04-cross-arm64-cfdd435-20200121150126
+              rootfs: /crossrootfs/arm64
+              archflag: --arch arm64
         pool:
           name: $(poolname)
         container:
-          image: mcr.microsoft.com/dotnet-buildtools/prereqs:centos-7-bfcd90a-20200121150017
+          image: $(imagename)
         steps:
         - bash: |
             set -ex
@@ -49,11 +59,13 @@ stages:
           displayName: 'Clean up working directory'
 
         - bash: |
-            ./build.sh --ci --restore --build --pack --configuration $(_BuildConfig) $(_InternalBuildArgs)
+            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs)
           displayName: 'Build and package'
+          env:
+            ROOTFS_DIR: $(rootfs)
 
         - bash: |
-            ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) --projects $(Build.SourcesDirectory)/llvm.proj
+            ./eng/common/build.sh --ci --restore --publish --configuration $(archflag) $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) --projects $(Build.SourcesDirectory)/llvm.proj
           displayName: Publish packages
           condition: and(succeeded(), ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest'))
 

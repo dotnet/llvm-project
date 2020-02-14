@@ -51,12 +51,12 @@
       <_LLVMBuildArgs Include='-DCMAKE_MODULE_LINKER_FLAGS="$(_CrossCFlags)"' />
       <_LLVMBuildArgs Include='-DCMAKE_SHARED_LINKER_FLAGS="$(_CrossCFlags)"' />
       <_LLVMBuildArgs Include='-DLLVM_TABLEGEN="/usr/bin/llvm-tblgen-6.0"' />
+      <_LLVMBuildArgs Include="-DCMAKE_C_COMPILER=clang-9" />
+      <_LLVMBuildArgs Include="-DCMAKE_CXX_COMPILER=clang++-9" />
     </ItemGroup>
 
     <ItemGroup>
       <_LLVMBuildArgs Include="-DCMAKE_BUILD_TYPE=Release" />
-      <_LLVMBuildArgs Include="-DCMAKE_C_COMPILER=clang-9" />
-      <_LLVMBuildArgs Include="-DCMAKE_CXX_COMPILER=clang++-9" />
       <_LLVMBuildArgs Include="-DLLVM_INCLUDE_TESTS:BOOL=OFF" />
       <_LLVMBuildArgs Include='-DCMAKE_C_FLAGS="-I../llvm/include -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CrossCFlags)"' />
       <_LLVMBuildArgs Include='-DCMAKE_CXX_FLAGS="-I../llvm/include -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CrossCFlags) "' />
