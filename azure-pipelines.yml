@@ -120,8 +120,7 @@ stages:
             git reset --hard HEAD
           displayName: 'Clean up working directory'
 
-        - script: |
-            eng\build.ps1 -ci -restore -build -pack -configuration $(_BuildConfig) $(_InternalBuildArgs)
+        - powershell: eng\build.ps1 -ci -restore -build -pack -configuration $(_BuildConfig) $(_InternalBuildArgs)
           displayName: 'Build and package'
 
         - powershell: eng\build.ps1 -ci -restore -publish -configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) -projects $(Build.SourcesDirectory)\llvm.proj
