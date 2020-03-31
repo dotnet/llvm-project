@@ -47,6 +47,13 @@ stages:
               imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-16.04-cross-arm64-cfdd435-20200121150126
               rootfs: /crossrootfs/arm64
               archflag: --arch arm64
+            arm:
+              poolname: Hosted Ubuntu 1604
+              assetManifestOS: linux
+              assetManifestPlatform: arm64
+              imagename: http://mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-16.04-cross-09ec757-20200320131433
+              rootfs: /crossrootfs/arm64
+              archflag: --arch arm64
         pool:
           name: $(poolname)
         container:
