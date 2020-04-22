@@ -55,21 +55,6 @@
       <_LLVMBuildArgs Include="-DCMAKE_CXX_COMPILER=clang++-9" />
     </ItemGroup>
 
-	<!--
-       MXE BUILD:
-# -DCROSS_TOOLCHAIN_FLAGS_NATIVE is needed to compile the native tools (tlbgen) using the host compilers
-# -DLLVM_ENABLE_THREADS=0 is needed because mxe doesn't define std::mutex etc.
-# -DLLVM_BUILD_EXECUTION_ENGINE=Off is needed because it depends on threads
-# -DCMAKE_EXE_LINKER_FLAGS=-static is needed so that we don't dynamically link with any of the mingw gcc support libs.
--->
-	<ItemGroup Condition=" '$(TargetArchitecture)' == 'x64-mxe' ">
-	  <_LLVMBuildArgs Include="-DCMAKE_EXE_LINKER_FLAGS=-static"/>
-	  <_LLVMBuildArgs Include="-DCROSS_TOOLCHAIN_FLAGS_NATIVE=-DCMAKE_TOOLCHAIN_FILE=cmake/modules/NATIVE.cmake"/>
-	  <_LLVMBuildArgs Include="-DCMAKE_TOOLCHAIN_FILE=cmake/modules/mxe-Win64.cmake"/>
-	  <_LLVMBuildArgs Include="-DLLVM_ENABLE_THREADS=Off"/>
-	  <_LLVMBuildArgs Include="-DLLVM_BUILD_EXECUTION_ENGINE=Off"/>
-	  </ItemGroup>
-
     <ItemGroup>
       <_LLVMBuildArgs Include="-DCMAKE_BUILD_TYPE=Release" />
       <_LLVMBuildArgs Include="-DLLVM_INCLUDE_TESTS:BOOL=OFF" />
