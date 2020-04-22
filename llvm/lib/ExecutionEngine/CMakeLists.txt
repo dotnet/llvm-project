@@ -2,6 +2,7 @@ if(NOT LLVM_BUILD_EXECUTION_ENGINE)
     set(EXCLUDE_FROM_ALL ON)
 endif()
 
+if(LLVM_BUILD_EXECUTION_ENGINE)
 add_llvm_library(LLVMExecutionEngine
   ExecutionEngine.cpp
   ExecutionEngineBindings.cpp
@@ -20,7 +21,6 @@ if(BUILD_SHARED_LIBS)
   target_link_libraries(LLVMExecutionEngine PUBLIC LLVMRuntimeDyld)
 endif()
 
-if(LLVM_BUILD_EXECUTION_ENGINE)
 add_subdirectory(Interpreter)
 add_subdirectory(JITLink)
 add_subdirectory(MCJIT)
