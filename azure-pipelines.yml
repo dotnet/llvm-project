@@ -40,20 +40,20 @@ stages:
               imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:centos-7-bfcd90a-20200121150017
               rootfs: 
               archflag: --arch x64
-#            arm64:
-#              poolname: Hosted Ubuntu 1604
-#              assetManifestOS: linux
-#              assetManifestPlatform: arm64
-#              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-16.04-cross-arm64-cfdd435-20200121150126
-#              rootfs: /crossrootfs/arm64
-#              archflag: --arch arm64
-#            arm:
-#              poolname: Hosted Ubuntu 1604
-#              assetManifestOS: linux
-#              assetManifestPlatform: arm
-#              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-16.04-cross-09ec757-20200320131433
-#              rootfs: /crossrootfs/arm
-#              archflag: --arch arm
+            arm64:
+              poolname: Hosted Ubuntu 1604
+              assetManifestOS: linux
+              assetManifestPlatform: arm64
+              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-16.04-cross-arm64-cfdd435-20200121150126
+              rootfs: /crossrootfs/arm64
+              archflag: --arch arm64
+            arm:
+              poolname: Hosted Ubuntu 1604
+              assetManifestOS: linux
+              assetManifestPlatform: arm
+              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-16.04-cross-09ec757-20200320131433
+              rootfs: /crossrootfs/arm
+              archflag: --arch arm
         pool:
           name: $(poolname)
         container:
