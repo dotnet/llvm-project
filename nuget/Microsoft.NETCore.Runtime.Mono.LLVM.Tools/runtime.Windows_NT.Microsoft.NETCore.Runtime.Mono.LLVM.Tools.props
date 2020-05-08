@@ -2,6 +2,7 @@
 <Project>
   <ItemGroup>
     <File Include="..\..\artifacts\tmp\InstallRoot\bin\llc.exe" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="..\..\artifacts\tmp\InstallRoot\bin\llvm-as.exe" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="..\..\artifacts\tmp\InstallRoot\bin\opt.exe" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
   </ItemGroup>
 </Project>
