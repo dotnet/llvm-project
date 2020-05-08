@@ -82,6 +82,7 @@
       <_LLVMBuildArgs Include='-DLLVM_INCLUDE_EXAMPLES:BOOL=OFF' />
       <_LLVMBuildArgs Include='-DLLVM_TOOLS_TO_BUILD="opt%3Bllc%3Bllvm-config%3Bllvm-dis%3Bllvm-mc%3Bllvm-as"' />
       <_LLVMBuildArgs Include='-DLLVM_ENABLE_LIBXML2:BOOL=OFF' />
+      <_LLVMBuildArgs Include='-DLLVM_ENABLE_TERMINFO:BOOL=OFF' />
     </ItemGroup>
 
     <Exec WorkingDirectory="$(_LLVMBuildDir)"
