@@ -5,7 +5,7 @@
   <Import Project="../Directory.Build.props" />
   <Import Project="$(NuGetPackageRoot)\microsoft.dotnet.build.tasks.packaging\$(MicrosoftDotNetBuildTasksPackagingVersion)\build\Microsoft.DotNet.Build.Tasks.Packaging.props" />
   <Import Project="packaging.props" />
-  
+
   <PropertyGroup>
     <!-- defined in Packaging.targets, but we need this before targets are imported -->
     <PackagePlatform>AnyCPU</PackagePlatform>
