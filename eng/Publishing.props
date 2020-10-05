@@ -1,2 +1,6 @@
-<PublishingVersion>3</PublishingVersion>
-
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+   <PropertyGroup>
+      <PublishingVersion>3</PublishingVersion>
+   </PropertyGroup>
+</Project>
