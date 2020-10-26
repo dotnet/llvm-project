@@ -118,6 +118,17 @@ stages:
               poolname: Hosted VS2017
               assetManifestOS: win
               assetManifestPlatform: x64
+              archflag: -arch x64
+            arm64:
+              poolname: Hosted VS2017
+              assetManifestOS: win
+              assetManifestPlatform: arm64
+              archflag: -arch arm64
+            arm:
+              poolname: Hosted VS2017
+              assetManifestOS: win
+              assetManifestPlatform: arm
+              archflag: -arch arm
         pool:
           name: $(poolname)
         steps:
@@ -127,7 +138,7 @@ stages:
             git reset --hard HEAD
           displayName: 'Clean up working directory'
 
-        - powershell: eng\build.ps1 -ci -restore -build -pack -configuration $(_BuildConfig) $(_InternalBuildArgs)
+        - powershell: eng\build.ps1 -ci -restore -build -pack $(archflag) -configuration $(_BuildConfig) $(_InternalBuildArgs)
           displayName: 'Build and package'
 
         - powershell: eng\common\build.ps1 -ci -restore -publish -configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) -projects $(Build.SourcesDirectory)\llvm.proj
