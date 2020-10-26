@@ -24,7 +24,7 @@
 
   <Target Name="_LLVMBuildWindows" Condition="'$(BuildOS)' == 'Windows_NT'">
     <Exec WorkingDirectory="$(_LLVMBuildDir)"
-          Command="$(_LLVMSourceDir)/scripts/ci/run-jenkins-windows.bat &quot;$(_LLVMSourceDir)&quot; &quot;$(_LLVMBuildDir)&quot; &quot;$(_LLVMInstallDir)&quot;"
+          Command="$(_LLVMSourceDir)/scripts/ci/run-jenkins-windows.bat &quot;$(_LLVMSourceDir)&quot; &quot;$(_LLVMBuildDir)&quot; &quot;$(_LLVMInstallDir)&quot; &quot;$(TargetArchitecture)&quot;"
           IgnoreStandardErrorWarningFormat="true" />
   </Target>
 

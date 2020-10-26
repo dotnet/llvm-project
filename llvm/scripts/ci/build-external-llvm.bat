@@ -109,6 +109,12 @@ set LLVM_ARCH=x86_64
 if /i "%VS_PLATFORM%" == "win32" (
     set LLVM_ARCH=i386
 )
+if /i "%VS_PLATFORM%" == "arm" (
+    set LLVM_ARCH=arm
+)
+if /i "%VS_PLATFORM%" == "arm64" (
+    set LLVM_ARCH=arm64
+)
 
 :: Check if executed from VS2015/VS2017 build environment.
 if "%VisualStudioVersion%" == "14.0" (
