@@ -2,13 +2,11 @@ trigger:
   batch: true
   branches:
     include:
-    - release/6.x
     - release/9.x
 
 pr:
   branches:
     include:
-    - release/6.x
     - release/9.x
 
 variables:
@@ -34,28 +32,28 @@ stages:
         strategy:
           matrix:
             x64:
-              poolname: Hosted Ubuntu 1604
+              vmImageName: ubuntu-16.04
               assetManifestOS: linux
               assetManifestPlatform: x64
               imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:centos-7-bfcd90a-20200121150017
               rootfs: 
               archflag: --arch x64
             arm64:
-              poolname: Hosted Ubuntu 1604
+              vmImageName: ubuntu-16.04
               assetManifestOS: linux
               assetManifestPlatform: arm64
               imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-16.04-cross-arm64-cfdd435-20200121150126
               rootfs: /crossrootfs/arm64
               archflag: --arch arm64
             arm:
-              poolname: Hosted Ubuntu 1604
+              vmImageName: ubuntu-16.04
               assetManifestOS: linux
               assetManifestPlatform: arm
               imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-16.04-cross-09ec757-20200320131433
               rootfs: /crossrootfs/arm
               archflag: --arch arm
         pool:
-          name: $(poolname)
+          vmImage: $(vmImageName)
         container:
           image: $(imagename)
         steps:
@@ -83,21 +81,17 @@ stages:
         strategy:
           matrix:
             x64:
-              poolname: Hosted macOS
+              vmImageName: macOS-10.15
               assetManifestOS: osx
               assetManifestPlatform: x64
         pool:
-          name: $(poolname)
+          vmImage: $(vmImageName)
         steps:
         - bash: |
             set -ex
             git clean -ffdx
             git reset --hard HEAD
           displayName: 'Clean up working directory'
-
-        - bash: |
-            brew install autoconf automake libtool
-          displayName: 'Prepare macOS dependencies'
 
         - bash: |
             ./build.sh --ci --restore --build --pack --configuration $(_BuildConfig) $(_InternalBuildArgs)
@@ -115,22 +109,25 @@ stages:
         strategy:
           matrix:
             x64:
-              poolname: Hosted VS2017
+              vmImageName: windows-2019
               assetManifestOS: win
               assetManifestPlatform: x64
               archflag: -arch x64
+              LLVMTableGenArg:
             arm64:
-              poolname: Hosted VS2017
+              vmImageName: windows-2019
               assetManifestOS: win
               assetManifestPlatform: arm64
               archflag: -arch arm64
+              LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\llvm-tblgen.exe
             arm:
-              poolname: Hosted VS2017
+              vmImageName: windows-2019
               assetManifestOS: win
               assetManifestPlatform: arm
               archflag: -arch arm
+              LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\llvm-tblgen.exe
         pool:
-          name: $(poolname)
+          vmImage: $(vmImageName)
         steps:
         - bash: |
             set -ex
@@ -138,7 +135,11 @@ stages:
             git reset --hard HEAD
           displayName: 'Clean up working directory'
 
-        - powershell: eng\build.ps1 -ci -restore -build -pack $(archflag) -configuration $(_BuildConfig) $(_InternalBuildArgs)
+        - powershell: eng\build.ps1 -ci -restore -build -arch x64 -configuration $(_BuildConfig) $(_InternalBuildArgs) /p:BuildLLVMTableGenOnly=true
+          displayName: 'Build host llvm-tblgen for cross-compiling'
+          condition: and(succeeded(), ne(variables['assetManifestPlatform'], 'x64'))
+
+        - powershell: eng\build.ps1 -ci -restore -build -pack $(archflag) -configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg)
           displayName: 'Build and package'
 
         - powershell: eng\common\build.ps1 -ci -restore -publish -configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) -projects $(Build.SourcesDirectory)\llvm.proj

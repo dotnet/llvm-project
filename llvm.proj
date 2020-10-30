@@ -3,16 +3,98 @@
   <Import Project="Directory.Build.targets" />
 
   <PropertyGroup>
-    <_LLVMSourceDir Condition="'$(_LLVMBuildDir)'==''">$(MSBuildProjectDirectory)/llvm</_LLVMSourceDir>
-    <_LLVMBuildDir Condition="'$(_LLVMBuildDir)'==''">$(MSBuildProjectDirectory)/artifacts/tmp/BuildRoot</_LLVMBuildDir>
-    <_LLVMInstallDir Condition="'$(_LLVMInstallDir)'==''">$(MSBuildProjectDirectory)/artifacts/tmp/InstallRoot</_LLVMInstallDir>
+    <CMakeGenerator Condition="$(CMakeGenerator) == '' and '$(BuildOS)' != 'Windows_NT'">Unix Makefiles</CMakeGenerator>
+    <CMakeGenerator Condition="$(CMakeGenerator) == '' and '$(BuildOS)' == 'Windows_NT'">Ninja</CMakeGenerator>
+    <_VCVarsScriptName Condition="'$(BuildOS)' == 'Windows_NT'">vcvars64.bat</_VCVarsScriptName>
+    <_VCVarsScriptName Condition="'$(BuildOS)' == 'Windows_NT' and '$(TargetArchitecture)' == 'arm64'">vcvarsamd64_arm64.bat</_VCVarsScriptName>
+    <_VCVarsScriptName Condition="'$(BuildOS)' == 'Windows_NT' and '$(TargetArchitecture)' == 'arm'">vcvarsamd64_arm.bat</_VCVarsScriptName>
+    <_SetupEnvironment Condition="'$(BuildOS)' == 'Windows_NT'">
+    :: VisualStudio includes vswhere.exe that can be used to locate current VisualStudio installation.
+    set VSWHERE_TOOLS_BIN=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe
+    set VS_VCINSTALL_DIR=
+
+    :: Try to locate installed VisualStudio VC environment.
+    if exist "%VSWHERE_TOOLS_BIN%" (
+        for /f "tokens=*" %%a in ('"%VSWHERE_TOOLS_BIN%" -latest -property installationPath') do (
+            set VS_VCINSTALL_DIR=%%a\VC\
+        )
+    )
+    :: Run VS build environment script.
+    call "%VS_VCINSTALL_DIR%\Auxiliary\Build\$(_VCVarsScriptName)"
+
+    </_SetupEnvironment>
+    <_CMakeConfigureCommand>$(_SetupEnvironment) cmake $(_LLVMSourceDir) -G "$(CMakeGenerator)" @(_LLVMBuildArgs->'%(Identity)',' ')</_CMakeConfigureCommand>
+    <_BuildSubset Condition="'$(BuildLLVMTableGenOnly)' == 'true'">llvm-tblgen</_BuildSubset>
+    <_BuildCommand Condition="'$(CMakeGenerator)' == 'Unix Makefiles'">$(_SetupEnvironment) make $(_BuildSubset) -j$([System.Environment]::ProcessorCount)</_BuildCommand>
+    <_BuildCommand Condition="'$(CMakeGenerator)' == 'Ninja'">$(_SetupEnvironment) ninja $(_BuildSubset)</_BuildCommand>
+    <_CMakeInstallCommand>$(_SetupEnvironment) cmake -DCMAKE_INSTALL_PREFIX=$(_LLVMInstallDir) -P cmake_install.cmake</_CMakeInstallCommand>
   </PropertyGroup>
+
+<!---DLLVM_TABLEGEN=C:\Users\Alexander\Desktop\llvm-project\build-x64\bin\llvm-tblgen.exe-->
+
+  <ItemGroup>
+    <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64'" Include="-DLLVM_TARGET_ARCH=AARCH64" />
+    <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm'" Include="-DLLVM_TARGET_ARCH=ARM" />
+    <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'Windows_NT'" Include="-DLLVM_DEFAULT_TARGET_TRIPLE=aarch64-windows-msvc" />
+    <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm' and '$(BuildOS)' == 'Windows_NT'" Include="-DLLVM_DEFAULT_TARGET_TRIPLE=arm-windows-msvc" />
+    <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'Linux'" Include="-DLLVM_DEFAULT_TARGET_TRIPLE=aarch64-linux-gnu" />
+    <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm' and '$(BuildOS)' == 'Linux'" Include="-DLLVM_DEFAULT_TARGET_TRIPLE=arm-linux-gnueabihf" />
+    <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm' or '$(TargetArchitecture)' == 'arm64'" Include="-DCMAKE_CROSSCOMPILING:BOOL=ON" />
+    <_LLVMBuildArgs Condition="'$(LLVMTableGenPath)' != ''" Include='-DLLVM_TABLEGEN="$(LLVMTableGenPath)"' />
+    <_LLVMBuildArgs Include="-DCMAKE_BUILD_TYPE=Release" />
+    <_LLVMBuildArgs Include="-DLLVM_BUILD_LLVM_C_DYLIB:BOOL=OFF" />
+    <_LLVMBuildArgs Include="-DLLVM_ENABLE_DIA_SDK:BOOL=OFF" />
+    <_LLVMBuildArgs Include="-DLLVM_INCLUDE_TESTS:BOOL=OFF" />
+    <_LLVMBuildArgs Include='-DLLVM_TARGETS_TO_BUILD="X86%3BAArch64%3BARM"' />
+    <_LLVMBuildArgs Include='-DLLVM_BUILD_TESTS:BOOL=OFF' />
+    <_LLVMBuildArgs Include='-DLLVM_BUILD_EXAMPLES:BOOL=OFF' />
+    <_LLVMBuildArgs Include='-DLLVM_INCLUDE_EXAMPLES:BOOL=OFF' />
+    <_LLVMBuildArgs Include='-DLLVM_TOOLS_TO_BUILD="opt%3Bllc%3Bllvm-config%3Bllvm-dis%3Bllvm-mc%3Bllvm-as"' />
+    <_LLVMBuildArgs Include='-DLLVM_ENABLE_LIBXML2:BOOL=OFF' />
+    <_LLVMBuildArgs Include='-DLLVM_ENABLE_TERMINFO:BOOL=OFF' />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(BuildOS)' != 'Windows_NT'">
+    <_CrossCFlags Condition="'$(TargetArchitecture)' == 'arm64'">--target=aarch64-linux-gnu --sysroot=$(ROOTFS_DIR)</_CrossCFlags>
+    <_CrossCFlags Condition="'$(TargetArchitecture)' == 'arm'">--target=arm-linux-gnueabihf --sysroot=$(ROOTFS_DIR)</_CrossCFlags>
+    <_ExeLinkerFlags>$(_CrossCFlags)</_ExeLinkerFlags>
+    <_ExeLinkerFlags Condition="'$(BuildOS)' == 'Linux'">-Wl,--build-id $(_ExeLinkerFlags)</_ExeLinkerFlags>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(BuildOS)' != 'Windows_NT' and ('$(TargetArchitecture)' == 'arm' or '$(TargetArchitecture)' == 'arm64')">
+    <_LLVMBuildArgs Include='-DCMAKE_MODULE_LINKER_FLAGS="$(_CrossCFlags)"' />
+    <_LLVMBuildArgs Include='-DCMAKE_SHARED_LINKER_FLAGS="$(_CrossCFlags)"' />
+    <_LLVMBuildArgs Condition="'$(LLVMTableGenPath)' == ''" Include='-DLLVM_TABLEGEN="/usr/bin/llvm-tblgen-9"' />
+    <_LLVMBuildArgs Include="-DCMAKE_C_COMPILER=clang-9" />
+    <_LLVMBuildArgs Include="-DCMAKE_CXX_COMPILER=clang++-9" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(BuildOS)' != 'Windows_NT'">
+    <_LLVMBuildArgs Include='-DCMAKE_C_FLAGS="-I../llvm/include -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CrossCFlags)"' />
+    <_LLVMBuildArgs Include='-DCMAKE_CXX_FLAGS="-I../llvm/include -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CrossCFlags) "' />
+    <_LLVMBuildArgs Include='-DCMAKE_EXE_LINKER_FLAGS="$(_ExeLinkerFlags)"' />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'OSX'" Include='-DCMAKE_OSX_DEPLOYMENT_TARGET=10.13' />
+  </ItemGroup>
 
   <Target Name="_LLVMBeforeBuild">
     <MakeDir Directories="$(_LLVMBuildDir)" Condition="!Exists('$(_LLVMBuildDir)')" />
   </Target>
 
-  <Target Name="_LLVMAfterBuild">
+  <Target Name="_LLVMBuild">
+    <Exec WorkingDirectory="$(_LLVMBuildDir)"
+          Command="$(_CMakeConfigureCommand)"
+          Condition="!Exists('$(_LLVMBuildDir)/CMakeCache.txt')"
+          IgnoreStandardErrorWarningFormat="true" />
+    <Exec WorkingDirectory="$(_LLVMBuildDir)"
+          Command="$(_BuildCommand)"
+          IgnoreStandardErrorWarningFormat="true" />
+    <Exec WorkingDirectory="$(_LLVMBuildDir)"
+          Command="$(_CMakeInstallCommand)"
+          IgnoreStandardErrorWarningFormat="true"
+          Condition="'$(BuildLLVMTableGenOnly)' != 'true'" />
+  </Target>
+
+  <Target Name="_LLVMAfterBuild" Condition="'$(BuildLLVMTableGenOnly)' != 'true'">
     <RemoveDir Directories="$(_LLVMInstallDir)/share" />
     <ItemGroup>
       <FilesToDelete Include="$(_LLVMInstallDir)/lib/libLTO*" />
@@ -22,66 +104,7 @@
     <Delete Files="@(FilesToDelete)" ContinueOnError="true" TreatErrorsAsWarnings="true" />
   </Target>
 
-  <Target Name="_LLVMBuildWindows" Condition="'$(BuildOS)' == 'Windows_NT'">
-    <Exec WorkingDirectory="$(_LLVMBuildDir)"
-          Command="$(_LLVMSourceDir)/scripts/ci/run-jenkins-windows.bat &quot;$(_LLVMSourceDir)&quot; &quot;$(_LLVMBuildDir)&quot; &quot;$(_LLVMInstallDir)&quot; &quot;$(TargetArchitecture)&quot;"
-          IgnoreStandardErrorWarningFormat="true" />
-  </Target>
-
-  <Target Name="_LLVMBuildNonWindows" Condition="'$(BuildOS)' != 'Windows_NT'">
-    <PropertyGroup Condition=" '$(TargetArchitecture)' == 'arm64' ">
-      <_CrossCFlags>--target=aarch64-linux-gnu --sysroot=$(ROOTFS_DIR)</_CrossCFlags>
-    </PropertyGroup>
-    <ItemGroup Condition=" '$(TargetArchitecture)' == 'arm64' ">
-      <_LLVMBuildArgs Include="-DLLVM_TARGET_ARCH=AARCH64" />
-      <_LLVMBuildArgs Include="-DLLVM_DEFAULT_TARGET_TRIPLE=aarch64-linux-gnu" />
-    </ItemGroup>
-
-    <PropertyGroup Condition=" '$(TargetArchitecture)' == 'arm' ">
-      <_CrossCFlags>--target=arm-linux-gnueabihf --sysroot=$(ROOTFS_DIR)</_CrossCFlags>
-    </PropertyGroup>
-    <ItemGroup Condition=" '$(TargetArchitecture)' == 'arm' ">
-      <_LLVMBuildArgs Include="-DLLVM_TARGET_ARCH=ARM" />
-      <_LLVMBuildArgs Include="-DLLVM_DEFAULT_TARGET_TRIPLE=arm-linux-gnueabihf" />
-    </ItemGroup>
-
-    <ItemGroup Condition=" '$(TargetArchitecture)' == 'arm' Or '$(TargetArchitecture)' == 'arm64' ">
-      <_LLVMBuildArgs Include="-DCMAKE_CROSSCOMPILING:BOOL=ON" />
-      <_LLVMBuildArgs Include='-DCMAKE_EXE_LINKER_FLAGS="$(_CrossCFlags)"' />
-      <_LLVMBuildArgs Include='-DCMAKE_MODULE_LINKER_FLAGS="$(_CrossCFlags)"' />
-      <_LLVMBuildArgs Include='-DCMAKE_SHARED_LINKER_FLAGS="$(_CrossCFlags)"' />
-      <_LLVMBuildArgs Include='-DLLVM_TABLEGEN="/usr/bin/llvm-tblgen-9"' />
-      <_LLVMBuildArgs Include="-DCMAKE_C_COMPILER=clang-9" />
-      <_LLVMBuildArgs Include="-DCMAKE_CXX_COMPILER=clang++-9" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <_LLVMBuildArgs Include="-DCMAKE_BUILD_TYPE=Release" />
-      <_LLVMBuildArgs Include="-DLLVM_INCLUDE_TESTS:BOOL=OFF" />
-      <_LLVMBuildArgs Include='-DCMAKE_C_FLAGS="-I../llvm/include -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CrossCFlags)"' />
-      <_LLVMBuildArgs Include='-DCMAKE_CXX_FLAGS="-I../llvm/include -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CrossCFlags) "' />
-      <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include='-DCMAKE_EXE_LINKER_FLAGS="-Wl,--build-id"' />
-      <_LLVMBuildArgs Include='-DLLVM_TARGETS_TO_BUILD="X86%3BAArch64%3BARM"' />
-      <_LLVMBuildArgs Include='-DLLVM_BUILD_TESTS:BOOL=OFF' />
-      <_LLVMBuildArgs Include='-DLLVM_BUILD_EXAMPLES:BOOL=OFF' />
-      <_LLVMBuildArgs Include='-DLLVM_INCLUDE_EXAMPLES:BOOL=OFF' />
-      <_LLVMBuildArgs Include='-DLLVM_TOOLS_TO_BUILD="opt%3Bllc%3Bllvm-config%3Bllvm-dis%3Bllvm-mc%3Bllvm-as"' />
-      <_LLVMBuildArgs Include='-DLLVM_ENABLE_LIBXML2:BOOL=OFF' />
-      <_LLVMBuildArgs Include='-DLLVM_ENABLE_TERMINFO:BOOL=OFF' />
-    </ItemGroup>
-
-    <Exec WorkingDirectory="$(_LLVMBuildDir)"
-          Command="cmake $(_LLVMSourceDir) @(_LLVMBuildArgs->'%(Identity)',' ')"
-          Condition="!Exists('$(_LLVMBuildDir)/CMakeCache.txt')"
-          IgnoreStandardErrorWarningFormat="true" />
-    <Exec WorkingDirectory="$(_LLVMBuildDir)"
-          Command="make all -j8"
-          IgnoreStandardErrorWarningFormat="true"  />
-    <Exec WorkingDirectory="$(_LLVMBuildDir)"
-          Command="cmake -DCMAKE_INSTALL_PREFIX=$(_LLVMInstallDir) -P cmake_install.cmake" />
-  </Target>
-
-  <Target Name="Build" DependsOnTargets="_LLVMBeforeBuild;_LLVMBuildWindows;_LLVMBuildNonWindows;_LLVMAfterBuild" />
+  <Target Name="Build" DependsOnTargets="_LLVMBeforeBuild;_LLVMBuild;_LLVMAfterBuild" />
   <Target Name="Restore" />
   <Target Name="Test" />
   <Target Name="Pack" DependsOnTargets="Build">
