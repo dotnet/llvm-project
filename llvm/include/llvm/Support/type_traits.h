@@ -182,7 +182,7 @@ class is_trivially_copyable {
       (has_deleted_copy_assign || has_trivial_copy_assign) &&
       (has_deleted_copy_constructor || has_trivial_copy_constructor);
 
-#ifdef HAVE_STD_IS_TRIVIALLY_COPYABLE
+#if 0 // see https://reviews.llvm.org/D86126
   static_assert(value == std::is_trivially_copyable<T>::value,
                 "inconsistent behavior between llvm:: and std:: implementation of is_trivially_copyable");
 #endif
