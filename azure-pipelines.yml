@@ -84,6 +84,12 @@ stages:
               vmImageName: macOS-10.15
               assetManifestOS: osx
               assetManifestPlatform: x64
+              archflag: --arch x64
+            arm64:
+              vmImageName: macOS-10.15
+              assetManifestOS: osx
+              assetManifestPlatform: arm64
+              archflag: --arch arm64
         pool:
           vmImage: $(vmImageName)
         steps:
@@ -94,7 +100,7 @@ stages:
           displayName: 'Clean up working directory'
 
         - bash: |
-            ./build.sh --ci --restore --build --pack --configuration $(_BuildConfig) $(_InternalBuildArgs)
+            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs)
           displayName: 'Build and package'
 
         - bash: 

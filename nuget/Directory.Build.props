@@ -12,7 +12,8 @@
 
     <!-- Distro rid is passed as runtimeos-arch-->
     <_parseDistroRid>$(__DistroRid)</_parseDistroRid>
-    <_parseDistroRid Condition="'$(_parseDistroRid)' == '' and '$(__BuildOS)' == 'OSX'">osx.10.12-x64</_parseDistroRid>
+    <_parseDistroRid Condition="'$(_parseDistroRid)' == '' and '$(__BuildOS)' == 'OSX' and '$(Platform)' == 'arm64'">osx.11.0-arm64</_parseDistroRid>
+    <_parseDistroRid Condition="'$(_parseDistroRid)' == '' and '$(__BuildOS)' == 'OSX' and '$(Platform)' != 'arm64'">osx.10.12-x64</_parseDistroRid>
     <_distroRidIndex>$(_parseDistroRid.IndexOfAny("-"))</_distroRidIndex>
     <_archRidIndex>$([MSBuild]::Add($(_distroRidIndex), 1))</_archRidIndex>
     <OSRid Condition="'$(OSRid)' == '' and '$(_distroRidIndex)' != '-1'">$(_parseDistroRid.SubString(0, $(_distroRidIndex)))</OSRid>
@@ -78,7 +79,8 @@
     </When>
     <When Condition="'$(_runtimeOSFamily)' == 'osx'">
       <PropertyGroup>
-        <PackageRID>osx.10.12-$(ArchGroup)</PackageRID>
+        <PackageRID Condition="'$(ArchGroup)' != 'arm64'">osx.10.12-$(ArchGroup)</PackageRID>
+        <PackageRID Condition="'$(ArchGroup)' == 'arm64'">osx.11.0-$(ArchGroup)</PackageRID>
         <!-- Set the platform part of the RID if we are doing a portable build -->
         <PackageRID Condition="'$(PortableBuild)' == 'true'">osx-$(ArchGroup)</PackageRID>
       </PropertyGroup>
