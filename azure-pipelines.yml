@@ -91,7 +91,7 @@ stages:
               assetManifestOS: osx
               assetManifestPlatform: arm64
               archflag: --arch arm64
-              LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\llvm-tblgen
+              LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/llvm-tblgen
         pool:
           vmImage: $(vmImageName)
         steps:
