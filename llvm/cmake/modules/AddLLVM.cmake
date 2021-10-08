@@ -1980,6 +1980,8 @@ function(llvm_externalize_debuginfo name)
   if(APPLE)
     if(LLVM_EXTERNALIZE_DEBUGINFO_EXTENSION)
       set(file_ext ${LLVM_EXTERNALIZE_DEBUGINFO_EXTENSION})
+    elseif(LLVM_EXTERNALIZE_DEBUGINFO_FLATTEN)
+      set(file_ext dwarf)
     else()
       set(file_ext dSYM)
     endif()
@@ -1990,6 +1992,12 @@ function(llvm_externalize_debuginfo name)
       set(output_path "-o=${LLVM_EXTERNALIZE_DEBUGINFO_OUTPUT_DIR}/${output_name}")
     else()
       set(output_path "-o=${output_name}")
+    endif()
+
+    if(LLVM_EXTERNALIZE_DEBUGINFO_FLATTEN)
+      set(flatten_debuginfo "--flat")
+    else()
+      set(flatten_debuginfo "")
     endif()
 
     if(CMAKE_CXX_FLAGS MATCHES "-flto"
@@ -2004,7 +2012,7 @@ function(llvm_externalize_debuginfo name)
     endif()
     add_custom_command(TARGET ${name} POST_BUILD
       WORKING_DIRECTORY ${LLVM_RUNTIME_OUTPUT_INTDIR}
-      COMMAND ${CMAKE_DSYMUTIL} ${output_path} $<TARGET_FILE:${name}>
+      COMMAND ${CMAKE_DSYMUTIL} ${flatten_debuginfo} ${output_path} $<TARGET_FILE:${name}>
       ${strip_command}
       )
   else()
