@@ -3,6 +3,9 @@
   <Import Project="Directory.Build.targets" />
 
   <PropertyGroup>
+    <_LlvmConfiguration Condition="'$(Configuration)' == 'Debug'">$(Configuration)</_LlvmConfiguration>
+    <!-- Override configuration from Release to RelWithDebInfo, so we get meaningful debug info (including .pdb on Windows) -->
+    <_LlvmConfiguration Condition="'$(Configuration)' == 'Release'">RelWithDebInfo</_LlvmConfiguration>
     <CMakeGenerator Condition="$(CMakeGenerator) == '' and '$(BuildOS)' != 'Windows_NT'">Unix Makefiles</CMakeGenerator>
     <CMakeGenerator Condition="$(CMakeGenerator) == '' and '$(BuildOS)' == 'Windows_NT'">Ninja</CMakeGenerator>
     <_VCVarsScriptName Condition="'$(BuildOS)' == 'Windows_NT'">vcvars64.bat</_VCVarsScriptName>
@@ -43,7 +46,7 @@
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'OSX'" Include="-DCMAKE_OSX_ARCHITECTURES=arm64"/>
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm' or '$(TargetArchitecture)' == 'arm64'" Include="-DCMAKE_CROSSCOMPILING:BOOL=ON" />
     <_LLVMBuildArgs Condition="'$(LLVMTableGenPath)' != ''" Include='-DLLVM_TABLEGEN="$(LLVMTableGenPath)"' />
-    <_LLVMBuildArgs Include="-DCMAKE_BUILD_TYPE=Release" />
+    <_LLVMBuildArgs Include="-DCMAKE_BUILD_TYPE=$(_LlvmConfiguration)" />
     <_LLVMBuildArgs Include="-DLLVM_BUILD_LLVM_C_DYLIB:BOOL=OFF" />
     <_LLVMBuildArgs Include="-DLLVM_ENABLE_DIA_SDK:BOOL=OFF" />
     <_LLVMBuildArgs Include="-DLLVM_INCLUDE_TESTS:BOOL=OFF" />
