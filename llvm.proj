@@ -30,7 +30,7 @@
     <_BuildSubset Condition="'$(BuildLLVMTableGenOnly)' == 'true'">llvm-tblgen</_BuildSubset>
     <_BuildCommand Condition="'$(CMakeGenerator)' == 'Unix Makefiles'">$(_SetupEnvironment) make $(_BuildSubset) -j$([System.Environment]::ProcessorCount)</_BuildCommand>
     <_BuildCommand Condition="'$(CMakeGenerator)' == 'Ninja'">$(_SetupEnvironment) ninja $(_BuildSubset)</_BuildCommand>
-    <_CMakeInstallCommand>$(_SetupEnvironment) cmake -DCMAKE_INSTALL_PREFIX=$(_LLVMInstallDir) -P cmake_install.cmake</_CMakeInstallCommand>
+    <_CMakeInstallCommand>$(_SetupEnvironment) cmake -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_PREFIX=$(_LLVMInstallDir) -P cmake_install.cmake</_CMakeInstallCommand>
   </PropertyGroup>
 
 <!---DLLVM_TABLEGEN=C:\Users\Alexander\Desktop\llvm-project\build-x64\bin\llvm-tblgen.exe-->
