@@ -57,6 +57,7 @@
     <_LLVMBuildArgs Include='-DLLVM_TOOLS_TO_BUILD="opt%3Bllc%3Bllvm-config%3Bllvm-dis%3Bllvm-mc%3Bllvm-as"' />
     <_LLVMBuildArgs Include='-DLLVM_ENABLE_LIBXML2:BOOL=OFF' />
     <_LLVMBuildArgs Include='-DLLVM_ENABLE_TERMINFO:BOOL=OFF' />
+    <_LLVMBuildArgs Include='-DLLVM_EXTERNALIZE_DEBUGINFO:BOOL=ON' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT'" Include='-DLLVM_USE_CRT_DEBUG=MT' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT'" Include='-DLLVM_USE_CRT_RELEASE=MT' />
   </ItemGroup>
