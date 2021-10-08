@@ -2003,6 +2003,7 @@ function(llvm_externalize_debuginfo name)
       set(CMAKE_DSYMUTIL xcrun dsymutil)
     endif()
     add_custom_command(TARGET ${name} POST_BUILD
+      WORKING_DIRECTORY ${LLVM_RUNTIME_OUTPUT_INTDIR}
       COMMAND ${CMAKE_DSYMUTIL} ${output_path} $<TARGET_FILE:${name}>
       ${strip_command}
       )
@@ -2020,6 +2021,7 @@ function(llvm_externalize_debuginfo name)
       # If an output dir is specified, it must be manually mkdir'd on Linux,
       # as that directory needs to exist before we can pipe to a file in it.
       add_custom_command(TARGET ${name} POST_BUILD
+        WORKING_DIRECTORY ${LLVM_RUNTIME_OUTPUT_INTDIR}
         COMMAND ${CMAKE_COMMAND} -E make_directory ${LLVM_EXTERNALIZE_DEBUGINFO_OUTPUT_DIR}
         )
     else()
@@ -2027,6 +2029,7 @@ function(llvm_externalize_debuginfo name)
     endif()
 
     add_custom_command(TARGET ${name} POST_BUILD
+      WORKING_DIRECTORY ${LLVM_RUNTIME_OUTPUT_INTDIR}
       COMMAND ${CMAKE_OBJCOPY} --only-keep-debug $<TARGET_FILE:${name}> ${output_path}
       ${strip_command} -R .gnu_debuglink
       COMMAND ${CMAKE_OBJCOPY} --add-gnu-debuglink=${output_path} $<TARGET_FILE:${name}>
