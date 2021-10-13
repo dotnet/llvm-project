@@ -787,10 +787,14 @@ endmacro(add_llvm_library name)
 
 macro(add_llvm_executable name)
   cmake_parse_arguments(ARG
-    "DISABLE_LLVM_LINK_LLVM_DYLIB;IGNORE_EXTERNALIZE_DEBUGINFO;NO_INSTALL_RPATH;SUPPORT_PLUGINS"
+    "DISABLE_LLVM_LINK_LLVM_DYLIB;IGNORE_EXTERNALIZE_DEBUGINFO;NO_INSTALL_RPATH;SUPPORT_PLUGINS;DEBUGINFO_INSTALL"
     "ENTITLEMENTS;BUNDLE_PATH"
     "DEPENDS"
     ${ARGN})
+
+  if(ARG_DEBUGINFO_INSTALL)
+    set(DEBUGINFO_INSTALL "DEBUGINFO_INSTALL")
+  endif()
 
   llvm_process_sources( ALL_FILES ${ARG_UNPARSED_ARGUMENTS} )
 
@@ -870,7 +874,7 @@ macro(add_llvm_executable name)
   endif( LLVM_COMMON_DEPENDS )
 
   if(NOT ARG_IGNORE_EXTERNALIZE_DEBUGINFO)
-    llvm_externalize_debuginfo(${name})
+    llvm_externalize_debuginfo(${name} ${DEBUGINFO_INSTALL})
   endif()
   if (LLVM_PTHREAD_LIB)
     # libpthreads overrides some standard library symbols, so main
@@ -1165,7 +1169,12 @@ macro(add_llvm_tool name)
   if( NOT LLVM_BUILD_TOOLS )
     set(EXCLUDE_FROM_ALL ON)
   endif()
-  add_llvm_executable(${name} ${ARGN})
+
+  if ( (${name} IN_LIST LLVM_TOOLCHAIN_TOOLS OR NOT LLVM_INSTALL_TOOLCHAIN_ONLY) AND LLVM_BUILD_TOOLS )
+    set(DEBUGINFO_INSTALL "DEBUGINFO_INSTALL")
+  endif()
+
+  add_llvm_executable(${name} ${DEBUGINFO_INSTALL} ${ARGN})
 
   if ( ${name} IN_LIST LLVM_TOOLCHAIN_TOOLS OR NOT LLVM_INSTALL_TOOLCHAIN_ONLY)
     if( LLVM_BUILD_TOOLS )
@@ -1224,7 +1233,11 @@ macro(add_llvm_utility name)
     set(EXCLUDE_FROM_ALL ON)
   endif()
 
-  add_llvm_executable(${name} DISABLE_LLVM_LINK_LLVM_DYLIB ${ARGN})
+  if (NOT LLVM_INSTALL_TOOLCHAIN_ONLY AND LLVM_INSTALL_UTILS AND LLVM_BUILD_UTILS)
+    set(DEBUGINFO_INSTALL "DEBUGINFO_INSTALL")
+  endif()
+
+  add_llvm_executable(${name} DISABLE_LLVM_LINK_LLVM_DYLIB ${DEBUGINFO_INSTALL} ${ARGN})
   set_target_properties(${name} PROPERTIES FOLDER "Utils")
   if (NOT LLVM_INSTALL_TOOLCHAIN_ONLY)
     if (LLVM_INSTALL_UTILS AND LLVM_BUILD_UTILS)
@@ -1966,6 +1979,8 @@ function(llvm_externalize_debuginfo name)
     return()
   endif()
 
+  cmake_parse_arguments(ARG "DEBUGINFO_INSTALL" "" "" ${ARGN})
+
   if(NOT LLVM_EXTERNALIZE_DEBUGINFO_SKIP_STRIP)
     if(APPLE)
       if(NOT CMAKE_STRIP)
@@ -1989,10 +2004,11 @@ function(llvm_externalize_debuginfo name)
     set(output_name "$<TARGET_FILE_NAME:${name}>.${file_ext}")
 
     if(LLVM_EXTERNALIZE_DEBUGINFO_OUTPUT_DIR)
-      set(output_path "-o=${LLVM_EXTERNALIZE_DEBUGINFO_OUTPUT_DIR}/${output_name}")
+      set(output_path "${LLVM_EXTERNALIZE_DEBUGINFO_OUTPUT_DIR}/${output_name}")
     else()
-      set(output_path "-o=${output_name}")
+      set(output_path "${output_name}")
     endif()
+    set(output_flag "-o=${output_path}")
 
     if(LLVM_EXTERNALIZE_DEBUGINFO_FLATTEN)
       set(flatten_debuginfo "--flat")
@@ -2012,9 +2028,17 @@ function(llvm_externalize_debuginfo name)
     endif()
     add_custom_command(TARGET ${name} POST_BUILD
       WORKING_DIRECTORY ${LLVM_RUNTIME_OUTPUT_INTDIR}
-      COMMAND ${CMAKE_DSYMUTIL} ${flatten_debuginfo} ${output_path} $<TARGET_FILE:${name}>
+      COMMAND ${CMAKE_DSYMUTIL} ${flatten_debuginfo} ${output_flag} $<TARGET_FILE:${name}>
       ${strip_command}
       )
+    if(LLVM_EXTERNALIZE_DEBUGINFO_INSTALL AND ARG_DEBUGINFO_INSTALL)
+      get_filename_component(debuginfo_absolute_path ${output_path} REALPATH BASE_DIR $<TARGET_FILE_DIR:${name}>)
+      install(FILES ${debuginfo_absolute_path} DESTINATION bin OPTIONAL COMPONENT ${name})
+    endif()
+  elseif(WIN32)
+    if(LLVM_EXTERNALIZE_DEBUGINFO_INSTALL AND ARG_DEBUGINFO_INSTALL)
+      install(FILES $<TARGET_PDB_FILE:${name}> DESTINATION bin OPTIONAL COMPONENT ${name})
+    endif()
   else()
     if(LLVM_EXTERNALIZE_DEBUGINFO_EXTENSION)
       set(file_ext ${LLVM_EXTERNALIZE_DEBUGINFO_EXTENSION})
@@ -2042,6 +2066,10 @@ function(llvm_externalize_debuginfo name)
       ${strip_command} -R .gnu_debuglink
       COMMAND ${CMAKE_OBJCOPY} --add-gnu-debuglink=${output_path} $<TARGET_FILE:${name}>
       )
+    if(LLVM_EXTERNALIZE_DEBUGINFO_INSTALL AND ARG_DEBUGINFO_INSTALL)
+      get_filename_component(debuginfo_absolute_path ${output_path} REALPATH BASE_DIR $<TARGET_FILE_DIR:${name}>)
+      install(FILES ${debuginfo_absolute_path} DESTINATION bin OPTIONAL COMPONENT ${name})
+    endif()
   endif()
 endfunction()
 
