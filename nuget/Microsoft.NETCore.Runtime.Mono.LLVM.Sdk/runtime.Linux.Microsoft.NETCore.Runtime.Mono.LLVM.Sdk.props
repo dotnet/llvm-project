@@ -2,8 +2,11 @@
 <Project>
   <ItemGroup>
     <File Include="$(_LLVMInstallDir)\bin\llvm-config" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-config.dbg" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\llvm-dis" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-dis.dbg" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\llvm-tblgen" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-tblgen.dbg" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\lib\**" Exclude="libLTO*" TargetPath="tools\$(PackageTargetRuntime)\lib\%(RecursiveDir)%(Filename)%(Extension)" />
     <File Include="$(_LLVMInstallDir)\include\**" Exclude="libLTO*" TargetPath="tools\$(PackageTargetRuntime)\include\%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
