@@ -32,7 +32,7 @@ stages:
         strategy:
           matrix:
             x64:
-              vmImageName: ubuntu-16.04
+              vmImageName: ubuntu-20.04
               assetManifestOS: linux
               assetManifestPlatform: x64
               imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:centos-7-bfcd90a-20200121150017
@@ -40,7 +40,7 @@ stages:
               archflag: --arch x64
               LLVMTableGenArg: 
             arm64:
-              vmImageName: ubuntu-16.04
+              vmImageName: ubuntu-20.04
               assetManifestOS: linux
               assetManifestPlatform: arm64
               imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-16.04-cross-arm64-cfdd435-20200121150126
@@ -48,7 +48,7 @@ stages:
               archflag: --arch arm64
               LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/llvm-tblgen
             arm:
-              vmImageName: ubuntu-16.04
+              vmImageName: ubuntu-20.04
               assetManifestOS: linux
               assetManifestPlatform: arm
               imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-16.04-cross-09ec757-20200320131433
