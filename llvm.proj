@@ -41,8 +41,8 @@
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'Linux'" Include="-DCMAKE_OBJCOPY=/usr/bin/aarch64-linux-gnu-objcopy" />
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'Linux'" Include="-DCMAKE_STRIP=/usr/bin/aarch64-linux-gnu-strip" />
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm' and '$(BuildOS)' == 'Linux'" Include="-DLLVM_DEFAULT_TARGET_TRIPLE=arm-linux-gnueabihf" />
-    <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm' and '$(BuildOS)' == 'Linux'" Include="-DCMAKE_OBJCOPY=arm-linux-gnueabihf-objcopy" />
-    <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm' and '$(BuildOS)' == 'Linux'" Include="-DCMAKE_STRIP=arm-linux-gnueabihf-strip" />
+    <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm' and '$(BuildOS)' == 'Linux'" Include="-DCMAKE_OBJCOPY=/usr/bin/arm-linux-gnueabihf-objcopy" />
+    <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm' and '$(BuildOS)' == 'Linux'" Include="-DCMAKE_STRIP=/usr/bin/arm-linux-gnueabihf-strip" />
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'OSX'" Include="-DLLVM_DEFAULT_TARGET_TRIPLE=arm64-apple-darwin" />
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'OSX'" Include="-DCMAKE_OSX_ARCHITECTURES=arm64"/>
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm' or '$(TargetArchitecture)' == 'arm64'" Include="-DCMAKE_CROSSCOMPILING:BOOL=ON" />
