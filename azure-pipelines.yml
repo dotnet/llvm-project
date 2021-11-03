@@ -35,7 +35,7 @@ stages:
               vmImageName: ubuntu-20.04
               assetManifestOS: linux
               assetManifestPlatform: x64
-              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:centos-7-20210714125435-9b5bbc2
+              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:centos-7-bfcd90a-20200121150017
               rootfs: 
               archflag: --arch x64
               LLVMTableGenArg: 
@@ -43,7 +43,7 @@ stages:
               vmImageName: ubuntu-20.04
               assetManifestOS: linux
               assetManifestPlatform: arm64
-              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-16.04-cross-arm64-20210719121212-8a8d3be
+              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-16.04-cross-arm64-cfdd435-20200121150126
               rootfs: /crossrootfs/arm64
               archflag: --arch arm64
               LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/llvm-tblgen
@@ -51,7 +51,7 @@ stages:
               vmImageName: ubuntu-20.04
               assetManifestOS: linux
               assetManifestPlatform: arm
-              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-16.04-cross-20210719121212-8a8d3be
+              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-16.04-cross-09ec757-20200320131433
               rootfs: /crossrootfs/arm
               archflag: --arch arm
               LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/llvm-tblgen
