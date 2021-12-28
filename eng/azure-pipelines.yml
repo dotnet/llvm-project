@@ -38,6 +38,7 @@ stages:
               assetManifestPlatform: x64
               imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:centos-7-20220716123527-d0bc8ed
               rootfs: 
+              clangtarget: 
               archflag: --arch x64
               LLVMTableGenArg: 
               ClangTableGenArg: 
@@ -47,6 +48,7 @@ stages:
               assetManifestPlatform: arm64
               imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-16.04-cross-arm64-cfdd435-20200121150126
               rootfs: /crossrootfs/arm64
+              clangtarget: aarch64-linux-gnu
               archflag: --arch arm64
               LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/llvm-tblgen
               ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/clang-tblgen
@@ -56,6 +58,7 @@ stages:
               assetManifestPlatform: arm
               imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-16.04-cross-09ec757-20200320131433
               rootfs: /crossrootfs/arm
+              clangtarget: arm-linux-gnueabihf
               archflag: --arch arm
               LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/llvm-tblgen
               ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/clang-tblgen
@@ -85,6 +88,63 @@ stages:
           displayName: 'Build and package'
           env:
             ROOTFS_DIR: $(rootfs)
+            CLANG_TARGET: $(clangtarget)
+
+        - bash: |
+            ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) --projects $(Build.SourcesDirectory)/llvm.proj
+          displayName: Publish packages
+          condition: and(succeeded(), ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest'))
+
+      ############ LINUX MUSL BUILD ############
+      - job: Build_Linux_musl
+        displayName: Linux_musl
+        timeoutInMinutes: 120
+        strategy:
+          matrix:
+            x64:
+              assetManifestOS: linux-musl
+              assetManifestPlatform: x64
+              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:alpine-3.13-WithNode-20210910135845-c401c85
+              rootfs: 
+              clangtarget: 
+              archflag: --arch x64
+              LLVMTableGenArg: 
+              ClangTableGenArg: 
+            arm64:
+              assetManifestOS: linux-musl
+              assetManifestPlatform: arm64
+              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-16.04-cross-arm64-alpine-20210923140502-78f7860
+              rootfs: /crossrootfs/arm64
+              clangtarget: aarch64-alpine-linux-musl
+              archflag: --arch arm64
+              LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/llvm-tblgen
+              ClangTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/clang-tblgen
+        pool:
+          ${{ if eq(variables['System.TeamProject'], 'public') }}:
+            vmImage: ubuntu-20.04
+          ${{ if eq(variables['System.TeamProject'], 'internal') }}:
+            name: NetCore1ESPool-Internal
+            demands: ImageOverride -equals Build.Ubuntu.1804.Amd64
+        container:
+          image: $(imagename)
+        steps:
+        - bash: |
+            set -ex
+            git clean -ffdx
+            git reset --hard HEAD
+          displayName: 'Clean up working directory'
+
+        - bash: |
+            ./build.sh --ci --restore --build --arch x64 -configuration $(_BuildConfig) $(_InternalBuildArgs) /p:BuildLLVMTableGenOnly=true
+          displayName: 'Build host llvm-tblgen for cross-compiling'
+          condition: and(succeeded(), ne(variables['assetManifestPlatform'], 'x64'))
+
+        - bash: |
+            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg) /p:OutputRid=linux-musl-$(assetManifestPlatform)
+          displayName: 'Build and package'
+          env:
+            ROOTFS_DIR: $(rootfs)
+            CLANG_TARGET: $(clangtarget)
 
         - bash: |
             ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) --projects $(Build.SourcesDirectory)/llvm.proj

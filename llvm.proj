@@ -28,9 +28,11 @@
     </_SetupEnvironment>
     <_CMakeConfigureCommand>$(_SetupEnvironment) cmake $(_LLVMSourceDir) -G "$(CMakeGenerator)" @(_LLVMBuildArgs->'%(Identity)',' ')</_CMakeConfigureCommand>
     <_BuildSubset Condition="'$(BuildLLVMTableGenOnly)' == 'true'">llvm-tblgen clang-tblgen</_BuildSubset>
+    <_BuildSubset Condition="'$(BuildObjWriterOnly)' == 'true'">objwriter</_BuildSubset>
     <_BuildCommand Condition="'$(CMakeGenerator)' == 'Unix Makefiles'">$(_SetupEnvironment) make $(_BuildSubset) -j$([System.Environment]::ProcessorCount)</_BuildCommand>
     <_BuildCommand Condition="'$(CMakeGenerator)' == 'Ninja'">$(_SetupEnvironment) ninja $(_BuildSubset)</_BuildCommand>
-    <_CMakeInstallCommand>$(_SetupEnvironment) cmake -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_PREFIX=$(_LLVMInstallDir) -P cmake_install.cmake</_CMakeInstallCommand>
+    <_CMakeInstallCommand Condition="'$(BuildObjWriterOnly)' == 'true'">$(_SetupEnvironment) cmake -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_PREFIX=$(_LLVMInstallDir) -DCMAKE_INSTALL_COMPONENT=objwriter -P cmake_install.cmake</_CMakeInstallCommand>
+    <_CMakeInstallCommand Condition="'$(BuildObjWriterOnly)' != 'true'">$(_SetupEnvironment) cmake -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_PREFIX=$(_LLVMInstallDir) -P cmake_install.cmake</_CMakeInstallCommand>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(ForceDevtoolset7)' == 'true'">
@@ -91,16 +93,16 @@
   </ItemGroup>
 
   <PropertyGroup Condition="'$(BuildOS)' != 'Windows_NT'">
-    <_CrossCFlags Condition="'$(BuildOS)' == 'Linux' and '$(TargetArchitecture)' == 'arm64'">--target=aarch64-linux-gnu --sysroot=$(ROOTFS_DIR)</_CrossCFlags>
-    <_CrossCFlags Condition="'$(BuildOS)' == 'Linux' and '$(TargetArchitecture)' == 'arm'">--target=arm-linux-gnueabihf --sysroot=$(ROOTFS_DIR)</_CrossCFlags>
+    <_CrossCFlags Condition="'$(BuildOS)' == 'Linux' and ('$(TargetArchitecture)' == 'arm64' or '$(TargetArchitecture)' == 'arm')">--target=$(CLANG_TARGET) --sysroot=$(ROOTFS_DIR)</_CrossCFlags>
     <_CrossCFlags Condition="'$(BuildOS)' == 'OSX' and '$(TargetArchitecture)' == 'arm64'">--target=aarch64-apple-darwin</_CrossCFlags>
     <_ExeLinkerFlags>$(_CrossCFlags)</_ExeLinkerFlags>
     <_ExeLinkerFlags Condition="'$(BuildOS)' == 'Linux'">-Wl,--build-id $(_ExeLinkerFlags)</_ExeLinkerFlags>
+    <_SharedLinkerFlags>$(_CrossCFlags)</_SharedLinkerFlags>
+    <_SharedLinkerFlags Condition="'$(BuildOS)' == 'Linux'">-Wl,--build-id $(_SharedLinkerFlags)</_SharedLinkerFlags>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(BuildOS)' != 'Windows_NT' and ('$(TargetArchitecture)' == 'arm' or '$(TargetArchitecture)' == 'arm64')">
     <_LLVMBuildArgs Include='-DCMAKE_MODULE_LINKER_FLAGS="$(_CrossCFlags)"' />
-    <_LLVMBuildArgs Include='-DCMAKE_SHARED_LINKER_FLAGS="$(_CrossCFlags)"' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include="-DCMAKE_C_COMPILER=clang-9" />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include="-DCMAKE_CXX_COMPILER=clang++-9" />
   </ItemGroup>
@@ -109,6 +111,7 @@
     <_LLVMBuildArgs Include='-DCMAKE_C_FLAGS="-I../llvm/include -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CrossCFlags)"' />
     <_LLVMBuildArgs Include='-DCMAKE_CXX_FLAGS="-I../llvm/include $(Devtoolset7CompileFlag) -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CrossCFlags) "' />
     <_LLVMBuildArgs Include='-DCMAKE_EXE_LINKER_FLAGS="$(Devtoolset7LinkFlag) $(_ExeLinkerFlags)"' />
+    <_LLVMBuildArgs Include='-DCMAKE_SHARED_LINKER_FLAGS="$(_SharedLinkerFlags)"' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'OSX' and '$(TargetArchitecture)' == 'arm64'" Include='-DCMAKE_OSX_DEPLOYMENT_TARGET=11.0' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'OSX' and '$(TargetArchitecture)' == 'x64'" Include='-DCMAKE_OSX_DEPLOYMENT_TARGET=10.13' />
   </ItemGroup>
