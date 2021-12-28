@@ -90,7 +90,7 @@ stages:
           matrix:
             x64:
               vmImageName: ubuntu-20.04
-              assetManifestOS: linux
+              assetManifestOS: linux-musl
               assetManifestPlatform: x64
               imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:alpine-3.13-WithNode-20210910135845-c401c85
               rootfs: 
@@ -98,7 +98,7 @@ stages:
               LLVMTableGenArg: 
             arm64:
               vmImageName: ubuntu-20.04
-              assetManifestOS: linux
+              assetManifestOS: linux-musl
               assetManifestPlatform: arm64
               imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-16.04-cross-arm64-alpine-20210923140502-78f7860
               rootfs: /crossrootfs/arm64
