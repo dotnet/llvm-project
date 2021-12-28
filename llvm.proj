@@ -64,6 +64,8 @@
   <ItemGroup Condition="'$(BuildOS)' != 'Windows_NT' and ('$(TargetArchitecture)' == 'arm' or '$(TargetArchitecture)' == 'arm64')">
     <_LLVMBuildArgs Include='-DCMAKE_MODULE_LINKER_FLAGS="$(_CrossCFlags)"' />
     <_LLVMBuildArgs Include='-DCMAKE_SHARED_LINKER_FLAGS="$(_CrossCFlags)"' />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include="-DCMAKE_C_COMPILER=clang" />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include="-DCMAKE_CXX_COMPILER=clang++" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(BuildOS)' != 'Windows_NT'">
