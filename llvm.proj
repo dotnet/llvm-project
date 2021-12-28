@@ -54,8 +54,8 @@
   </ItemGroup>
 
   <PropertyGroup Condition="'$(BuildOS)' != 'Windows_NT'">
-    <_CrossCFlags Condition="'$(BuildOS)' == 'Linux' and '$(TargetArchitecture)' == 'arm64'">--target=aarch64-linux-gnu --sysroot=$(ROOTFS_DIR)</_CrossCFlags>
-    <_CrossCFlags Condition="'$(BuildOS)' == 'Linux' and '$(TargetArchitecture)' == 'arm'">--target=arm-linux-gnueabihf --sysroot=$(ROOTFS_DIR)</_CrossCFlags>
+    <_CrossCFlags Condition="'$(BuildOS)' == 'Linux' and '$(TargetArchitecture)' == 'arm64'">--target=aarch64-linux-gnu --sysroot=$(ROOTFS_DIR) -fuse-ld=lld</_CrossCFlags>
+    <_CrossCFlags Condition="'$(BuildOS)' == 'Linux' and '$(TargetArchitecture)' == 'arm'">--target=arm-linux-gnueabihf --sysroot=$(ROOTFS_DIR) -fuse-ld=lld</_CrossCFlags>
     <_CrossCFlags Condition="'$(BuildOS)' == 'OSX' and '$(TargetArchitecture)' == 'arm64'">--target=aarch64-apple-darwin</_CrossCFlags>
     <_ExeLinkerFlags>$(_CrossCFlags)</_ExeLinkerFlags>
     <_ExeLinkerFlags Condition="'$(BuildOS)' == 'Linux'">-Wl,--build-id $(_ExeLinkerFlags)</_ExeLinkerFlags>
