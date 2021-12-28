@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.Build.Traversal">
   <ItemGroup>
-    <ProjectReference Include="Microsoft.NETCore.Runtime.Mono.LLVM.Sdk\Microsoft.NETCore.Runtime.Mono.LLVM.Sdk.builds" />
-    <ProjectReference Include="Microsoft.NETCore.Runtime.Mono.LLVM.Tools\Microsoft.NETCore.Runtime.Mono.LLVM.Tools.builds" />
+    <ProjectReference Include="Microsoft.NETCore.Runtime.ObjWriter\Microsoft.NETCore.Runtime.ObjWriter.builds" />
   </ItemGroup>
 
   <!-- Generate a version.txt file we include in our packages

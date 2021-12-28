@@ -353,9 +353,10 @@ COFFSymbol *WinCOFFObjectWriter::getLinkedSymbol(const MCSymbol &Symbol) {
     return nullptr;
 
   const MCSymbol &Aliasee = SymRef->getSymbol();
-  if (!Aliasee.isUndefined())
+  if (Aliasee.isUndefined() || Aliasee.isExternal())
+    return GetOrCreateCOFFSymbol(&Aliasee);
+  else
     return nullptr;
-  return GetOrCreateCOFFSymbol(&Aliasee);
 }
 
 /// This function takes a symbol data object from the assembler
@@ -793,7 +794,9 @@ void WinCOFFObjectWriter::recordRelocation(MCAssembler &Asm,
   if ((Header.Machine == COFF::IMAGE_FILE_MACHINE_AMD64 &&
        Reloc.Data.Type == COFF::IMAGE_REL_AMD64_REL32) ||
       (Header.Machine == COFF::IMAGE_FILE_MACHINE_I386 &&
-       Reloc.Data.Type == COFF::IMAGE_REL_I386_REL32))
+       Reloc.Data.Type == COFF::IMAGE_REL_I386_REL32) ||
+      (Header.Machine == COFF::IMAGE_FILE_MACHINE_ARM64 &&
+       Reloc.Data.Type == COFF::IMAGE_REL_ARM64_REL32))
     FixedValue += 4;
 
   if (Header.Machine == COFF::IMAGE_FILE_MACHINE_ARMNT) {

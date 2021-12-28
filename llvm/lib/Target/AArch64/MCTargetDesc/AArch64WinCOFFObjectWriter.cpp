@@ -91,6 +91,9 @@ unsigned AArch64WinCOFFObjectWriter::getRelocType(
   case FK_Data_8:
     return COFF::IMAGE_REL_ARM64_ADDR64;
 
+  case FK_PCRel_4:
+    return COFF::IMAGE_REL_ARM64_REL32;
+
   case FK_SecRel_2:
     return COFF::IMAGE_REL_ARM64_SECTION;
 

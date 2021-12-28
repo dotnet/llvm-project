@@ -43,7 +43,7 @@ protected:
 } // end anonymous namespace
 
 AArch64ELFObjectWriter::AArch64ELFObjectWriter(uint8_t OSABI, bool IsILP32)
-    : MCELFObjectTargetWriter(/*Is64Bit*/ true, OSABI, ELF::EM_AARCH64,
+    : MCELFObjectTargetWriter(/*Is64Bit*/ !IsILP32, OSABI, ELF::EM_AARCH64,
                               /*HasRelocationAddend*/ true),
       IsILP32(IsILP32) {}
 
@@ -130,6 +130,7 @@ unsigned AArch64ELFObjectWriter::getRelocType(MCContext &Ctx,
       return ELF::R_AARCH64_NONE;
     case FK_Data_2:
       return R_CLS(PREL16);
+    case FK_PCRel_4:
     case FK_Data_4: {
       return Target.getAccessVariant() == MCSymbolRefExpr::VK_PLT
                  ? R_CLS(PLT32)
@@ -322,7 +323,11 @@ unsigned AArch64ELFObjectWriter::getRelocType(MCContext &Ctx,
       if (SymLoc == AArch64MCExpr::VK_ABS && IsNC)
         return R_CLS(LDST64_ABS_LO12_NC);
       if (SymLoc == AArch64MCExpr::VK_GOT && IsNC) {
+        AArch64MCExpr::VariantKind AddressLoc =
+            AArch64MCExpr::getAddressFrag(RefKind);
         if (!IsILP32) {
+          if (AddressLoc == AArch64MCExpr::VK_LO15)
+            return ELF::R_AARCH64_LD64_GOTPAGE_LO15;
           return ELF::R_AARCH64_LD64_GOT_LO12_NC;
         } else {
           Ctx.reportError(Fixup.getLoc(), "ILP32 64-bit load/store "

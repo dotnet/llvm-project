@@ -4,5 +4,6 @@ target triple = "x86_64-unknown-linux-gnu"
 declare void @bar()
 
 define void @foo() {
+  call void @bar()
   ret void
 }

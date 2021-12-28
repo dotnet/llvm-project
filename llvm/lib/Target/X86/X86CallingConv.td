@@ -336,6 +336,9 @@ def RetCC_X86_64_C : CallingConv<[
   // MMX vector types are always returned in XMM0.
   CCIfType<[x86mmx], CCAssignToReg<[XMM0, XMM1]>>,
 
+  // Pointers are always returned in full 64-bit registers.
+  CCIfPtr<CCCustom<"CC_X86_64_Pointer">>,
+
   CCIfSwiftError<CCIfType<[i64], CCAssignToReg<[R12]>>>,
 
   CCDelegateTo<RetCC_X86Common>
@@ -517,6 +520,9 @@ def CC_X86_64_C : CallingConv<[
   // For Swift Calling Convention, pass sret in %rax.
   CCIfCC<"CallingConv::Swift",
     CCIfSRet<CCIfType<[i64], CCAssignToReg<[RAX]>>>>,
+
+  // Pointers are always passed in full 64-bit registers.
+  CCIfPtr<CCCustom<"CC_X86_64_Pointer">>,
 
   // The first 6 integer arguments are passed in integer registers.
   CCIfType<[i32], CCAssignToReg<[EDI, ESI, EDX, ECX, R8D, R9D]>>,
@@ -727,15 +733,6 @@ def CC_X86_64_WebKit_JS : CallingConv<[
 // builds. On Release builds we fallback to the X86 C calling convention.
 def CC_X86_64_AnyReg : CallingConv<[
   CCCustom<"CC_X86_AnyReg_Error">
-]>;
-
-def CC_X86_64_Mono : CallingConv<[
-  CCIfInReg<CCAssignToReg<[R10]>>,
-
-  // Mingw64 and native Win64 use Win64 CC
-  CCIfSubtarget<"isTargetWin64()", CCDelegateTo<CC_X86_Win64_C>>,
-  // Otherwise, drop to normal X86-64 CC
-  CCDelegateTo<CC_X86_64_C>
 ]>;
 
 //===----------------------------------------------------------------------===//
@@ -1015,12 +1012,6 @@ def CC_Intel_OCL_BI : CallingConv<[
   CCDelegateTo<CC_X86_32_C>
 ]>;
 
-def CC_X86_32_Mono : CallingConv<[
-  CCIfInReg<CCAssignToReg<[EDX]>>,
-
-  CCDelegateTo<CC_X86_32_C>
-]>;
-
 //===----------------------------------------------------------------------===//
 // X86 Root Argument Calling Conventions
 //===----------------------------------------------------------------------===//
@@ -1040,7 +1031,6 @@ def CC_X86_32 : CallingConv<[
   CCIfCC<"CallingConv::GHC", CCDelegateTo<CC_X86_32_GHC>>,
   CCIfCC<"CallingConv::HiPE", CCDelegateTo<CC_X86_32_HiPE>>,
   CCIfCC<"CallingConv::X86_RegCall", CCDelegateTo<CC_X86_32_RegCall>>,
-  CCIfCC<"CallingConv::Mono", CCDelegateTo<CC_X86_32_Mono>>,
 
   // Otherwise, drop to normal X86-32 CC
   CCDelegateTo<CC_X86_32_C>
@@ -1061,7 +1051,6 @@ def CC_X86_64 : CallingConv<[
     CCIfSubtarget<"isTargetWin64()", CCDelegateTo<CC_X86_Win64_RegCall>>>,
   CCIfCC<"CallingConv::X86_RegCall", CCDelegateTo<CC_X86_SysV64_RegCall>>,
   CCIfCC<"CallingConv::X86_INTR", CCCustom<"CC_X86_Intr">>,
-  CCIfCC<"CallingConv::Mono", CCDelegateTo<CC_X86_64_Mono>>,
 
   // Mingw64 and native Win64 use Win64 CC
   CCIfSubtarget<"isTargetWin64()", CCDelegateTo<CC_X86_Win64_C>>,
@@ -1111,11 +1100,11 @@ def CSR_64_CXX_TLS_Darwin_PE : CalleeSavedRegs<(add RBP)>;
 // CSRs that are handled explicitly via copies.
 def CSR_64_CXX_TLS_Darwin_ViaCopy : CalleeSavedRegs<(sub CSR_64_TLS_Darwin, RBP)>;
 
-// All GPRs - except r11/rsp
+// All GPRs - except r11
 def CSR_64_RT_MostRegs : CalleeSavedRegs<(add CSR_64, RAX, RCX, RDX, RSI, RDI,
                                               R8, R9, R10)>;
 
-// All registers - except r11/rsp
+// All registers - except r11
 def CSR_64_RT_AllRegs     : CalleeSavedRegs<(add CSR_64_RT_MostRegs,
                                                  (sequence "XMM%u", 0, 15))>;
 def CSR_64_RT_AllRegs_AVX : CalleeSavedRegs<(add CSR_64_RT_MostRegs,
@@ -1171,17 +1160,16 @@ def CSR_64_Intel_OCL_BI_AVX512 : CalleeSavedRegs<(add RBX, RSI, R14, R15,
 def CSR_64_HHVM : CalleeSavedRegs<(add R12)>;
 
 // Register calling convention preserves few GPR and XMM8-15
-def CSR_32_RegCall_NoSSE : CalleeSavedRegs<(add ESI, EDI, EBX, EBP, ESP)>;
+def CSR_32_RegCall_NoSSE : CalleeSavedRegs<(add ESI, EDI, EBX, EBP)>;
 def CSR_32_RegCall       : CalleeSavedRegs<(add CSR_32_RegCall_NoSSE,
                                            (sequence "XMM%u", 4, 7))>;
 def CSR_Win32_CFGuard_Check_NoSSE : CalleeSavedRegs<(add CSR_32_RegCall_NoSSE, ECX)>;
 def CSR_Win32_CFGuard_Check       : CalleeSavedRegs<(add CSR_32_RegCall, ECX)>;
-def CSR_Win64_RegCall_NoSSE : CalleeSavedRegs<(add RBX, RBP, RSP,
+def CSR_Win64_RegCall_NoSSE : CalleeSavedRegs<(add RBX, RBP,
                                               (sequence "R%u", 10, 15))>;
 def CSR_Win64_RegCall       : CalleeSavedRegs<(add CSR_Win64_RegCall_NoSSE,                                  
                                               (sequence "XMM%u", 8, 15))>;
-def CSR_SysV64_RegCall_NoSSE : CalleeSavedRegs<(add RBX, RBP, RSP,
+def CSR_SysV64_RegCall_NoSSE : CalleeSavedRegs<(add RBX, RBP,
                                                (sequence "R%u", 12, 15))>;
 def CSR_SysV64_RegCall       : CalleeSavedRegs<(add CSR_SysV64_RegCall_NoSSE,               
                                                (sequence "XMM%u", 8, 15))>;
-                                               

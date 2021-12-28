@@ -1,6 +1,4 @@
-if(NOT LLVM_BUILD_EXECUTION_ENGINE)
-    set(EXCLUDE_FROM_ALL ON)
-endif()
+
 
 add_llvm_component_library(LLVMExecutionEngine
   ExecutionEngine.cpp
@@ -14,20 +12,25 @@ add_llvm_component_library(LLVMExecutionEngine
 
   DEPENDS
   intrinsics_gen
+
+  LINK_COMPONENTS
+  Core
+  MC
+  Object
+  RuntimeDyld
+  Support
+  Target
   )
 
 if(BUILD_SHARED_LIBS)
   target_link_libraries(LLVMExecutionEngine PUBLIC LLVMRuntimeDyld)
 endif()
 
-if(LLVM_BUILD_EXECUTION_ENGINE)
 add_subdirectory(Interpreter)
 add_subdirectory(JITLink)
 add_subdirectory(MCJIT)
-add_subdirectory(OrcError)
 add_subdirectory(Orc)
 add_subdirectory(RuntimeDyld)
-endif()
 
 if( LLVM_USE_OPROFILE )
   add_subdirectory(OProfileJIT)

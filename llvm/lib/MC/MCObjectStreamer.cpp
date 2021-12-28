@@ -223,7 +223,7 @@ void MCObjectStreamer::emitCFISections(bool EH, bool Debug) {
 }
 
 void MCObjectStreamer::emitValueImpl(const MCExpr *Value, unsigned Size,
-                                     SMLoc Loc) {
+                                     SMLoc Loc, bool isPCRelative) {
   MCStreamer::emitValueImpl(Value, Size, Loc);
   MCDataFragment *DF = getOrCreateDataFragment();
   flushPendingLabels(DF, DF->getContents().size());
@@ -243,12 +243,17 @@ void MCObjectStreamer::emitValueImpl(const MCExpr *Value, unsigned Size,
   }
   DF->getFixups().push_back(
       MCFixup::create(DF->getContents().size(), Value,
-                      MCFixup::getKindForSize(Size, false), Loc));
+                      MCFixup::getKindForSize(Size, isPCRelative), Loc));
   DF->getContents().resize(DF->getContents().size() + Size, 0);
 }
 
+void MCObjectStreamer::emitValueImpl(const MCExpr *Value, unsigned Size,
+                                     SMLoc Loc) {
+  emitValueImpl(Value, Size, Loc, false);
+}
+
 MCSymbol *MCObjectStreamer::emitCFILabel() {
-  MCSymbol *Label = getContext().createTempSymbol("cfi", true);
+  MCSymbol *Label = getContext().createTempSymbol("cfi");
   emitLabel(Label);
   return Label;
 }
@@ -665,6 +670,68 @@ void MCObjectStreamer::emitGPRel64Value(const MCExpr *Value) {
   DF->getContents().resize(DF->getContents().size() + 8, 0);
 }
 
+static Optional<std::pair<bool, std::string>>
+getOffsetAndDataFragment(const MCSymbol &Symbol, uint32_t &RelocOffset,
+                         MCDataFragment *&DF) {
+  if (Symbol.isVariable()) {
+    const MCExpr *SymbolExpr = Symbol.getVariableValue();
+    MCValue OffsetVal;
+    if(!SymbolExpr->evaluateAsRelocatable(OffsetVal, nullptr, nullptr))
+      return std::make_pair(false,
+                            std::string("symbol in .reloc offset is not "
+                                        "relocatable"));
+    if (OffsetVal.isAbsolute()) {
+      RelocOffset = OffsetVal.getConstant();
+      MCFragment *Fragment = Symbol.getFragment();
+      // FIXME Support symbols with no DF. For example:
+      // .reloc .data, ENUM_VALUE, <some expr>
+      if (!Fragment || Fragment->getKind() != MCFragment::FT_Data)
+        return std::make_pair(false,
+                              std::string("symbol in offset has no data "
+                                          "fragment"));
+      DF = cast<MCDataFragment>(Fragment);
+      return None;
+    }
+
+    if (OffsetVal.getSymB())
+      return std::make_pair(false,
+                            std::string(".reloc symbol offset is not "
+                                        "representable"));
+
+    const MCSymbolRefExpr &SRE = cast<MCSymbolRefExpr>(*OffsetVal.getSymA());
+    if (!SRE.getSymbol().isDefined())
+      return std::make_pair(false,
+                            std::string("symbol used in the .reloc offset is "
+                                        "not defined"));
+
+    if (SRE.getSymbol().isVariable())
+      return std::make_pair(false,
+                            std::string("symbol used in the .reloc offset is "
+                                        "variable"));
+
+    MCFragment *Fragment = SRE.getSymbol().getFragment();
+    // FIXME Support symbols with no DF. For example:
+    // .reloc .data, ENUM_VALUE, <some expr>
+    if (!Fragment || Fragment->getKind() != MCFragment::FT_Data)
+      return std::make_pair(false,
+                            std::string("symbol in offset has no data "
+                                        "fragment"));
+    RelocOffset = SRE.getSymbol().getOffset() + OffsetVal.getConstant();
+    DF = cast<MCDataFragment>(Fragment);
+  } else {
+    RelocOffset = Symbol.getOffset();
+    MCFragment *Fragment = Symbol.getFragment();
+    // FIXME Support symbols with no DF. For example:
+    // .reloc .data, ENUM_VALUE, <some expr>
+    if (!Fragment || Fragment->getKind() != MCFragment::FT_Data)
+      return std::make_pair(false,
+                            std::string("symbol in offset has no data "
+                                        "fragment"));
+    DF = cast<MCDataFragment>(Fragment);
+  }
+  return None;
+}
+
 Optional<std::pair<bool, std::string>>
 MCObjectStreamer::emitRelocDirective(const MCExpr &Offset, StringRef Name,
                                      const MCExpr *Expr, SMLoc Loc,
@@ -698,10 +765,17 @@ MCObjectStreamer::emitRelocDirective(const MCExpr &Offset, StringRef Name,
                           std::string(".reloc offset is not representable"));
 
   const MCSymbolRefExpr &SRE = cast<MCSymbolRefExpr>(*OffsetVal.getSymA());
-  if (SRE.getSymbol().isDefined()) {
-    // FIXME SRE.getSymbol() may not be relative to DF.
+  const MCSymbol &Symbol = SRE.getSymbol();
+  if (Symbol.isDefined()) {
+    uint32_t SymbolOffset = 0;
+    Optional<std::pair<bool, std::string>> Error;
+    Error = getOffsetAndDataFragment(Symbol, SymbolOffset, DF);
+
+    if (Error != None)
+      return Error;
+
     DF->getFixups().push_back(
-        MCFixup::create(SRE.getSymbol().getOffset() + OffsetVal.getConstant(),
+        MCFixup::create(SymbolOffset + OffsetVal.getConstant(),
                         Expr, Kind, Loc));
     return None;
   }
@@ -750,6 +824,16 @@ void MCObjectStreamer::emitFill(const MCExpr &NumValues, int64_t Size,
   insert(new MCFillFragment(Expr, Size, NumValues, Loc));
 }
 
+void MCObjectStreamer::emitNops(int64_t NumBytes, int64_t ControlledNopLength,
+                                SMLoc Loc) {
+  // Emit an NOP fragment.
+  MCDataFragment *DF = getOrCreateDataFragment();
+  flushPendingLabels(DF, DF->getContents().size());
+
+  assert(getCurrentSectionOnly() && "need a section");
+  insert(new MCNopsFragment(NumBytes, ControlledNopLength, Loc));
+}
+
 void MCObjectStreamer::emitFileDirective(StringRef Filename) {
   getAssembler().addFileName(Filename);
 }
@@ -772,6 +856,9 @@ void MCObjectStreamer::finishImpl() {
 
   // Dump out the dwarf file & directory tables and line tables.
   MCDwarfLineTable::Emit(this, getAssembler().getDWARFLinetableParams());
+
+  // Emit pseudo probes for the current module.
+  MCPseudoProbeTable::emit(this);
 
   // Update any remaining pending labels with empty data fragments.
   flushPendingLabels();

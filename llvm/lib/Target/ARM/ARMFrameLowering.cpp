@@ -352,7 +352,6 @@ void ARMFrameLowering::emitPrologue(MachineFunction &MF,
   unsigned NumBytes = MFI.getStackSize();
   const std::vector<CalleeSavedInfo> &CSI = MFI.getCalleeSavedInfo();
   int FPCXTSaveSize = 0;
-  bool AvoidNonfpCFA = false;
 
   // Debug location must be unknown since the first debug location is used
   // to determine the end of the prologue.
@@ -593,7 +592,6 @@ void ARMFrameLowering::emitPrologue(MachineFunction &MF,
                          dl, TII, FramePtr, ARM::SP,
                          PushSize + FramePtrOffsetInPush,
                          MachineInstr::FrameSetup);
-#if 0
     if (FramePtrOffsetInPush + PushSize != 0) {
       unsigned CFIIndex = MF.addFrameInst(MCCFIInstruction::cfiDefCfa(
           nullptr, MRI->getDwarfRegNum(FramePtr, true),
@@ -609,15 +607,6 @@ void ARMFrameLowering::emitPrologue(MachineFunction &MF,
           .addCFIIndex(CFIIndex)
           .setMIFlags(MachineInstr::FrameSetup);
     }
-#else
-    /* on iOS `r7 + 8` is always the previous stack pointer */
-    unsigned CFIIndex = MF.addFrameInst(MCCFIInstruction::cfiDefCfa(nullptr, MRI->getDwarfRegNum(FramePtr, true), 8));
-    BuildMI(MBB, AfterPush, dl, TII.get(TargetOpcode::CFI_INSTRUCTION))
-      .addCFIIndex(CFIIndex)
-      .setMIFlags(MachineInstr::FrameSetup);
-
-    AvoidNonfpCFA = true;
-#endif
   }
 
   // Now that the prologue's actual instructions are finalised, we can insert
@@ -706,8 +695,7 @@ void ARMFrameLowering::emitPrologue(MachineFunction &MF,
   // throughout the process. If we have a frame pointer, it takes over the job
   // half-way through, so only the first few .cfi_def_cfa_offset instructions
   // actually get emitted.
-  if (!AvoidNonfpCFA)
-    DefCFAOffsetCandidates.emitDefCFAOffsets(MBB, dl, TII, HasFP);
+  DefCFAOffsetCandidates.emitDefCFAOffsets(MBB, dl, TII, HasFP);
 
   if (STI.isTargetELF() && hasFP(MF))
     MFI.setOffsetAdjustment(MFI.getOffsetAdjustment() -
@@ -895,9 +883,10 @@ void ARMFrameLowering::emitEpilogue(MachineFunction &MF,
 /// debug info.  It's the same as what we use for resolving the code-gen
 /// references for now.  FIXME: This can go wrong when references are
 /// SP-relative and simple call frames aren't used.
-int ARMFrameLowering::getFrameIndexReference(const MachineFunction &MF, int FI,
-                                             Register &FrameReg) const {
-  return ResolveFrameIndexReference(MF, FI, FrameReg, 0);
+StackOffset ARMFrameLowering::getFrameIndexReference(const MachineFunction &MF,
+                                                     int FI,
+                                                     Register &FrameReg) const {
+  return StackOffset::getFixed(ResolveFrameIndexReference(MF, FI, FrameReg, 0));
 }
 
 int ARMFrameLowering::ResolveFrameIndexReference(const MachineFunction &MF,
@@ -2125,8 +2114,7 @@ void ARMFrameLowering::determineCalleeSaves(MachineFunction &MF,
       unsigned NumExtras = TargetAlign.value() / 4;
       SmallVector<unsigned, 2> Extras;
       while (NumExtras && !UnspilledCS1GPRs.empty()) {
-        unsigned Reg = UnspilledCS1GPRs.back();
-        UnspilledCS1GPRs.pop_back();
+        unsigned Reg = UnspilledCS1GPRs.pop_back_val();
         if (!MRI.isReserved(Reg) &&
             (!AFI->isThumb1OnlyFunction() || isARMLowRegister(Reg))) {
           Extras.push_back(Reg);
@@ -2136,8 +2124,7 @@ void ARMFrameLowering::determineCalleeSaves(MachineFunction &MF,
       // For non-Thumb1 functions, also check for hi-reg CS registers
       if (!AFI->isThumb1OnlyFunction()) {
         while (NumExtras && !UnspilledCS2GPRs.empty()) {
-          unsigned Reg = UnspilledCS2GPRs.back();
-          UnspilledCS2GPRs.pop_back();
+          unsigned Reg = UnspilledCS2GPRs.pop_back_val();
           if (!MRI.isReserved(Reg)) {
             Extras.push_back(Reg);
             NumExtras--;

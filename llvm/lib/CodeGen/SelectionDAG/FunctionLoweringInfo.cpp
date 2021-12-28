@@ -184,17 +184,6 @@ void FunctionLoweringInfo::set(const Function &fn, MachineFunction &mf,
             for (int *CatchObjPtr : Iter->second)
               *CatchObjPtr = FrameIndex;
           }
-
-          //
-          // The mono exception handling code needs to location of the 'this' pointer
-          // to handle stack traces containing generic shared methods.
-          // To implement this, it saves the this pointer to an alloca which is marked with
-          // the 'mono.this' custom metadata. We save the stack slot used by this alloca
-          // in MachineFunction, so the dwarf exception info emission code can use it to
-          // compute the reg+offset for it, and save it into the LSDA.
-          //
-          if (AI->getMetadata("mono.this"))
-            MF->setMonoThisSlot(StaticAllocaMap[AI]);
         } else {
           // FIXME: Overaligned static allocas should be grouped into
           // a single dynamic allocation instead of using a separate
@@ -208,7 +197,7 @@ void FunctionLoweringInfo::set(const Function &fn, MachineFunction &mf,
       // Look for inline asm that clobbers the SP register.
       if (auto *Call = dyn_cast<CallBase>(&I)) {
         if (Call->isInlineAsm()) {
-          unsigned SP = TLI->getStackPointerRegisterToSaveRestore();
+          Register SP = TLI->getStackPointerRegisterToSaveRestore();
           const TargetRegisterInfo *TRI = MF->getSubtarget().getRegisterInfo();
           std::vector<TargetLowering::AsmOperandInfo> Ops =
               TLI->ParseConstraints(Fn->getParent()->getDataLayout(), TRI,
@@ -371,7 +360,7 @@ void FunctionLoweringInfo::clear() {
   RegFixups.clear();
   RegsWithFixups.clear();
   StatepointStackSlots.clear();
-  StatepointSpillMaps.clear();
+  StatepointRelocationMaps.clear();
   PreferredExtendType.clear();
 }
 
@@ -469,8 +458,7 @@ void FunctionLoweringInfo::ComputePHILiveOutRegInfo(const PHINode *PN) {
   if (ConstantInt *CI = dyn_cast<ConstantInt>(V)) {
     APInt Val = CI->getValue().zextOrTrunc(BitWidth);
     DestLOI.NumSignBits = Val.getNumSignBits();
-    DestLOI.Known.Zero = ~Val;
-    DestLOI.Known.One = Val;
+    DestLOI.Known = KnownBits::makeConstant(Val);
   } else {
     assert(ValueMap.count(V) && "V should have been placed in ValueMap when its"
                                 "CopyToReg node was created.");
@@ -520,8 +508,7 @@ void FunctionLoweringInfo::ComputePHILiveOutRegInfo(const PHINode *PN) {
       return;
     }
     DestLOI.NumSignBits = std::min(DestLOI.NumSignBits, SrcLOI->NumSignBits);
-    DestLOI.Known.Zero &= SrcLOI->Known.Zero;
-    DestLOI.Known.One &= SrcLOI->Known.One;
+    DestLOI.Known = KnownBits::commonBits(DestLOI.Known, SrcLOI->Known);
   }
 }
 

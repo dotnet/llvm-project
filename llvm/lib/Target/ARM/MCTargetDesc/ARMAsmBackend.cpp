@@ -448,6 +448,8 @@ unsigned ARMAsmBackend::adjustFixupValue(const MCAssembler &Asm,
   case FK_Data_2:
   case FK_Data_4:
     return Value;
+  case FK_PCRel_4:
+    return Value;
   case FK_SecRel_2:
     return Value;
   case FK_SecRel_4:
@@ -967,6 +969,9 @@ static unsigned getFixupKindNumBytes(unsigned Kind) {
   case ARM::fixup_le:
     return 4;
 
+  case FK_PCRel_4:
+    return 4;
+
   case FK_SecRel_2:
     return 2;
   case FK_SecRel_4:
@@ -1010,6 +1015,7 @@ static unsigned getFixupKindContainerSizeBytes(unsigned Kind) {
   case ARM::fixup_t2_condbranch:
   case ARM::fixup_t2_uncondbranch:
   case ARM::fixup_t2_pcrel_10:
+  case ARM::fixup_t2_pcrel_9:
   case ARM::fixup_t2_adr_pcrel_12:
   case ARM::fixup_arm_thumb_bl:
   case ARM::fixup_arm_thumb_blx:

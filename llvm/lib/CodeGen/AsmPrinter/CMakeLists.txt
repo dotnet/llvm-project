@@ -1,6 +1,7 @@
 add_llvm_component_library(LLVMAsmPrinter
   AccelTable.cpp
   AddressPool.cpp
+  AIXException.cpp
   ARMException.cpp
   AsmPrinter.cpp
   AsmPrinterDwarf.cpp
@@ -20,12 +21,26 @@ add_llvm_component_library(LLVMAsmPrinter
   EHStreamer.cpp
   ErlangGCPrinter.cpp
   OcamlGCPrinter.cpp
+  PseudoProbePrinter.cpp
   WinCFGuard.cpp
   WinException.cpp
   CodeViewDebug.cpp
   WasmException.cpp
-  MonoException.cpp
 
   DEPENDS
   intrinsics_gen
+
+  LINK_COMPONENTS
+  Analysis
+  BinaryFormat
+  CodeGen
+  Core
+  DebugInfoCodeView
+  DebugInfoDWARF
+  DebugInfoMSF
+  MC
+  MCParser
+  Remarks
+  Support
+  Target
   )

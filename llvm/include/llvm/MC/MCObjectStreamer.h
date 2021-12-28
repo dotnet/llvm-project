@@ -120,6 +120,11 @@ public:
   void emitAssignment(MCSymbol *Symbol, const MCExpr *Value) override;
   void emitValueImpl(const MCExpr *Value, unsigned Size,
                      SMLoc Loc = SMLoc()) override;
+  /// \brief EmitValueImpl with additional param, that allows to emit PCRelative
+  /// MCFixup.
+  void emitValueImpl(const MCExpr *Value, unsigned Size, SMLoc Loc,
+                     bool isPCRelative);
+
   void emitULEB128Value(const MCExpr *Value) override;
   void emitSLEB128Value(const MCExpr *Value) override;
   void emitWeakReference(MCSymbol *Alias, const MCSymbol *Symbol) override;
@@ -148,7 +153,7 @@ public:
   void emitDwarfAdvanceLineAddr(int64_t LineDelta, const MCSymbol *LastLabel,
                                 const MCSymbol *Label, unsigned PointerSize);
   void emitDwarfAdvanceFrameAddr(const MCSymbol *LastLabel,
-                                 const MCSymbol *Label) override;
+                                 const MCSymbol *Label);
   void emitCVLocDirective(unsigned FunctionId, unsigned FileNo, unsigned Line,
                           unsigned Column, bool PrologueEnd, bool IsStmt,
                           StringRef FileName, SMLoc Loc) override;
@@ -179,6 +184,8 @@ public:
                 SMLoc Loc = SMLoc()) override;
   void emitFill(const MCExpr &NumValues, int64_t Size, int64_t Expr,
                 SMLoc Loc = SMLoc()) override;
+  void emitNops(int64_t NumBytes, int64_t ControlledNopLength,
+                SMLoc Loc) override;
   void emitFileDirective(StringRef Filename) override;
 
   void emitAddrsig() override;
