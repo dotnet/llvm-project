@@ -127,7 +127,7 @@ stages:
           condition: and(succeeded(), ne(variables['assetManifestPlatform'], 'x64'))
 
         - bash: |
-            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg)
+            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg) /p:OutputRid=linux-musl-$(assetManifestPlatform)
           displayName: 'Build and package'
           env:
             ROOTFS_DIR: $(rootfs)
