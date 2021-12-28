@@ -37,6 +37,7 @@ stages:
               assetManifestPlatform: x64
               imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:centos-7-20210714125435-9b5bbc2
               rootfs: 
+              clangtarget: 
               archflag: --arch x64
               LLVMTableGenArg: 
             arm64:
@@ -45,6 +46,7 @@ stages:
               assetManifestPlatform: arm64
               imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-16.04-cross-arm64-cfdd435-20200121150126
               rootfs: /crossrootfs/arm64
+              clangtarget: aarch64-linux-gnu
               archflag: --arch arm64
               LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/llvm-tblgen
             arm:
@@ -53,6 +55,7 @@ stages:
               assetManifestPlatform: arm
               imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-16.04-cross-09ec757-20200320131433
               rootfs: /crossrootfs/arm
+              clangtarget: arm-linux-gnueabihf
               archflag: --arch arm
               LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/llvm-tblgen
         pool:
@@ -76,6 +79,7 @@ stages:
           displayName: 'Build and package'
           env:
             ROOTFS_DIR: $(rootfs)
+            CLANG_TARGET: $(clangtarget)
 
         - bash: |
             ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) --projects $(Build.SourcesDirectory)/llvm.proj
@@ -94,6 +98,7 @@ stages:
               assetManifestPlatform: x64
               imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:alpine-3.13-WithNode-20210910135845-c401c85
               rootfs: 
+              clangtarget: 
               archflag: --arch x64
               LLVMTableGenArg: 
             arm64:
@@ -102,6 +107,7 @@ stages:
               assetManifestPlatform: arm64
               imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-16.04-cross-arm64-alpine-20210923140502-78f7860
               rootfs: /crossrootfs/arm64
+              clangtarget: aarch64-alpine-linux-musl
               archflag: --arch arm64
               LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/llvm-tblgen
         pool:
@@ -125,6 +131,7 @@ stages:
           displayName: 'Build and package'
           env:
             ROOTFS_DIR: $(rootfs)
+            CLANG_TARGET: $(clangtarget)
 
         - bash: |
             ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) --projects $(Build.SourcesDirectory)/llvm.proj
