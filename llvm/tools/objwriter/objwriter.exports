@@ -1,5 +1,6 @@
 InitObjWriter
 FinishObjWriter
+SetDwarfVersion
 SwitchSection
 SetCodeSectionAttribute
 EmitAlignment

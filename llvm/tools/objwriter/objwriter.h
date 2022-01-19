@@ -70,6 +70,7 @@ public:
   bool Init(StringRef FunctionName, const char* tripleName = nullptr);
   void Finish();
 
+  void SetDwarfVersion(uint16_t v);
   void SwitchSection(const char *SectionName,
                      CustomSectionAttributes attributes,
                      const char *ComdatName);
@@ -211,6 +212,11 @@ DLL_EXPORT STDMETHODCALLTYPE void FinishObjWriter(ObjectWriter *OW) {
   assert(OW && "ObjWriter is null");
   OW->Finish();
   delete OW;
+}
+
+DLL_EXPORT STDMETHODCALLTYPE void SetDwarfVersion(ObjectWriter *OW, uint16_t v) {
+  assert(OW && "ObjWriter is null");
+  OW->SetDwarfVersion(v);
 }
 
 DLL_EXPORT STDMETHODCALLTYPE void SwitchSection(ObjectWriter *OW, const char *SectionName,
