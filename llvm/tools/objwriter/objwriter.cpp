@@ -205,7 +205,7 @@ void ObjectWriter::Finish() {
 }
 
 void ObjectWriter::SetDwarfVersion(uint16_t v) {
-  Streamer->getContext().setDwarfVersion(5);
+  Streamer->getContext().setDwarfVersion(v);
 }
 
 void ObjectWriter::SwitchSection(const char *SectionName,
