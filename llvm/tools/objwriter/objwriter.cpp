@@ -204,6 +204,10 @@ void ObjectWriter::Finish() {
   Streamer->Finish();
 }
 
+void ObjectWriter::SetDwarfVersion(uint16_t v) {
+  Streamer->getContext().setDwarfVersion(5);
+}
+
 void ObjectWriter::SwitchSection(const char *SectionName,
                                  CustomSectionAttributes attributes,
                                  const char *ComdatName) {
