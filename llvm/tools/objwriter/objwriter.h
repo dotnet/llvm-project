@@ -157,7 +157,6 @@ private:
   void EmitCVUserDefinedTypesSymbols();
 
   void InitTripleName(const char* tripleName = nullptr);
-  Triple GetTriple();
   unsigned GetDFSize();
   void EmitRelocDirective(const int Offset, StringRef Name, const MCExpr *Expr);
   const MCExpr *GenTargetExpr(const MCSymbol* Symbol,

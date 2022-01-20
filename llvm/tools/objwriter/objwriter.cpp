@@ -67,19 +67,6 @@ void ObjectWriter::InitTripleName(const char* tripleName) {
   TripleName = tripleName != nullptr ? tripleName : sys::getDefaultTargetTriple();
 }
 
-Triple ObjectWriter::GetTriple() {
-  Triple TheTriple(TripleName);
-
-  if (TheTriple.getOS() == Triple::OSType::Darwin) {
-    TheTriple = Triple(
-        TheTriple.getArchName(), TheTriple.getVendorName(), "darwin",
-        TheTriple
-            .getEnvironmentName()); // it is workaround for llvm bug
-                                    // https://bugs.llvm.org//show_bug.cgi?id=24927.
-  }
-  return TheTriple;
-}
-
 bool ObjectWriter::Init(llvm::StringRef ObjectFilePath, const char* tripleName) {
   llvm_shutdown_obj Y; // Call llvm_shutdown() on exit.
 
@@ -88,7 +75,7 @@ bool ObjectWriter::Init(llvm::StringRef ObjectFilePath, const char* tripleName) 
   InitializeAllTargetMCs();
 
   InitTripleName(tripleName);
-  Triple TheTriple = GetTriple();
+  Triple TheTriple(TripleName);
 
   // Get the target specific parser.
   std::string TargetError;
