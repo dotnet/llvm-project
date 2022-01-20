@@ -147,6 +147,7 @@ bool ObjectWriter::Init(llvm::StringRef ObjectFilePath, const char* tripleName) 
       /*DWARFMustBeAtTheEnd*/ false);
   if (!Streamer)
     return error("no object streamer for target " + TripleName);
+  Streamer->InitSections(/* NoExecStack */ true);
   Assembler = &Streamer->getAssembler();
 
   FrameOpened = false;
