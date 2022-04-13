@@ -38,6 +38,7 @@ stages:
               rootfs: 
               archflag: --arch x64
               LLVMTableGenArg: 
+              ClangTableGenArg: 
             arm64:
               assetManifestOS: linux
               assetManifestPlatform: arm64
@@ -45,6 +46,7 @@ stages:
               rootfs: /crossrootfs/arm64
               archflag: --arch arm64
               LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/llvm-tblgen
+              ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/clang-tblgen
             arm:
               assetManifestOS: linux
               assetManifestPlatform: arm
@@ -52,6 +54,7 @@ stages:
               rootfs: /crossrootfs/arm
               archflag: --arch arm
               LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/llvm-tblgen
+              ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/clang-tblgen
         pool:
           ${{ if eq(variables['System.TeamProject'], 'public') }}:
             vmImage: ubuntu-20.04
@@ -73,7 +76,7 @@ stages:
           condition: and(succeeded(), ne(variables['assetManifestPlatform'], 'x64'))
 
         - bash: |
-            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg)
+            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg)
           displayName: 'Build and package'
           env:
             ROOTFS_DIR: $(rootfs)
@@ -94,11 +97,13 @@ stages:
               assetManifestPlatform: x64
               archflag: --arch x64
               LLVMTableGenArg: 
+              ClangTableGenArg: 
             arm64:
               assetManifestOS: osx
               assetManifestPlatform: arm64
               archflag: --arch arm64
               LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/llvm-tblgen
+              ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/clang-tblgen
         pool:
           vmImage: macOS-10.15
         steps:
@@ -114,7 +119,7 @@ stages:
           condition: and(succeeded(), ne(variables['assetManifestPlatform'], 'x64'))
 
         - bash: |
-            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg)
+            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg)
           displayName: 'Build and package'
 
         - bash: 
@@ -133,16 +138,19 @@ stages:
               assetManifestPlatform: x64
               archflag: -arch x64
               LLVMTableGenArg:
+              ClangTableGenArg:
             arm64:
               assetManifestOS: win
               assetManifestPlatform: arm64
               archflag: -arch arm64
               LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\llvm-tblgen.exe
+              ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\clang-tblgen.exe
             arm:
               assetManifestOS: win
               assetManifestPlatform: arm
               archflag: -arch arm
               LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\llvm-tblgen.exe
+              ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\clang-tblgen.exe
         pool:
           ${{ if eq(variables['System.TeamProject'], 'public') }}:
             vmImage: windows-2019
@@ -159,7 +167,7 @@ stages:
           displayName: 'Build host llvm-tblgen for cross-compiling'
           condition: and(succeeded(), ne(variables['assetManifestPlatform'], 'x64'))
 
-        - powershell: eng\build.ps1 -ci -restore -build -pack $(archflag) -configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg)
+        - powershell: eng\build.ps1 -ci -restore -build -pack $(archflag) -configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg)
           displayName: 'Build and package'
 
         - powershell: eng\common\build.ps1 -ci -restore -publish -configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) -projects $(Build.SourcesDirectory)\llvm.proj

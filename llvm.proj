@@ -27,7 +27,7 @@
 
     </_SetupEnvironment>
     <_CMakeConfigureCommand>$(_SetupEnvironment) cmake $(_LLVMSourceDir) -G "$(CMakeGenerator)" @(_LLVMBuildArgs->'%(Identity)',' ')</_CMakeConfigureCommand>
-    <_BuildSubset Condition="'$(BuildLLVMTableGenOnly)' == 'true'">llvm-tblgen</_BuildSubset>
+    <_BuildSubset Condition="'$(BuildLLVMTableGenOnly)' == 'true'">llvm-tblgen clang-tblgen</_BuildSubset>
     <_BuildCommand Condition="'$(CMakeGenerator)' == 'Unix Makefiles'">$(_SetupEnvironment) make $(_BuildSubset) -j$([System.Environment]::ProcessorCount)</_BuildCommand>
     <_BuildCommand Condition="'$(CMakeGenerator)' == 'Ninja'">$(_SetupEnvironment) ninja $(_BuildSubset)</_BuildCommand>
     <_CMakeInstallCommand>$(_SetupEnvironment) cmake -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_PREFIX=$(_LLVMInstallDir) -P cmake_install.cmake</_CMakeInstallCommand>
@@ -50,6 +50,7 @@
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'OSX'" Include="-DCMAKE_OSX_ARCHITECTURES=arm64"/>
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm' or '$(TargetArchitecture)' == 'arm64'" Include="-DCMAKE_CROSSCOMPILING:BOOL=ON" />
     <_LLVMBuildArgs Condition="'$(LLVMTableGenPath)' != ''" Include='-DLLVM_TABLEGEN="$(LLVMTableGenPath)"' />
+    <_LLVMBuildArgs Condition="'$(ClangTableGenPath)' != ''" Include='-DCLANG_TABLEGEN="$(ClangTableGenPath)"' />
     <_LLVMBuildArgs Include="-DCMAKE_BUILD_TYPE=$(Configuration)" />
     <_LLVMBuildArgs Include="-DLLVM_BUILD_LLVM_C_DYLIB:BOOL=OFF" />
     <_LLVMBuildArgs Include="-DLLVM_ENABLE_DIA_SDK:BOOL=OFF" />
@@ -70,7 +71,7 @@
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT'" Include='-DLLVM_USE_CRT_RELEASE=MT' />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetArchitecture)' != 'arm' and '$(TargetArchitecture)' != 'arm64'">
+  <ItemGroup Condition="'$(BuildOS)' == 'OSX' or ('$(TargetArchitecture)' != 'arm' and '$(TargetArchitecture)' != 'arm64')">
     <_LLVMBuildArgs Include='-DLLVM_ENABLE_PROJECTS=clang' />
     <_LLVMBuildArgs Include='-DCLANG_BUILD_TOOLS:BOOL=OFF' />
     <_LLVMBuildArgs Include='-DCLANG_INCLUDE_TESTS:BOOL=OFF' />
