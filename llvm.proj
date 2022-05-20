@@ -48,7 +48,9 @@
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm' and '$(BuildOS)' == 'Linux'" Include="-DCMAKE_STRIP=/usr/bin/arm-linux-gnueabihf-strip" />
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'OSX'" Include="-DLLVM_DEFAULT_TARGET_TRIPLE=arm64-apple-darwin" />
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'OSX'" Include="-DCMAKE_OSX_ARCHITECTURES=arm64"/>
-    <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm' or '$(TargetArchitecture)' == 'arm64'" Include="-DCMAKE_CROSSCOMPILING:BOOL=ON" />
+    <!-- Enable CMake cross-compilation support by setting CMAKE_SYSTEM_NAME manually, see https://github.com/llvm/llvm-project/issues/52819 -->
+    <_LLVMBuildArgs Condition="('$(TargetArchitecture)' == 'arm' or '$(TargetArchitecture)' == 'arm64') and '$(BuildOS)' == 'Windows_NT'" Include="-DCMAKE_SYSTEM_NAME=Windows" />
+    <_LLVMBuildArgs Condition="('$(TargetArchitecture)' == 'arm' or '$(TargetArchitecture)' == 'arm64') and '$(BuildOS)' == 'Linux'" Include="-DCMAKE_SYSTEM_NAME=Linux" />
     <_LLVMBuildArgs Condition="'$(LLVMTableGenPath)' != ''" Include='-DLLVM_TABLEGEN="$(LLVMTableGenPath)"' />
     <_LLVMBuildArgs Condition="'$(ClangTableGenPath)' != ''" Include='-DCLANG_TABLEGEN="$(ClangTableGenPath)"' />
     <_LLVMBuildArgs Include="-DCMAKE_BUILD_TYPE=$(Configuration)" />
