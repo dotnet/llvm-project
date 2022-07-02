@@ -30,7 +30,6 @@ enum DwarfAbbrev : uint16_t
   SubprogramStatic,
   SubprogramSpec,
   SubprogramStaticSpec,
-  SubprogramStaticNoChildrenSpec,
   Variable,
   VariableLoc,
   VariableStatic,
