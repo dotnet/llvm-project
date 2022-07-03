@@ -125,17 +125,6 @@ void Dump(MCObjectStreamer *Streamer, uint16_t DwarfVersion, unsigned TargetPoin
         dwarf::DW_AT_declaration, dwarf::DW_FORM_flag_present,
         0, 0,
 
-    SubprogramStaticNoChildrenSpec,
-        dwarf::DW_TAG_subprogram, dwarf::DW_CHILDREN_no,
-        dwarf::DW_AT_name, dwarf::DW_FORM_strp,
-        dwarf::DW_AT_linkage_name, dwarf::DW_FORM_strp,
-        dwarf::DW_AT_decl_file, dwarf::DW_FORM_data1,
-        dwarf::DW_AT_decl_line, dwarf::DW_FORM_data1,
-        dwarf::DW_AT_type, dwarf::DW_FORM_ref4,
-        dwarf::DW_AT_external, dwarf::DW_FORM_flag_present,
-        dwarf::DW_AT_declaration, dwarf::DW_FORM_flag_present,
-        0, 0,
-
     Variable,
         dwarf::DW_TAG_variable, dwarf::DW_CHILDREN_no,
         dwarf::DW_AT_name, dwarf::DW_FORM_strp,
