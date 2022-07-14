@@ -83,7 +83,7 @@ stages:
             CLANG_TARGET: $(clangtarget)
 
         - bash: |
-            ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) --projects $(Build.SourcesDirectory)/llvm.proj
+            ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform)
           displayName: Publish packages
           condition: and(succeeded(), ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest'))
 
