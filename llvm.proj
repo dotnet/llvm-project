@@ -34,8 +34,9 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(ForceDevtoolset7)' == 'true'">
-    <Devtoolset7LinkFlag>-L/opt/rh/devtoolset-7/root/usr/lib/gcc/x86_64-redhat-linux/7/</Devtoolset7LinkFlag>
-    <Devtoolset7CompileFlag>--gcc-toolchain=/opt/rh/devtoolset-7/root/usr/lib/gcc/x86_64-redhat-linux/7/ -I/opt/rh/devtoolset-7/root/usr/include/c++/7/ -I/opt/rh/devtoolset-7/root/usr/include/c++/7/x86_64-redhat-linux/ -B/opt/rh/devtoolset-7/root/usr/lib/gcc/x86_64-redhat-linux/7/</Devtoolset7CompileFlag>
+    <DevtoolsetRoot>/opt/rh/devtoolset-7/root</DevtoolsetRoot>
+    <Devtoolset7LinkFlag>-L$(DevtoolsetRoot)/usr/lib/gcc/x86_64-redhat-linux/7/</Devtoolset7LinkFlag>
+    <Devtoolset7CompileFlag>--gcc-toolchain=$(DevtoolsetRoot)/usr/lib/gcc/x86_64-redhat-linux/7/ -I$(DevtoolsetRoot)/usr/include/c++/7/ -I$(DevtoolsetRoot)/usr/include/c++/7/x86_64-redhat-linux/ -B$(DevtoolsetRoot)/usr/lib/gcc/x86_64-redhat-linux/7/</Devtoolset7CompileFlag>
   </PropertyGroup>
 
   <ItemGroup>
