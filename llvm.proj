@@ -33,6 +33,11 @@
     <_CMakeInstallCommand>$(_SetupEnvironment) cmake -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_PREFIX=$(_LLVMInstallDir) -P cmake_install.cmake</_CMakeInstallCommand>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(ForceDevtoolset7)' == 'true'">
+    <Devtoolset7LinkFlag>-L/opt/rh/devtoolset-7/root/usr/lib/gcc/x86_64-redhat-linux/7/</Devtoolset7LinkFlag>
+    <Devtoolset7CompileFlag>--gcc-toolchain=/opt/rh/devtoolset-7/root/usr/lib/gcc/x86_64-redhat-linux/7/ -I/opt/rh/devtoolset-7/root/usr/include/c++/7/ -I/opt/rh/devtoolset-7/root/usr/include/c++/7/x86_64-redhat-linux/ -B/opt/rh/devtoolset-7/root/usr/lib/gcc/x86_64-redhat-linux/7/</Devtoolset7CompileFlag>
+  </PropertyGroup>
+
   <ItemGroup>
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64'" Include="-DLLVM_TARGET_ARCH=AARCH64" />
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm'" Include="-DLLVM_TARGET_ARCH=ARM" />
@@ -77,7 +82,8 @@
     <_LLVMBuildArgs Include='-DCLANG_INCLUDE_TESTS=OFF' />
     <_LLVMBuildArgs Include='-DCLANG_ENABLE_ARCMT=OFF' />
     <_LLVMBuildArgs Include='-DCLANG_ENABLE_STATIC_ANALYZER=OFF' />
-    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include='-DCMAKE_SHARED_LINKER_FLAGS=-Wl,--build-id' />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include='-DCMAKE_SHARED_LINKER_FLAGS="$(Devtoolset7LinkFlag) -Wl,--build-id"' />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include='-DCMAKE_MODULE_LINKER_FLAGS="$(Devtoolset7LinkFlag) -Wl,--build-id"' />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(BuildOS)' != 'Windows_NT'">
@@ -97,8 +103,8 @@
 
   <ItemGroup Condition="'$(BuildOS)' != 'Windows_NT'">
     <_LLVMBuildArgs Include='-DCMAKE_C_FLAGS="-I../llvm/include -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CrossCFlags)"' />
-    <_LLVMBuildArgs Include='-DCMAKE_CXX_FLAGS="-I../llvm/include -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CrossCFlags) "' />
-    <_LLVMBuildArgs Include='-DCMAKE_EXE_LINKER_FLAGS="$(_ExeLinkerFlags)"' />
+    <_LLVMBuildArgs Include='-DCMAKE_CXX_FLAGS="-I../llvm/include $(Devtoolset7CompileFlag) -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CrossCFlags) "' />
+    <_LLVMBuildArgs Include='-DCMAKE_EXE_LINKER_FLAGS="$(Devtoolset7LinkFlag) $(_ExeLinkerFlags)"' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'OSX' and '$(TargetArchitecture)' == 'arm64'" Include='-DCMAKE_OSX_DEPLOYMENT_TARGET=11.0' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'OSX' and '$(TargetArchitecture)' == 'x64'" Include='-DCMAKE_OSX_DEPLOYMENT_TARGET=10.13' />
   </ItemGroup>
