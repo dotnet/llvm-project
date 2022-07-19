@@ -181,16 +181,6 @@ stages:
           displayName: Publish packages
           condition: and(succeeded(), ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest'))
 
-  ########## WINDOWS DEBUG BUILD ##########  
-  - template: /eng/common/templates/jobs/jobs.yml
-    parameters:
-      enablePublishBuildArtifacts: true
-      enablePublishBuildAssets: true
-      enablePublishUsingPipelines: true
-      variables:
-        - _BuildConfig: Debug
-      jobs:
-
       - job: Build_Windows_Debug
         displayName: Windows_Debug
         timeoutInMinutes: 180
@@ -231,14 +221,14 @@ stages:
             git reset --hard HEAD
           displayName: 'Clean up working directory'
 
-        - powershell: eng\build.ps1 -ci -restore -build -arch x64 -configuration $(_BuildConfig) $(_InternalBuildArgs) /p:BuildLLVMTableGenOnly=true
+        - powershell: eng\build.ps1 -ci -restore -build -arch x64 -configuration Debug $(_InternalBuildArgs) /p:BuildLLVMTableGenOnly=true
           displayName: 'Build host llvm-tblgen for cross-compiling'
           condition: and(succeeded(), ne(variables['assetManifestPlatform'], 'x64'))
 
-        - powershell: eng\build.ps1 -ci -restore -build -pack $(archflag) -configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg)
+        - powershell: eng\build.ps1 -ci -restore -build -pack $(archflag) -configuration Debug $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg)
           displayName: 'Build and package'
 
-        - powershell: eng\common\build.ps1 -ci -restore -publish -configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) -projects $(Build.SourcesDirectory)\llvm.proj
+        - powershell: eng\common\build.ps1 -ci -restore -publish -configuration Debug $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) -projects $(Build.SourcesDirectory)\llvm.proj
           displayName: Publish packages
           condition: and(succeeded(), ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest'))
 
