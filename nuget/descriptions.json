@@ -15,8 +15,18 @@
         "CommonTypes": [ ]
     },
     {
+        "Name": "Microsoft.NETCore.Runtime.Mono.LLVM.Sdk.Debug",
+        "Description": "The .NET Core fork of the LLVM project, used to compile the Mono .NET Core runtime in LLVM JIT mode (Debug runtime). Internal implementation package not meant for direct consumption.  Please do not reference directly.",
+        "CommonTypes": [ ]
+    },
+    {
         "Name": "Microsoft.NETCore.Runtime.Mono.LLVM.Tools",
         "Description": "The llvm-as, llc and opt tools, used by the Mono .NET Core runtime in LLVM AOT mode.",
+        "CommonTypes": [ ]
+    },
+    {
+        "Name": "Microsoft.NETCore.Runtime.Mono.LLVM.Tools.Debug",
+        "Description": "The llvm-as, llc and opt tools, used by the Mono .NET Core runtime in LLVM AOT mode (Debug runtime).",
         "CommonTypes": [ ]
     }
 ]
