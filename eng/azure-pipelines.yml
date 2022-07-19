@@ -181,6 +181,57 @@ stages:
           displayName: Publish packages
           condition: and(succeeded(), ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest'))
 
+      - job: Build_Windows_Debug
+        displayName: Windows_Debug
+        timeoutInMinutes: 180
+        strategy:
+          matrix:
+            x64:
+              assetManifestOS: win
+              assetManifestPlatform: x64
+              archflag: -arch x64
+              LLVMTableGenArg:
+              ClangTableGenArg:
+            arm64:
+              assetManifestOS: win
+              assetManifestPlatform: arm64
+              archflag: -arch arm64
+              LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\llvm-tblgen.exe
+              ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\clang-tblgen.exe
+            arm:
+              assetManifestOS: win
+              assetManifestPlatform: arm
+              archflag: -arch arm
+              LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\llvm-tblgen.exe
+              ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\clang-tblgen.exe
+        pool:
+          ${{ if eq(variables['System.TeamProject'], 'public') }}:
+            name: NetCore1ESPool-Public
+            demands: ImageOverride -equals Build.Windows.Amd64.VS2022.Pre.Open
+          ${{ if eq(variables['System.TeamProject'], 'internal') }}:
+            name: NetCore1ESPool-Internal
+            demands: ImageOverride -equals Build.Windows.Amd64.VS2022.Pre
+        steps:
+        - checkout: self
+          clean: true
+          fetchDepth: 2
+
+        - script: |
+            git clean -ffdx
+            git reset --hard HEAD
+          displayName: 'Clean up working directory'
+
+        - powershell: eng\build.ps1 -ci -restore -build -arch x64 -configuration Debug $(_InternalBuildArgs) /p:BuildLLVMTableGenOnly=true
+          displayName: 'Build host llvm-tblgen for cross-compiling'
+          condition: and(succeeded(), ne(variables['assetManifestPlatform'], 'x64'))
+
+        - powershell: eng\build.ps1 -ci -restore -build -pack $(archflag) -configuration Debug $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg)
+          displayName: 'Build and package'
+
+        - powershell: eng\common\build.ps1 -ci -restore -publish -configuration Debug $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) -projects $(Build.SourcesDirectory)\llvm.proj
+          displayName: Publish packages
+          condition: and(succeeded(), ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest'))
+
 ############ POST BUILD ARCADE LOGIC ############
 - ${{ if and(ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest')) }}:
   - template: /eng/common/templates/post-build/post-build.yml
