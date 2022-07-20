@@ -129,6 +129,8 @@
       <FilesToDelete Include="$(_LLVMInstallDir)/lib/libLTO*" />
       <FilesToDelete Include="$(_LLVMInstallDir)/lib/LLVMHello*" />
       <FilesToDelete Include="$(_LLVMInstallDir)/lib/BugpointPasses.*" />
+      <FilesToDelete Include="$(_LLVMInstallDir)/lib/clang*" />
+      <FilesToDelete Include="$(_LLVMInstallDir)/bin/clang-*" />
     </ItemGroup>
     <Delete Files="@(FilesToDelete)" ContinueOnError="true" TreatErrorsAsWarnings="true" />
   </Target>
