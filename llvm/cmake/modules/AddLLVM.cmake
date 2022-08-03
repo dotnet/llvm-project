@@ -334,11 +334,13 @@ endfunction(add_windows_version_resource_file)
 #     Optional version string (defaults to PACKAGE_VERSION)
 #   PRODUCT_NAME
 #     Optional product name string (defaults to "LLVM")
+#   PRODUCT_LEGAL_COPYRIGHT
+#     Optional product legal copyright string
 #   )
 function(set_windows_version_resource_properties name resource_file)
   cmake_parse_arguments(ARG
     ""
-    "VERSION_MAJOR;VERSION_MINOR;VERSION_PATCHLEVEL;VERSION_STRING;PRODUCT_NAME"
+    "VERSION_MAJOR;VERSION_MINOR;VERSION_PATCHLEVEL;VERSION_STRING;PRODUCT_NAME;PRODUCT_LEGAL_COPYRIGHT"
     ""
     ${ARGN})
 
@@ -362,6 +364,10 @@ function(set_windows_version_resource_properties name resource_file)
     set(ARG_PRODUCT_NAME "LLVM")
   endif()
 
+  if (NOT DEFINED ARG_PRODUCT_LEGAL_COPYRIGHT)
+    set(ARG_PRODUCT_LEGAL_COPYRIGHT ${LEGAL_COPYRIGHT})
+  endif()
+
   set_property(SOURCE ${resource_file}
                PROPERTY COMPILE_FLAGS /nologo)
   set_property(SOURCE ${resource_file}
@@ -373,7 +379,8 @@ function(set_windows_version_resource_properties name resource_file)
                "RC_FILE_VERSION=\"${ARG_VERSION_STRING}\""
                "RC_INTERNAL_NAME=\"${name}\""
                "RC_PRODUCT_NAME=\"${ARG_PRODUCT_NAME}\""
-               "RC_PRODUCT_VERSION=\"${ARG_VERSION_STRING}\"")
+               "RC_PRODUCT_VERSION=\"${ARG_VERSION_STRING}\""
+               "RC_COPYRIGHT=\"${ARG_PRODUCT_LEGAL_COPYRIGHT}\"")
 endfunction(set_windows_version_resource_properties)
 
 # llvm_add_library(name sources...
