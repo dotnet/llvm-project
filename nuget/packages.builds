@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.Build.Traversal">
   <ItemGroup>
     <ProjectReference Include="Microsoft.NETCore.Runtime.ObjWriter\Microsoft.NETCore.Runtime.ObjWriter.builds" />
+    <ProjectReference Include="Microsoft.NETCore.Runtime.JIT.Tools\Microsoft.NETCore.Runtime.JIT.Tools.builds" />
   </ItemGroup>
 
   <!-- Generate a version.txt file we include in our packages
