@@ -9,5 +9,7 @@
     <File Include="$(_LLVMInstallDir)\bin\opt.dwarf" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\FileCheck" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\FileCheck.dwarf" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-mca" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-mca.dwarf" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
   </ItemGroup>
 </Project>
