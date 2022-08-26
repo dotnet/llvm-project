@@ -28,10 +28,16 @@
     </_SetupEnvironment>
     <_CMakeConfigureCommand>$(_SetupEnvironment) cmake $(_LLVMSourceDir) -G "$(CMakeGenerator)" @(_LLVMBuildArgs->'%(Identity)',' ')</_CMakeConfigureCommand>
     <_BuildSubset Condition="'$(BuildLLVMTableGenOnly)' == 'true'">llvm-tblgen clang-tblgen</_BuildSubset>
-    <_BuildSubset Condition="'$(BuildObjWriterOnly)' == 'true'">objwriter</_BuildSubset>
+    <_BuildSubset Condition="'$(BuildObjWriterOnly)' == 'true'">objwriter llvm-mca FileCheck</_BuildSubset>
     <_BuildCommand Condition="'$(CMakeGenerator)' == 'Unix Makefiles'">$(_SetupEnvironment) make $(_BuildSubset) -j$([System.Environment]::ProcessorCount)</_BuildCommand>
     <_BuildCommand Condition="'$(CMakeGenerator)' == 'Ninja'">$(_SetupEnvironment) ninja $(_BuildSubset)</_BuildCommand>
-    <_CMakeInstallCommand Condition="'$(BuildObjWriterOnly)' == 'true'">$(_SetupEnvironment) cmake -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_PREFIX=$(_LLVMInstallDir) -DCMAKE_INSTALL_COMPONENT=objwriter -P cmake_install.cmake</_CMakeInstallCommand>
+    <_CMakeInstallCommand Condition="'$(BuildObjWriterOnly)' == 'true'">
+    $(_SetupEnvironment) 
+
+    cmake -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_PREFIX=$(_LLVMInstallDir) -DCMAKE_INSTALL_COMPONENT=objwriter -P cmake_install.cmake
+    cmake -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_PREFIX=$(_LLVMInstallDir) -DCMAKE_INSTALL_COMPONENT=llvm-mca -P cmake_install.cmake
+    cmake -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_PREFIX=$(_LLVMInstallDir) -DCMAKE_INSTALL_COMPONENT=FileCheck -P cmake_install.cmake
+    </_CMakeInstallCommand>
     <_CMakeInstallCommand Condition="'$(BuildObjWriterOnly)' != 'true'">$(_SetupEnvironment) cmake -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_PREFIX=$(_LLVMInstallDir) -P cmake_install.cmake</_CMakeInstallCommand>
   </PropertyGroup>
 
@@ -84,6 +90,9 @@
 
   <ItemGroup>
     <_LLVMBuildArgs Include='-DLLVM_ENABLE_PROJECTS=clang' />
+    <_LLVMBuildArgs Include='-DLLVM_BUILD_TOOLS:BOOL=ON' />
+    <_LLVMBuildArgs Include='-DLLVM_INSTALL_UTILS:BOOL=ON' />
+    <_LLVMBuildArgs Include="-DLLVM_INCLUDE_UTILS:BOOL=ON" />
     <_LLVMBuildArgs Include='-DCLANG_BUILD_TOOLS=OFF' />
     <_LLVMBuildArgs Include='-DCLANG_INCLUDE_TESTS=OFF' />
     <_LLVMBuildArgs Include='-DCLANG_ENABLE_ARCMT=OFF' />

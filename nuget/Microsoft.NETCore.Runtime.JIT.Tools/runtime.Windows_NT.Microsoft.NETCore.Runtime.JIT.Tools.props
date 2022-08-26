@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ItemGroup>
+    <File Include="$(_LLVMInstallDir)\bin\llvm-mca.exe" TargetPath="runtimes\$(PackageTargetRuntime)\native\" />
+    <File Include="$(_LLVMInstallDir)\bin\FileCheck.exe" TargetPath="runtimes\$(PackageTargetRuntime)\native\" />
+  </ItemGroup>
+</Project>
