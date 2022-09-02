@@ -112,7 +112,7 @@ stages:
               LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/llvm-tblgen
               ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/clang-tblgen
         pool:
-          vmImage: macOS-10.15
+          vmImage: macos-11
         steps:
         - bash: |
             set -ex
