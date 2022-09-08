@@ -38,6 +38,10 @@ void Dump(MCObjectStreamer *Streamer, uint16_t DwarfVersion, unsigned TargetPoin
         dwarf::DW_TAG_compile_unit, dwarf::DW_CHILDREN_yes,
         dwarf::DW_AT_producer, dwarf::DW_FORM_string,
         dwarf::DW_AT_language, dwarf::DW_FORM_data2,
+        dwarf::DW_AT_name, dwarf::DW_FORM_string,
+        dwarf::DW_AT_comp_dir, dwarf::DW_FORM_string,
+        dwarf::DW_AT_low_pc, dwarf::DW_FORM_addr,
+        dwarf::DW_AT_high_pc, DW_FORM_size,
         dwarf::DW_AT_stmt_list, (DwarfVersion >= 4 ? dwarf::DW_FORM_sec_offset : dwarf::DW_FORM_data4),
         0, 0,
 
@@ -116,6 +120,17 @@ void Dump(MCObjectStreamer *Streamer, uint16_t DwarfVersion, unsigned TargetPoin
 
     SubprogramStaticSpec,
         dwarf::DW_TAG_subprogram, dwarf::DW_CHILDREN_yes,
+        dwarf::DW_AT_name, dwarf::DW_FORM_strp,
+        dwarf::DW_AT_linkage_name, dwarf::DW_FORM_strp,
+        dwarf::DW_AT_decl_file, dwarf::DW_FORM_data1,
+        dwarf::DW_AT_decl_line, dwarf::DW_FORM_data1,
+        dwarf::DW_AT_type, dwarf::DW_FORM_ref4,
+        dwarf::DW_AT_external, dwarf::DW_FORM_flag_present,
+        dwarf::DW_AT_declaration, dwarf::DW_FORM_flag_present,
+        0, 0,
+
+    SubprogramStaticNoChildrenSpec,
+        dwarf::DW_TAG_subprogram, dwarf::DW_CHILDREN_no,
         dwarf::DW_AT_name, dwarf::DW_FORM_strp,
         dwarf::DW_AT_linkage_name, dwarf::DW_FORM_strp,
         dwarf::DW_AT_decl_file, dwarf::DW_FORM_data1,

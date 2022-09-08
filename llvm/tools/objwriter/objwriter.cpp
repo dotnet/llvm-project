@@ -152,10 +152,8 @@ bool ObjectWriter::Init(llvm::StringRef ObjectFilePath, const char* tripleName) 
   unsigned TargetPointerSize = Streamer->getContext().getAsmInfo()->getCodePointerSize();
   TypeBuilder->SetTargetPointerSize(TargetPointerSize);
 
-  if (ObjFileInfo->getObjectFileType() == ObjFileInfo->IsELF) {
-    DwarfGenerator.reset(new DwarfGen());
-    DwarfGenerator->SetTypeBuilder(static_cast<UserDefinedDwarfTypesBuilder*>(TypeBuilder.get()));
-  }
+  DwarfGenerator.reset(new DwarfGen());
+  DwarfGenerator->SetTypeBuilder(static_cast<UserDefinedDwarfTypesBuilder*>(TypeBuilder.get()));
 
   CFIsPerOffset.set_size(0);
 
@@ -255,6 +253,12 @@ MCSection *ObjectWriter::GetSpecificSection(const char *SectionName,
     unsigned typeAndAttributes = 0;
     if (attributes & CustomSectionAttributes_MachO_Init_Func_Pointers) {
       typeAndAttributes |= MachO::SectionType::S_MOD_INIT_FUNC_POINTERS;
+    }
+    if (attributes & CustomSectionAttributes_Executable) {
+      // Needs to be set on sections with actual code. The linker uses
+      // it to determine code sections and emit information about function
+      // boundaries.
+      typeAndAttributes |= MachO::S_ATTR_PURE_INSTRUCTIONS;
     }
     Section = OutContext->getMachOSection(
         (attributes & CustomSectionAttributes_Executable) ? "__TEXT" : "__DATA",
@@ -882,9 +886,8 @@ void ObjectWriter::EmitDebugFunctionInfo(const char *FunctionName,
       Streamer->emitSymbolAttribute(Sym, MCSA_ELF_TypeFunction);
       Streamer->emitELFSize(Sym,
                             MCConstantExpr::create(FunctionSize, *OutContext));
-      EmitDwarfFunctionInfo(FunctionName, FunctionSize, MethodTypeIndex);
     }
-    // TODO: Should test it for Macho.
+    EmitDwarfFunctionInfo(FunctionName, FunctionSize, MethodTypeIndex);
   }
 }
 
@@ -963,12 +966,10 @@ void ObjectWriter::EmitDebugModuleInfo() {
     Streamer->SwitchSection(Section);
     Streamer->emitCVFileChecksumsDirective();
     Streamer->emitCVStringTableDirective();
-  } else if (ObjFileInfo->getObjectFileType() == ObjFileInfo->IsELF) {
+  } else {
     DwarfGenerator->EmitAbbrev();
     DwarfGenerator->EmitAranges();
     DwarfGenerator->Finish();
-  } else {
-    OutContext->setGenDwarfForAssembly(true);
   }
 }
 

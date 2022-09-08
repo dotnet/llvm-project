@@ -601,8 +601,12 @@ void DwarfMemberFunctionIdTypeInfo::DumpStrings(MCObjectStreamer *Streamer) {
 void DwarfMemberFunctionIdTypeInfo::DumpTypeInfo(MCObjectStreamer *Streamer, UserDefinedDwarfTypesBuilder *TypeBuilder) {
   // Abbrev Number
   bool IsStatic = MemberFunctionTypeInfo->IsStatic();
+  bool HasParameters = MemberFunctionTypeInfo->GetArgTypes().size();
 
-  Streamer->emitULEB128IntValue(IsStatic ? DwarfAbbrev::SubprogramStaticSpec : DwarfAbbrev::SubprogramSpec);
+  Streamer->emitULEB128IntValue(
+      IsStatic ? (HasParameters ? DwarfAbbrev::SubprogramStaticSpec
+                                : DwarfAbbrev::SubprogramStaticNoChildrenSpec)
+               : DwarfAbbrev::SubprogramSpec);
 
   // DW_AT_name
   EmitSectionOffset(Streamer, StrSymbol, 4);
@@ -652,8 +656,10 @@ void DwarfMemberFunctionIdTypeInfo::DumpTypeInfo(MCObjectStreamer *Streamer, Use
     EmitInfoOffset(Streamer, ArgTypeInfo, 4);
   }
 
-  // Ternimate DIE
-  Streamer->emitIntValue(0, 1);
+  // Terminate DIE (skip for SubprogramStaticNoChildrenSpec which has no children)
+  if (!IsStatic || HasParameters) {
+    Streamer->emitIntValue(0, 1);
+  }
 }
 
 // DwarfTypesBuilder

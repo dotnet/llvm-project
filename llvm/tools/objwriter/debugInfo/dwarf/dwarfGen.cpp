@@ -816,7 +816,7 @@ void SubprogramInfo::DumpTypeInfo(MCObjectStreamer *Streamer, UserDefinedDwarfTy
   EmitInfoOffset(Streamer, MethodTypeInfo, 4);
 
   // DW_AT_low_pc
-  MCSymbol *Sym = context.getOrCreateSymbol(Twine(Name));
+  MCSymbol *Sym = context.lookupSymbol(Twine(Name));
   const MCExpr *SymExpr = MCSymbolRefExpr::create(Sym, MCSymbolRefExpr::VK_None, context);
   Streamer->emitValue(SymExpr, TargetPointerSize);
 
@@ -907,6 +907,7 @@ void DwarfGen::SetTypeBuilder(UserDefinedDwarfTypesBuilder *TypeBuilder) {
 
 void DwarfGen::EmitCompileUnit() {
   MCContext &context = Streamer->getContext();
+  unsigned TargetPointerSize = context.getAsmInfo()->getCodePointerSize();
 
   MCSymbol *LineSectionSymbol = nullptr;
   MCSymbol *AbbrevSectionSymbol = nullptr;
@@ -965,6 +966,31 @@ void DwarfGen::EmitCompileUnit() {
 #else
   Streamer->emitIntValue(dwarf::DW_LANG_C_plus_plus, 2);
 #endif
+
+  // We need to generate DW_AT_name and DW_AT_compdir to get Apple's ld64 to correctly
+  // generate debug map in final executable. If we don't generate it then the linker
+  // will skip over the object file.
+  // Ref: https://github.com/apple-oss-distributions/ld64/blob/dbf8f7feb5579761f1623b004bd468bdea7c6225/src/ld/OutputFile.cpp#L7166
+
+  // DW_AT_name
+  Streamer->emitBytes(StringRef("IL.c"));
+  Streamer->emitIntValue(0, 1);
+
+  // DW_AT_compdir
+  Streamer->emitBytes(StringRef("/tmp"));
+  Streamer->emitIntValue(0, 1);
+
+  // There need to be global DW_AT_low_pc/DW_AT_high_pc symbols to indicate the base and
+  // size of the range covered by the symbols. Currently we use a shortcut where we emit
+  // a range starting at the beginning of file and ending at the start of the debug section
+  // which is located at the end of the object file.
+
+  // DW_AT_low_pc
+  Streamer->emitIntValue(0, TargetPointerSize);
+
+  // DW_AT_high_pc
+  const MCExpr *SymExpr = MCSymbolRefExpr::create(debugSection->getBeginSymbol(), MCSymbolRefExpr::VK_None, context);
+  Streamer->emitValue(SymExpr, TargetPointerSize);
 
   // DW_AT_stmt_list
   if (LineSectionSymbol == nullptr) {
