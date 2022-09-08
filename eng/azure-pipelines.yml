@@ -2,12 +2,12 @@ trigger:
   batch: true
   branches:
     include:
-    - objwriter/12.x
+    - objwriter/*
 
 pr:
   branches:
     include:
-    - objwriter/12.x
+    - objwriter/*
 
 variables:
 - template: /eng/common-variables.yml
@@ -198,7 +198,7 @@ stages:
               LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\llvm-tblgen.exe
         pool:
           ${{ if eq(variables['System.TeamProject'], 'public') }}:
-            name: NetCore1ESPool-Public
+            name: NetCore-Public
             demands: windows.vs2022.amd64.open
           ${{ if eq(variables['System.TeamProject'], 'internal') }}:
             name: NetCore1ESPool-Internal
