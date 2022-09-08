@@ -205,7 +205,7 @@ void ObjectWriter::SwitchSection(const char *SectionName,
       assert(!Section->getBeginSymbol());
       // Output a DWARF linker-local symbol.
       // This symbol is used as a base for other symbols in a section.
-      MCSymbol *SectionStartSym = OutContext->createTempSymbol();
+      MCSymbol *SectionStartSym = OutContext->createLinkerPrivateTempSymbol();
       Streamer->emitLabel(SectionStartSym);
       Section->setBeginSymbol(SectionStartSym);
     }
@@ -444,6 +444,25 @@ int ObjectWriter::EmitSymbolRef(const char *SymbolName,
     Size = 8;
     break;
   case RelocType::IMAGE_REL_BASED_REL32:
+    if (ObjFileInfo->getObjectFileType() == ObjFileInfo->IsMachO &&
+        ObjFileInfo->getTargetTriple().getArch() == Triple::aarch64) {
+      MCSymbol *TempSymbol = OutContext->createTempSymbol();
+      Streamer->emitLabel(TempSymbol);
+      const MCExpr *TargetExpr = MCSymbolRefExpr::create(Symbol, Kind, *OutContext);
+      const MCSymbolRefExpr *SectionExpr = MCSymbolRefExpr::create(TempSymbol, Kind, *OutContext);
+      TargetExpr = MCBinaryExpr::createSub(
+        TargetExpr, SectionExpr, *OutContext);
+      // If the fixup is pc-relative, we need to bias the value to be relative to
+      // the start of the field, not the end of the field
+      TargetExpr = MCBinaryExpr::createSub(
+          TargetExpr, MCConstantExpr::create(4, *OutContext), *OutContext);
+      if (Delta != 0) {
+        TargetExpr = MCBinaryExpr::createAdd(
+          TargetExpr, MCConstantExpr::create(Delta, *OutContext), *OutContext);
+      }
+      Streamer->emitValueImpl(TargetExpr, 4, SMLoc(), false);
+      return 4;
+    }
     Size = 4;
     IsPCRel = true;
     if (ObjFileInfo->getObjectFileType() == ObjFileInfo->IsELF) {
@@ -453,6 +472,21 @@ int ObjectWriter::EmitSymbolRef(const char *SymbolName,
     }
     break;
   case RelocType::IMAGE_REL_BASED_RELPTR32:
+    if (ObjFileInfo->getObjectFileType() == ObjFileInfo->IsMachO &&
+        ObjFileInfo->getTargetTriple().getArch() == Triple::aarch64) {
+      MCSymbol *TempSymbol = OutContext->createTempSymbol();
+      Streamer->emitLabel(TempSymbol);
+      const MCExpr *TargetExpr = MCSymbolRefExpr::create(Symbol, Kind, *OutContext);
+      const MCSymbolRefExpr *SectionExpr = MCSymbolRefExpr::create(TempSymbol, Kind, *OutContext);
+      TargetExpr = MCBinaryExpr::createSub(
+        TargetExpr, SectionExpr, *OutContext);
+      if (Delta != 0) {
+        TargetExpr = MCBinaryExpr::createAdd(
+          TargetExpr, MCConstantExpr::create(Delta, *OutContext), *OutContext);
+      }
+      Streamer->emitValueImpl(TargetExpr, 4, SMLoc(), false);
+      return 4;
+    }
     Size = 4;
     IsPCRel = true;
     Delta += 4;
@@ -475,6 +509,9 @@ int ObjectWriter::EmitSymbolRef(const char *SymbolName,
     return 4;
   }
   case RelocType::IMAGE_REL_BASED_ARM64_PAGEBASE_REL21: {
+    if (ObjFileInfo->getObjectFileType() == ObjFileInfo->IsMachO) {
+      Kind = MCSymbolRefExpr::VK_PAGE;
+    }
     const MCExpr *TargetExpr = GenTargetExpr(Symbol, Kind, Delta);
     TargetExpr =
         AArch64MCExpr::create(TargetExpr, AArch64MCExpr::VK_CALL, *OutContext);
@@ -482,6 +519,9 @@ int ObjectWriter::EmitSymbolRef(const char *SymbolName,
     return 4;
   }
   case RelocType::IMAGE_REL_BASED_ARM64_PAGEOFFSET_12A: {
+    if (ObjFileInfo->getObjectFileType() == ObjFileInfo->IsMachO) {
+      Kind = MCSymbolRefExpr::VK_PAGEOFF;
+    }
     const MCExpr *TargetExpr = GenTargetExpr(Symbol, Kind, Delta);
     TargetExpr =
         AArch64MCExpr::create(TargetExpr, AArch64MCExpr::VK_LO12, *OutContext);
@@ -560,8 +600,12 @@ void ObjectWriter::EmitCFILsda(const char *LsdaBlobSymbolName) {
   // Create symbol reference
   MCSymbol *T = OutContext->getOrCreateSymbol(LsdaBlobSymbolName);
   Assembler->registerSymbol(*T);
-  Streamer->emitCFILsda(T, llvm::dwarf::Constants::DW_EH_PE_pcrel |
-                               llvm::dwarf::Constants::DW_EH_PE_sdata4);
+  if (ObjFileInfo->getObjectFileType() == ObjFileInfo->IsMachO) {
+    Streamer->emitCFILsda(T, llvm::dwarf::Constants::DW_EH_PE_pcrel);
+  } else {
+    Streamer->emitCFILsda(T, llvm::dwarf::Constants::DW_EH_PE_pcrel |
+                             llvm::dwarf::Constants::DW_EH_PE_sdata4);
+  }
 }
 
 void ObjectWriter::EmitCFICode(int Offset, const char *Blob) {
