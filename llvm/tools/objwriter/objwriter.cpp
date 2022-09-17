@@ -586,10 +586,19 @@ void ObjectWriter::EmitCFIStart(int Offset) {
   assert(!FrameOpened && "frame should be closed before CFIStart");
   Streamer->emitCFIStartProc(false);
   FrameOpened = true;
+  FrameHasCompactEncoding = false;
 }
 
 void ObjectWriter::EmitCFIEnd(int Offset) {
   assert(FrameOpened && "frame should be opened before CFIEnd");
+
+  // If compact unwinding was not set through EmitCFICompactUnwindEncoding
+  // force compact unwinding to use DWARF references which allow unwinding
+  // prologs and epilogs correctly.
+  if (!FrameHasCompactEncoding) {
+    Streamer->emitCFICompactUnwindEncoding(ObjFileInfo->getCompactUnwindDwarfEHFrameOnly());
+  }
+
   Streamer->emitCFIEndProc();
   FrameOpened = false;
 }
@@ -635,6 +644,12 @@ void ObjectWriter::EmitCFICode(int Offset, const char *Blob) {
     assert(false && "Unrecognized CFI");
     break;
   }
+}
+
+void ObjectWriter::EmitCFICompactUnwindEncoding(unsigned int Encoding)
+{
+  FrameHasCompactEncoding = true;
+  Streamer->emitCFICompactUnwindEncoding(Encoding);
 }
 
 void ObjectWriter::EmitLabelDiff(const MCSymbol *From, const MCSymbol *To,

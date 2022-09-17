@@ -100,6 +100,7 @@ public:
   void EmitCFIEnd(int Offset);
   void EmitCFILsda(const char *LsdaBlobSymbolName);
   void EmitCFICode(int Offset, const char *Blob);
+  void EmitCFICompactUnwindEncoding(unsigned int Encoding);
 
   unsigned GetEnumTypeIndex(const EnumTypeDescriptor &TypeDescriptor,
                             const EnumRecordTypeDescriptor *TypeRecords);
@@ -180,6 +181,7 @@ private:
   std::unique_ptr<raw_fd_ostream> OS;
   MCTargetOptions TargetMOptions;
   bool FrameOpened;
+  bool FrameHasCompactEncoding;
   std::vector<DebugVarInfo> DebugVarInfos;
   std::vector<DebugEHClauseInfo> DebugEHClauseInfos;
   DenseSet<MCSymbol *> AddressTakenFunctions;
@@ -284,6 +286,11 @@ DLL_EXPORT STDMETHODCALLTYPE void EmitCFILsda(ObjectWriter *OW, const char *Lsda
 DLL_EXPORT STDMETHODCALLTYPE void EmitCFICode(ObjectWriter *OW, int Offset, const char *Blob) {
   assert(OW && "ObjWriter is null");
   OW->EmitCFICode(Offset, Blob);
+}
+
+DLL_EXPORT STDMETHODCALLTYPE void EmitCFICompactUnwindEncoding(ObjectWriter *OW, unsigned int Encoding) {
+  assert(OW && "ObjWriter is null");
+  OW->EmitCFICompactUnwindEncoding(Encoding);
 }
 
 DLL_EXPORT STDMETHODCALLTYPE void EmitDebugFileInfo(ObjectWriter *OW, int FileId,

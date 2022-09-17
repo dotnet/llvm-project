@@ -123,9 +123,12 @@ void MCStreamer::addExplicitComment(const Twine &T) {}
 void MCStreamer::emitExplicitComments() {}
 
 void MCStreamer::generateCompactUnwindEncodings(MCAsmBackend *MAB) {
-  for (auto &FI : DwarfFrameInfos)
-    FI.CompactUnwindEncoding =
-        (MAB ? MAB->generateCompactUnwindEncoding(FI.Instructions) : 0);
+  for (auto &FI : DwarfFrameInfos) {
+    if (FI.CompactUnwindEncoding == 0) {
+      FI.CompactUnwindEncoding =
+          (MAB ? MAB->generateCompactUnwindEncoding(FI.Instructions) : 0);
+    }
+  }
 }
 
 /// EmitIntValue - Special case of EmitValue that avoids the client having to
@@ -674,6 +677,14 @@ void MCStreamer::emitCFINegateRAState() {
   if (!CurFrame)
     return;
   CurFrame->Instructions.push_back(Instruction);
+}
+
+void MCStreamer::emitCFICompactUnwindEncoding(unsigned Encoding)
+{
+  MCDwarfFrameInfo *CurFrame = getCurrentDwarfFrameInfo();
+  if (!CurFrame)
+    return;
+  CurFrame->CompactUnwindEncoding = Encoding;
 }
 
 void MCStreamer::emitCFIReturnColumn(int64_t Register) {

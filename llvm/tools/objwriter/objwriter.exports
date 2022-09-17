@@ -13,6 +13,7 @@ EmitCFIStart
 EmitCFIEnd
 EmitCFILsda
 EmitCFICode
+EmitCFICompactUnwindEncoding
 EmitDebugFileInfo
 EmitDebugFunctionInfo
 EmitDebugVar
