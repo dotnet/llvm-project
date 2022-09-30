@@ -337,7 +337,7 @@ static void EmitVarLocation(MCObjectStreamer *Streamer,
                      bool IsLocList = false) {
   MCContext &context = Streamer->getContext();
   unsigned TargetPointerSize = context.getAsmInfo()->getCodePointerSize();
-  Triple::ArchType ArchType = context.getObjectFileInfo()->getTargetTriple().getArch();
+  Triple::ArchType ArchType = context.getTargetTriple().getArch();
 
   int DwarfRegNum;
   int DwarfRegNum2;
@@ -804,7 +804,7 @@ void SubprogramInfo::DumpTypeInfo(MCObjectStreamer *Streamer, UserDefinedDwarfTy
   MCContext &context = Streamer->getContext();
   bool IsStatic = MethodTypeInfo->IsStatic();
   unsigned TargetPointerSize = context.getAsmInfo()->getCodePointerSize();
-  Triple::ArchType ArchType = context.getObjectFileInfo()->getTargetTriple().getArch();
+  Triple::ArchType ArchType = context.getTargetTriple().getArch();
 
   // Subprogram DIE
 

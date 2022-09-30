@@ -37,6 +37,7 @@
 #include "llvm/MC/MCSubtargetInfo.h"
 #include "llvm/MC/MCTargetOptionsCommandFlags.h"
 #include "llvm/MC/MCELFStreamer.h"
+#include "llvm/MC/TargetRegistry.h"
 #include "llvm/BinaryFormat/COFF.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/Compression.h"
@@ -48,7 +49,6 @@
 #include "llvm/Support/MemoryBuffer.h"
 #include "llvm/Support/PrettyStackTrace.h"
 #include "llvm/Support/SourceMgr.h"
-#include "llvm/Support/TargetRegistry.h"
 #include "llvm/Support/TargetSelect.h"
 #include "llvm/Support/ToolOutputFile.h"
 #include "llvm/Support/Win64EH.h"
@@ -87,7 +87,7 @@ bool ObjectWriter::Init(llvm::StringRef ObjectFilePath, const char* tripleName) 
   }
 
   std::error_code EC;
-  OS.reset(new raw_fd_ostream(ObjectFilePath, EC, sys::fs::F_None));
+  OS.reset(new raw_fd_ostream(ObjectFilePath, EC, sys::fs::OF_None));
   if (EC)
     return error("Unable to create file for " + ObjectFilePath + ": " +
                  EC.message());
@@ -100,12 +100,6 @@ bool ObjectWriter::Init(llvm::StringRef ObjectFilePath, const char* tripleName) 
   if (!AsmInfo)
     return error("Unable to create target asm info!");
 
-  ObjFileInfo.reset(new MCObjectFileInfo);
-  OutContext.reset(
-      new MCContext(AsmInfo.get(), RegisterInfo.get(), ObjFileInfo.get()));
-  ObjFileInfo->InitMCObjectFileInfo(TheTriple, false,
-                                    *OutContext);
-
   InstrInfo.reset(TheTarget->createMCInstrInfo());
   if (!InstrInfo)
     return error("no instr info info for target " + TripleName);
@@ -116,6 +110,10 @@ bool ObjectWriter::Init(llvm::StringRef ObjectFilePath, const char* tripleName) 
       TheTarget->createMCSubtargetInfo(TripleName, MCPU, FeaturesStr));
   if (!SubtargetInfo)
     return error("no subtarget info for target " + TripleName);
+
+  OutContext.reset(
+      new MCContext(TheTriple, AsmInfo.get(), RegisterInfo.get(), SubtargetInfo.get()));
+  ObjFileInfo.reset(TheTarget->createMCObjectFileInfo(*OutContext, false));
 
   CodeEmitter =
       TheTarget->createMCCodeEmitter(*InstrInfo, *RegisterInfo, *OutContext);
@@ -134,7 +132,7 @@ bool ObjectWriter::Init(llvm::StringRef ObjectFilePath, const char* tripleName) 
       /*DWARFMustBeAtTheEnd*/ false);
   if (!Streamer)
     return error("no object streamer for target " + TripleName);
-  Streamer->InitSections(/* NoExecStack */ true);
+  Streamer->initSections(/* NoExecStack */ true, *SubtargetInfo);
   Assembler = &Streamer->getAssembler();
 
   FrameOpened = false;
@@ -142,7 +140,7 @@ bool ObjectWriter::Init(llvm::StringRef ObjectFilePath, const char* tripleName) 
 
   SetCodeSectionAttribute("text", CustomSectionAttributes_Executable, nullptr);
 
-  if (ObjFileInfo->getObjectFileType() == ObjFileInfo->IsCOFF) {
+  if (OutContext->getObjectFileType() == MCContext::IsCOFF) {
     TypeBuilder.reset(new UserDefinedCodeViewTypesBuilder());
   } else {
     TypeBuilder.reset(new UserDefinedDwarfTypesBuilder());
@@ -155,14 +153,14 @@ bool ObjectWriter::Init(llvm::StringRef ObjectFilePath, const char* tripleName) 
   DwarfGenerator.reset(new DwarfGen());
   DwarfGenerator->SetTypeBuilder(static_cast<UserDefinedDwarfTypesBuilder*>(TypeBuilder.get()));
 
-  CFIsPerOffset.set_size(0);
+  CFIsPerOffset.truncate(0);
 
   return true;
 }
 
 void ObjectWriter::Finish() {
 
-  if (ObjFileInfo->getObjectFileType() == ObjFileInfo->IsCOFF
+  if (OutContext->getObjectFileType() == MCContext::IsCOFF
     && AddressTakenFunctions.size() > 0) {
 
     // Emit all address-taken functions into the GFIDs section
@@ -201,7 +199,7 @@ void ObjectWriter::SwitchSection(const char *SectionName,
   Streamer->SwitchSection(Section);
   if (Sections.count(Section) == 0) {
     Sections.insert(Section);
-    if (ObjFileInfo->getObjectFileType() == ObjFileInfo->IsMachO) {
+    if (OutContext->getObjectFileType() == MCContext::IsMachO) {
       assert(!Section->getBeginSymbol());
       // Output a DWARF linker-local symbol.
       // This symbol is used as a base for other symbols in a section.
@@ -226,7 +224,7 @@ MCSection *ObjectWriter::GetSection(const char *SectionName,
   } else if (strcmp(SectionName, "xdata") == 0) {
     Section = ObjFileInfo->getXDataSection();
   } else if (strcmp(SectionName, "bss") == 0) {
-    if (ObjFileInfo->getObjectFileType() == ObjFileInfo->IsMachO) {
+    if (OutContext->getObjectFileType() == MCContext::IsMachO) {
       Section = ObjFileInfo->getDataBSSSection();
     } else {
       Section = ObjFileInfo->getBSSSection();
@@ -291,7 +289,7 @@ MCSection *ObjectWriter::GetSpecificSection(const char *SectionName,
     if (ComdatName != nullptr) {
       MCSymbolELF *GroupSym =
           cast<MCSymbolELF>(OutContext->getOrCreateSymbol(ComdatName));
-      OutContext->createELFGroupSection(GroupSym);
+      OutContext->createELFGroupSection(GroupSym, true);
       Flags |= ELF::SHF_GROUP;
     }
     if (attributes & CustomSectionAttributes_Executable) {
@@ -301,7 +299,8 @@ MCSection *ObjectWriter::GetSpecificSection(const char *SectionName,
     }
     Section =
         OutContext->getELFSection(SectionName, ELF::SHT_PROGBITS, Flags, 0,
-                                  ComdatName != nullptr ? ComdatName : "");
+                                  ComdatName != nullptr ? ComdatName : "",
+                                  ComdatName != nullptr);
     break;
   }
   default:
@@ -318,7 +317,7 @@ void ObjectWriter::SetCodeSectionAttribute(const char *SectionName,
 
   assert(!Section->hasInstructions());
   Section->setHasInstructions(true);
-  if (ObjFileInfo->getObjectFileType() != ObjFileInfo->IsCOFF) {
+  if (OutContext->getObjectFileType() != MCContext::IsCOFF) {
     OutContext->addGenDwarfSection(Section);
   }
 }
@@ -327,8 +326,8 @@ void ObjectWriter::EmitAlignment(int ByteAlignment) {
   int64_t fillValue = 0;
 
   if (Streamer->getCurrentSectionOnly()->getKind().isText()) {
-    if (ObjFileInfo->getTargetTriple().getArch() == llvm::Triple::ArchType::x86 ||
-        ObjFileInfo->getTargetTriple().getArch() == llvm::Triple::ArchType::x86_64) {
+    if (OutContext->getTargetTriple().getArch() == llvm::Triple::ArchType::x86 ||
+        OutContext->getTargetTriple().getArch() == llvm::Triple::ArchType::x86_64) {
       fillValue = 0x90; // x86 nop
     }
   }
@@ -353,7 +352,7 @@ void ObjectWriter::EmitSymbolDef(const char *SymbolName, bool global) {
 
   Streamer->emitSymbolAttribute(Sym, MCSA_Global);
 
-  Triple TheTriple = ObjFileInfo->getTargetTriple();
+  Triple TheTriple = OutContext->getTargetTriple();
 
   if (TheTriple.getObjectFormat() == Triple::ELF) {
     // An ARM function symbol should be marked with an appropriate ELF attribute
@@ -433,7 +432,7 @@ int ObjectWriter::EmitSymbolRef(const char *SymbolName,
   // Convert RelocationType to MCSymbolRefExpr
   switch (RelocationType) {
   case RelocType::IMAGE_REL_BASED_ABSOLUTE:
-    assert(ObjFileInfo->getObjectFileType() == ObjFileInfo->IsCOFF);
+    assert(OutContext->getObjectFileType() == MCContext::IsCOFF);
     Kind = MCSymbolRefExpr::VK_COFF_IMGREL32;
     Size = 4;
     break;
@@ -444,8 +443,8 @@ int ObjectWriter::EmitSymbolRef(const char *SymbolName,
     Size = 8;
     break;
   case RelocType::IMAGE_REL_BASED_REL32:
-    if (ObjFileInfo->getObjectFileType() == ObjFileInfo->IsMachO &&
-        ObjFileInfo->getTargetTriple().getArch() == Triple::aarch64) {
+    if (OutContext->getObjectFileType() == MCContext::IsMachO &&
+        OutContext->getTargetTriple().getArch() == Triple::aarch64) {
       MCSymbol *TempSymbol = OutContext->createTempSymbol();
       Streamer->emitLabel(TempSymbol);
       const MCExpr *TargetExpr = MCSymbolRefExpr::create(Symbol, Kind, *OutContext);
@@ -465,15 +464,15 @@ int ObjectWriter::EmitSymbolRef(const char *SymbolName,
     }
     Size = 4;
     IsPCRel = true;
-    if (ObjFileInfo->getObjectFileType() == ObjFileInfo->IsELF) {
+    if (OutContext->getObjectFileType() == MCContext::IsELF) {
       // PLT is valid only for code symbols,
       // but there shouldn't be references to global data symbols
       Kind = MCSymbolRefExpr::VK_PLT;
     }
     break;
   case RelocType::IMAGE_REL_BASED_RELPTR32:
-    if (ObjFileInfo->getObjectFileType() == ObjFileInfo->IsMachO &&
-        ObjFileInfo->getTargetTriple().getArch() == Triple::aarch64) {
+    if (OutContext->getObjectFileType() == MCContext::IsMachO &&
+        OutContext->getTargetTriple().getArch() == Triple::aarch64) {
       MCSymbol *TempSymbol = OutContext->createTempSymbol();
       Streamer->emitLabel(TempSymbol);
       const MCExpr *TargetExpr = MCSymbolRefExpr::create(Symbol, Kind, *OutContext);
@@ -509,7 +508,7 @@ int ObjectWriter::EmitSymbolRef(const char *SymbolName,
     return 4;
   }
   case RelocType::IMAGE_REL_BASED_ARM64_PAGEBASE_REL21: {
-    if (ObjFileInfo->getObjectFileType() == ObjFileInfo->IsMachO) {
+    if (OutContext->getObjectFileType() == MCContext::IsMachO) {
       Kind = MCSymbolRefExpr::VK_PAGE;
     }
     const MCExpr *TargetExpr = GenTargetExpr(Symbol, Kind, Delta);
@@ -519,7 +518,7 @@ int ObjectWriter::EmitSymbolRef(const char *SymbolName,
     return 4;
   }
   case RelocType::IMAGE_REL_BASED_ARM64_PAGEOFFSET_12A: {
-    if (ObjFileInfo->getObjectFileType() == ObjFileInfo->IsMachO) {
+    if (OutContext->getObjectFileType() == MCContext::IsMachO) {
       Kind = MCSymbolRefExpr::VK_PAGEOFF;
     }
     const MCExpr *TargetExpr = GenTargetExpr(Symbol, Kind, Delta);
@@ -537,7 +536,7 @@ int ObjectWriter::EmitSymbolRef(const char *SymbolName,
 
 void ObjectWriter::EmitWinFrameInfo(const char *FunctionName, int StartOffset,
                                     int EndOffset, const char *BlobSymbolName) {
-  assert(ObjFileInfo->getObjectFileType() == ObjFileInfo->IsCOFF);
+  assert(OutContext->getObjectFileType() == MCContext::IsCOFF);
 
   // .pdata emission
   MCSection *Section = ObjFileInfo->getPDataSection();
@@ -559,7 +558,7 @@ void ObjectWriter::EmitWinFrameInfo(const char *FunctionName, int StartOffset,
   const MCExpr *BaseRefRel =
       GetSymbolRefExpr(FunctionName, MCSymbolRefExpr::VK_COFF_IMGREL32);
 
-  Triple::ArchType Arch = ObjFileInfo->getTargetTriple().getArch();
+  Triple::ArchType Arch = OutContext->getTargetTriple().getArch();
 
   if (Arch == Triple::thumb || Arch == Triple::thumbeb) {
     StartOffset |= 1;
@@ -609,7 +608,7 @@ void ObjectWriter::EmitCFILsda(const char *LsdaBlobSymbolName) {
   // Create symbol reference
   MCSymbol *T = OutContext->getOrCreateSymbol(LsdaBlobSymbolName);
   Assembler->registerSymbol(*T);
-  if (ObjFileInfo->getObjectFileType() == ObjFileInfo->IsMachO) {
+  if (OutContext->getObjectFileType() == MCContext::IsMachO) {
     Streamer->emitCFILsda(T, llvm::dwarf::Constants::DW_EH_PE_pcrel);
   } else {
     Streamer->emitCFILsda(T, llvm::dwarf::Constants::DW_EH_PE_pcrel |
@@ -713,7 +712,7 @@ CVRegNum ObjectWriter::GetCVRegNum(unsigned RegNum) {
     CV_AMD64_R12, CV_AMD64_R13, CV_AMD64_R14, CV_AMD64_R15,
   };
 
-  switch (ObjFileInfo->getTargetTriple().getArch()) {
+  switch (OutContext->getTargetTriple().getArch()) {
   case Triple::x86:
     if (X86::ICorDebugInfo::REGNUM_EAX <= RegNum &&
         RegNum <= X86::ICorDebugInfo::REGNUM_EDI) {
@@ -856,7 +855,7 @@ void ObjectWriter::EmitCVDebugVarInfo(const MCSymbol *Fn,
 
 void ObjectWriter::EmitCVDebugFunctionInfo(const char *FunctionName,
                                            int FunctionSize) {
-  assert(ObjFileInfo->getObjectFileType() == ObjFileInfo->IsCOFF);
+  assert(OutContext->getObjectFileType() == MCContext::IsCOFF);
 
   // Mark the end of function.
   MCSymbol *FnEnd = OutContext->createTempSymbol();
@@ -941,7 +940,7 @@ void ObjectWriter::EmitDwarfFunctionInfo(const char *FunctionName,
 
 void ObjectWriter::EmitDebugFileInfo(int FileId, const char *FileName) {
   assert(FileId > 0 && "FileId should be greater than 0.");
-  if (ObjFileInfo->getObjectFileType() == ObjFileInfo->IsCOFF) {
+  if (OutContext->getObjectFileType() == MCContext::IsCOFF) {
     // TODO: we could pipe through the checksum and hash algorithm from the managed PDB
     ArrayRef<uint8_t> ChecksumAsBytes;
     Streamer->EmitCVFileDirective(FileId, FileName, ChecksumAsBytes, 0);
@@ -953,11 +952,11 @@ void ObjectWriter::EmitDebugFileInfo(int FileId, const char *FileName) {
 void ObjectWriter::EmitDebugFunctionInfo(const char *FunctionName,
                                          int FunctionSize,
                                          unsigned MethodTypeIndex) {
-  if (ObjFileInfo->getObjectFileType() == ObjFileInfo->IsCOFF) {
+  if (OutContext->getObjectFileType() == MCContext::IsCOFF) {
     Streamer->EmitCVFuncIdDirective(FuncId);
     EmitCVDebugFunctionInfo(FunctionName, FunctionSize);
   } else {
-    if (ObjFileInfo->getObjectFileType() == ObjFileInfo->IsELF) {
+    if (OutContext->getObjectFileType() == MCContext::IsELF) {
       MCSymbol *Sym = OutContext->getOrCreateSymbol(Twine(FunctionName));
       Streamer->emitSymbolAttribute(Sym, MCSA_ELF_TypeFunction);
       Streamer->emitELFSize(Sym,
@@ -983,7 +982,7 @@ void ObjectWriter::EmitDebugVar(char *Name, int TypeIndex, bool IsParm,
 
 void ObjectWriter::EmitDebugEHClause(unsigned TryOffset, unsigned TryLength,
                                 unsigned HandlerOffset, unsigned HandlerLength) {
-  if (ObjFileInfo->getObjectFileType() == ObjFileInfo->IsELF) {
+  if (OutContext->getObjectFileType() == MCContext::IsELF) {
     DebugEHClauseInfos.emplace_back(TryOffset, TryLength, HandlerOffset, HandlerLength);
   }
 }
@@ -991,7 +990,7 @@ void ObjectWriter::EmitDebugEHClause(unsigned TryOffset, unsigned TryLength,
 void ObjectWriter::EmitDebugLoc(int NativeOffset, int FileId, int LineNumber,
                                 int ColNumber) {
   assert(FileId > 0 && "FileId should be greater than 0.");
-  if (ObjFileInfo->getObjectFileType() == ObjFileInfo->IsCOFF) {
+  if (OutContext->getObjectFileType() == MCContext::IsCOFF) {
     Streamer->EmitCVFuncIdDirective(FuncId);
     Streamer->emitCVLocDirective(FuncId, FileId, LineNumber, ColNumber, false,
                                  true, "", SMLoc());
@@ -1027,7 +1026,7 @@ void ObjectWriter::EmitCVUserDefinedTypesSymbols() {
 }
 
 void ObjectWriter::EmitDebugModuleInfo() {
-  if (ObjFileInfo->getObjectFileType() == ObjFileInfo->IsCOFF) {
+  if (OutContext->getObjectFileType() == MCContext::IsCOFF) {
     TypeBuilder->EmitTypeInformation(ObjFileInfo->getCOFFDebugTypesSection());
     EmitCVUserDefinedTypesSymbols();
   }
@@ -1037,7 +1036,7 @@ void ObjectWriter::EmitDebugModuleInfo() {
     Streamer->endSection(Section);
   }
 
-  if (ObjFileInfo->getObjectFileType() == ObjFileInfo->IsCOFF) {
+  if (OutContext->getObjectFileType() == MCContext::IsCOFF) {
     MCSection *Section = ObjFileInfo->getCOFFDebugSymbolsSection();
     Streamer->SwitchSection(Section);
     Streamer->emitCVFileChecksumsDirective();
