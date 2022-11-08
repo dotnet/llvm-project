@@ -44,6 +44,7 @@ enum CustomSectionAttributes : int32_t {
   CustomSectionAttributes_ReadOnly = 0x0000,
   CustomSectionAttributes_Writeable = 0x0001,
   CustomSectionAttributes_Executable = 0x0002,
+  CustomSectionAttributes_Uninitialized = 0x0004,
   CustomSectionAttributes_MachO_Init_Func_Pointers = 0x0100,
 };
 
