@@ -138,8 +138,6 @@ bool ObjectWriter::Init(llvm::StringRef ObjectFilePath, const char* tripleName) 
   FrameOpened = false;
   FuncId = 1;
 
-  SetCodeSectionAttribute("text", CustomSectionAttributes_Executable, nullptr);
-
   if (OutContext->getObjectFileType() == MCContext::IsCOFF) {
     TypeBuilder.reset(new UserDefinedCodeViewTypesBuilder());
   } else {
