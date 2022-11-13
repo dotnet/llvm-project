@@ -7,6 +7,11 @@ set(LLVM_LINK_COMPONENTS
   Support
   )
 
+if (MSVC)
+  # Force uCRT to be dynamically linked for Release build
+  set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} /NODEFAULTLIB:libucrt.lib /DEFAULTLIB:ucrt.lib")
+endif()
+
 message(STATUS "ObjWriter configuring with (${CMAKE_BUILD_TYPE}) build type and (${LLVM_DEFAULT_TARGET_TRIPLE}) default target triple")
 
 add_llvm_library(objwriter SHARED
