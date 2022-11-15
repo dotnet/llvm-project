@@ -419,7 +419,7 @@ static void EmitVarLocation(MCObjectStreamer *Streamer,
       if (IsLocList) {
         Streamer->emitIntValue(Len, 2);
       } else {
-        Streamer->emitULEB128IntValue(Len + 1);
+        Streamer->emitULEB128IntValue(Len);
       }
 
       EmitReg(Streamer, DwarfRegNum2);
