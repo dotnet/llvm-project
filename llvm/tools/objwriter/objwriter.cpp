@@ -114,7 +114,8 @@ bool ObjectWriter::Init(llvm::StringRef ObjectFilePath, const char* tripleName) 
   OutContext.reset(
       new MCContext(TheTriple, AsmInfo.get(), RegisterInfo.get(), SubtargetInfo.get()));
   ObjFileInfo.reset(TheTarget->createMCObjectFileInfo(*OutContext, false));
-
+  OutContext->setObjectFileInfo(ObjFileInfo.get());
+  
   CodeEmitter =
       TheTarget->createMCCodeEmitter(*InstrInfo, *RegisterInfo, *OutContext);
   if (!CodeEmitter)
