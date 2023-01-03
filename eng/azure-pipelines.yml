@@ -84,7 +84,7 @@ stages:
           condition: and(succeeded(), ne(variables['assetManifestPlatform'], 'x64'))
 
         - bash: |
-            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg) $(Devtoolset7Arg)
+            ./build.sh --ci --restore --build -v --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg) $(Devtoolset7Arg)
           displayName: 'Build and package'
           env:
             ROOTFS_DIR: $(rootfs)
