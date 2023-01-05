@@ -36,7 +36,7 @@ stages:
             x64:
               assetManifestOS: linux
               assetManifestPlatform: x64
-              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:centos-7-20221212202838-73aa681
+              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:centos-7
               rootfs: 
               clangtarget: 
               archflag: --arch x64
