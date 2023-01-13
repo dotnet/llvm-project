@@ -98,7 +98,7 @@ stages:
       ############ LINUX MUSL BUILD ############
       - job: Build_Linux_musl
         displayName: Linux_musl
-        timeoutInMinutes: 120
+        timeoutInMinutes: 180
         strategy:
           matrix:
             x64:
