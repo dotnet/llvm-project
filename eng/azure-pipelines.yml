@@ -104,7 +104,7 @@ stages:
             x64:
               assetManifestOS: linux-musl
               assetManifestPlatform: x64
-              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:alpine-3.13-WithNode-20210910135845-c401c85
+              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:alpine-3.13-WithNode
               rootfs: 
               clangtarget: 
               archflag: --arch x64
@@ -113,7 +113,7 @@ stages:
             arm64:
               assetManifestOS: linux-musl
               assetManifestPlatform: arm64
-              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-16.04-cross-arm64-alpine-20210923140502-78f7860
+              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-22.04-cross-arm64-alpine
               rootfs: /crossrootfs/arm64
               clangtarget: aarch64-alpine-linux-musl
               archflag: --arch arm64
