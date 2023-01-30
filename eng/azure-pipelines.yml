@@ -99,6 +99,8 @@ stages:
       - job: Build_Linux_musl
         displayName: Linux_musl
         timeoutInMinutes: 180
+        variables:
+        - _BuildConfig: Release
         strategy:
           matrix:
             x64:
