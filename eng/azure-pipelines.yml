@@ -111,7 +111,9 @@ stages:
               clangtarget: 
               archflag: --arch x64
               LLVMTableGenArg: 
-              ClangTableGenArg: 
+              ClangTableGenArg:
+              ClangVersion: clang-9
+              ClangPlusVersion: clang++-9
             arm64:
               assetManifestOS: linux-musl
               assetManifestPlatform: arm64
@@ -121,6 +123,8 @@ stages:
               archflag: --arch arm64
               LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/llvm-tblgen
               ClangTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/clang-tblgen
+              ClangVersion: clang-15
+              ClangPlusVersion: clang++-15
         pool:
           ${{ if eq(variables['System.TeamProject'], 'public') }}:
             vmImage: ubuntu-20.04
@@ -142,7 +146,7 @@ stages:
           condition: and(succeeded(), ne(variables['assetManifestPlatform'], 'x64'))
 
         - bash: |
-            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg) /p:OutputRid=linux-musl-$(assetManifestPlatform)
+            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg) /p:OutputRid=linux-musl-$(assetManifestPlatform) /p:ClangVersion=$(ClangVersion) /p:ClangPlusVersion=$(ClangPlusVersion)
           displayName: 'Build and package'
           env:
             ROOTFS_DIR: $(rootfs)
