@@ -53,6 +53,8 @@ stages:
               LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/llvm-tblgen
               ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/clang-tblgen
               Devtoolset7Arg: 
+              ClangVersion: clang-9
+              ClangPlusVersion: clang++-9
             arm:
               assetManifestOS: linux
               assetManifestPlatform: arm
@@ -63,6 +65,8 @@ stages:
               LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/llvm-tblgen
               ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/clang-tblgen
               Devtoolset7Arg: 
+              ClangVersion: clang-9
+              ClangPlusVersion: clang++-9
         pool:
           ${{ if eq(variables['System.TeamProject'], 'public') }}:
             vmImage: ubuntu-20.04
@@ -84,7 +88,7 @@ stages:
           condition: and(succeeded(), ne(variables['assetManifestPlatform'], 'x64'))
 
         - bash: |
-            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg) $(Devtoolset7Arg)
+            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg) $(Devtoolset7Arg)  /p:ClangVersion=$(ClangVersion) /p:ClangPlusVersion=$(ClangPlusVersion)
           displayName: 'Build and package'
           env:
             ROOTFS_DIR: $(rootfs)
@@ -177,6 +181,8 @@ stages:
               archflag: --arch arm64
               LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/llvm-tblgen
               ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/clang-tblgen
+              ClangVersion: clang-9
+              ClangPlusVersion: clang++-9
         pool:
           vmImage: macos-11
         steps:
@@ -192,7 +198,7 @@ stages:
           condition: and(succeeded(), ne(variables['assetManifestPlatform'], 'x64'))
 
         - bash: |
-            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg)
+            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg)  /p:ClangVersion=$(ClangVersion) /p:ClangPlusVersion=$(ClangPlusVersion)
           displayName: 'Build and package'
 
         - bash: 
