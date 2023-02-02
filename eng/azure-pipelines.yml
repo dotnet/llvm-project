@@ -126,7 +126,7 @@ stages:
               clangtarget: aarch64-alpine-linux-musl
               archflag: --arch arm64
               LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/llvm-tblgen
-              ClangTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/clang-tblgen
+              ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/clang-tblgen
               ClangVersion: clang-15
               ClangPlusVersion: clang++-15
         pool:
