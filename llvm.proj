@@ -52,12 +52,9 @@
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm'" Include="-DLLVM_TARGET_ARCH=ARM" />
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'Windows_NT'" Include="-DLLVM_DEFAULT_TARGET_TRIPLE=aarch64-windows-msvc" />
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm' and '$(BuildOS)' == 'Windows_NT'" Include="-DLLVM_DEFAULT_TARGET_TRIPLE=arm-windows-msvc" />
-    <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'Linux'" Include="-DLLVM_DEFAULT_TARGET_TRIPLE=aarch64-linux-gnu" />
-    <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'Linux'" Include="-DCMAKE_OBJCOPY=/usr/bin/aarch64-linux-gnu-objcopy" />
-    <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'Linux'" Include="-DCMAKE_STRIP=/usr/bin/aarch64-linux-gnu-strip" />
-    <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm' and '$(BuildOS)' == 'Linux'" Include="-DLLVM_DEFAULT_TARGET_TRIPLE=arm-linux-gnueabihf" />
-    <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm' and '$(BuildOS)' == 'Linux'" Include="-DCMAKE_OBJCOPY=/usr/bin/arm-linux-gnueabihf-objcopy" />
-    <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm' and '$(BuildOS)' == 'Linux'" Include="-DCMAKE_STRIP=/usr/bin/arm-linux-gnueabihf-strip" />
+    <_LLVMBuildArgs Condition="('$(TargetArchitecture)' == 'arm' or '$(TargetArchitecture)' == 'arm64') and '$(BuildOS)' == 'Linux'" Include="-DLLVM_DEFAULT_TARGET_TRIPLE=$(CLANG_TARGET)" />
+    <_LLVMBuildArgs Condition="('$(TargetArchitecture)' == 'arm' or '$(TargetArchitecture)' == 'arm64') and '$(BuildOS)' == 'Linux'" Include="-DCMAKE_OBJCOPY=/usr/bin/$(CLANG_TARGET)-objcopy" />
+    <_LLVMBuildArgs Condition="('$(TargetArchitecture)' == 'arm' or '$(TargetArchitecture)' == 'arm64') and '$(BuildOS)' == 'Linux'" Include="-DCMAKE_STRIP=/usr/bin/$(CLANG_TARGET)-strip" />
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'OSX'" Include="-DLLVM_DEFAULT_TARGET_TRIPLE=arm64-apple-darwin" />
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'OSX'" Include="-DCMAKE_OSX_ARCHITECTURES=arm64"/>
     <!-- Enable CMake cross-compilation support by setting CMAKE_SYSTEM_NAME manually, see https://github.com/llvm/llvm-project/issues/52819 -->
