@@ -43,6 +43,8 @@ stages:
               LLVMTableGenArg: 
               ClangTableGenArg: 
               Devtoolset7Arg: /p:ForceDevtoolset7=true
+              ClangVersion: clang-9
+              ClangPlusVersion: clang++-9
             arm64:
               assetManifestOS: linux
               assetManifestPlatform: arm64
@@ -83,19 +85,19 @@ stages:
           displayName: 'Clean up working directory'
 
         - bash: |
-            ./build.sh --ci --restore --build --arch x64 -configuration $(_BuildConfig) $(_InternalBuildArgs) /p:BuildLLVMTableGenOnly=true
+            ./build.sh --ci --restore --build --arch x64 -configuration $(_BuildConfig) $(_InternalBuildArgs) /p:BuildLLVMTableGenOnly=true /p:ClangVersion=$(ClangVersion) /p:ClangPlusVersion=$(ClangPlusVersion)
           displayName: 'Build host llvm-tblgen for cross-compiling'
           condition: and(succeeded(), ne(variables['assetManifestPlatform'], 'x64'))
 
         - bash: |
-            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg) $(Devtoolset7Arg)  /p:ClangVersion=$(ClangVersion) /p:ClangPlusVersion=$(ClangPlusVersion)
+            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg) $(Devtoolset7Arg) /p:ClangVersion=$(ClangVersion) /p:ClangPlusVersion=$(ClangPlusVersion)
           displayName: 'Build and package'
           env:
             ROOTFS_DIR: $(rootfs)
             CLANG_TARGET: $(clangtarget)
 
         - bash: |
-            ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) --projects $(Build.SourcesDirectory)/llvm.proj
+            ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) /p:ClangVersion=$(ClangVersion) /p:ClangPlusVersion=$(ClangPlusVersion) --projects $(Build.SourcesDirectory)/llvm.proj
           displayName: Publish packages
           condition: and(succeeded(), ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest'))
 
@@ -145,7 +147,7 @@ stages:
           displayName: 'Clean up working directory'
 
         - bash: |
-            ./build.sh --ci --restore --build --arch x64 -configuration $(_BuildConfig) $(_InternalBuildArgs) /p:BuildLLVMTableGenOnly=true
+            ./build.sh --ci --restore --build --arch x64 -configuration $(_BuildConfig) $(_InternalBuildArgs) /p:BuildLLVMTableGenOnly=true /p:ClangVersion=$(ClangVersion) /p:ClangPlusVersion=$(ClangPlusVersion)
           displayName: 'Build host llvm-tblgen for cross-compiling'
           condition: and(succeeded(), ne(variables['assetManifestPlatform'], 'x64'))
 
@@ -157,7 +159,7 @@ stages:
             CLANG_TARGET: $(clangtarget)
 
         - bash: |
-            ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) --projects $(Build.SourcesDirectory)/llvm.proj
+            ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) /p:ClangVersion=$(ClangVersion) /p:ClangPlusVersion=$(ClangPlusVersion) --projects $(Build.SourcesDirectory)/llvm.proj
           displayName: Publish packages
           condition: and(succeeded(), ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest'))
 
@@ -181,8 +183,6 @@ stages:
               archflag: --arch arm64
               LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/llvm-tblgen
               ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/clang-tblgen
-              ClangVersion: clang-9
-              ClangPlusVersion: clang++-9
         pool:
           vmImage: macos-11
         steps:
@@ -198,7 +198,7 @@ stages:
           condition: and(succeeded(), ne(variables['assetManifestPlatform'], 'x64'))
 
         - bash: |
-            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg)  /p:ClangVersion=$(ClangVersion) /p:ClangPlusVersion=$(ClangPlusVersion)
+            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg)
           displayName: 'Build and package'
 
         - bash: 
