@@ -104,7 +104,7 @@ stages:
       ############ LINUX MUSL BUILD ############
       - job: Build_Linux_musl
         displayName: Linux_musl
-        timeoutInMinutes: 180
+        timeoutInMinutes: 210
         variables:
         - _BuildConfig: Release
         strategy:
