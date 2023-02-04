@@ -20,7 +20,7 @@ stages:
   jobs:
   - template: /eng/common/templates/jobs/jobs.yml
     parameters:
-      enablePublishBuildArtifacts: true
+      enablePublishBuildArtifacts: true=clang++-
       enablePublishBuildAssets: true
       enablePublishUsingPipelines: true
       jobs:
@@ -43,7 +43,7 @@ stages:
               LLVMTableGenArg: 
               ClangTableGenArg: 
               Devtoolset7Arg: /p:ForceDevtoolset7=true
-              ClangVersionArg: /p:ClangVersion=clang-9 /p:ClangPlusVersion=clang++9
+              ClangVersionArg: /p:ClangVersion=clang-9 /p:ClangPlusVersion=clang++-9
             arm64:
               assetManifestOS: linux
               assetManifestPlatform: arm64
@@ -54,7 +54,7 @@ stages:
               LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/llvm-tblgen
               ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/clang-tblgen
               Devtoolset7Arg: 
-              ClangVersionArg: /p:ClangVersion=clang-9 /p:ClangPlusVersion=clang++9
+              ClangVersionArg: /p:ClangVersion=clang-9 /p:ClangPlusVersion=clang++-9
             arm:
               assetManifestOS: linux
               assetManifestPlatform: arm
@@ -65,7 +65,7 @@ stages:
               LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/llvm-tblgen
               ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/clang-tblgen
               Devtoolset7Arg: 
-              ClangVersionArg: /p:ClangVersion=clang-9 /p:ClangPlusVersion=clang++9
+              ClangVersionArg: /p:ClangVersion=clang-9 /p:ClangPlusVersion=clang++-9
         pool:
           ${{ if eq(variables['System.TeamProject'], 'public') }}:
             vmImage: ubuntu-20.04
@@ -114,7 +114,7 @@ stages:
               archflag: --arch x64
               LLVMTableGenArg: 
               ClangTableGenArg: 
-              ClangVersionArg: /p:ClangVersion=clang-9 /p:ClangPlusVersion=clang++9
+              ClangVersionArg: /p:ClangVersion=clang-9 /p:ClangPlusVersion=clang++-9
             arm64:
               assetManifestOS: linux-musl
               assetManifestPlatform: arm64
@@ -124,7 +124,7 @@ stages:
               archflag: --arch arm64
               LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/llvm-tblgen
               ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/clang-tblgen
-              ClangVersionArg: /p:ClangVersion=clang-15 /p:ClangPlusVersion=clang++15
+              ClangVersionArg: /p:ClangVersion=clang-15 /p:ClangPlusVersion=clang++-15
         pool:
           ${{ if eq(variables['System.TeamProject'], 'public') }}:
             vmImage: ubuntu-20.04
