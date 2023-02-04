@@ -38,7 +38,7 @@ stages:
               assetManifestPlatform: x64
               imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:centos-7
               rootfs: 
-              clangtarget: 
+              ClangTargetArg: 
               archflag: --arch x64
               LLVMTableGenArg: 
               ClangTableGenArg: 
@@ -49,7 +49,7 @@ stages:
               assetManifestPlatform: arm64
               imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-16.04-cross-arm64-cfdd435-20200121150126
               rootfs: /crossrootfs/arm64
-              clangtarget: aarch64-linux-gnu
+              ClangTargetArg: /p:ClangTarget=aarch64-linux-gnu
               archflag: --arch arm64
               LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/llvm-tblgen
               ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/clang-tblgen
@@ -60,7 +60,7 @@ stages:
               assetManifestPlatform: arm
               imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-16.04-cross-09ec757-20200320131433
               rootfs: /crossrootfs/arm
-              clangtarget: arm-linux-gnueabihf
+              ClangTargetArg: /p:ClangTarget=arm-linux-gnueabihf
               archflag: --arch arm
               LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/llvm-tblgen
               ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/clang-tblgen
@@ -87,7 +87,7 @@ stages:
           condition: and(succeeded(), ne(variables['assetManifestPlatform'], 'x64'))
 
         - bash: |
-            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg) $(Devtoolset7Arg) $(ClangVersionArg) /p:ClangTarget="$(clangtarget)"
+            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg) $(Devtoolset7Arg) $(ClangVersionArg) $(ClangTargetArg)
           displayName: 'Build and package'
           env:
             ROOTFS_DIR: $(rootfs)
@@ -110,7 +110,7 @@ stages:
               assetManifestPlatform: x64
               imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:alpine-3.13-WithNode
               rootfs: 
-              clangtarget: 
+              ClangTargetArg: 
               archflag: --arch x64
               LLVMTableGenArg: 
               ClangTableGenArg: 
@@ -120,7 +120,7 @@ stages:
               assetManifestPlatform: arm64
               imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-22.04-cross-arm64-alpine
               rootfs: /crossrootfs/arm64
-              clangtarget: aarch64-alpine-linux-musl
+              ClangTargetArg: /p:ClangTarget=aarch64-alpine-linux-musl
               archflag: --arch arm64
               LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/llvm-tblgen
               ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/clang-tblgen
@@ -146,7 +146,7 @@ stages:
           condition: and(succeeded(), ne(variables['assetManifestPlatform'], 'x64'))
 
         - bash: |
-            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg) /p:OutputRid=linux-musl-$(assetManifestPlatform) $(ClangVersionArg) /p:ClangTarget="$(clangtarget)"
+            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg) /p:OutputRid=linux-musl-$(assetManifestPlatform) $(ClangVersionArg) $(ClangTargetArg)
           displayName: 'Build and package'
           env:
             ROOTFS_DIR: $(rootfs)
