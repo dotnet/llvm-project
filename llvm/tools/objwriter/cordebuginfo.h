@@ -2,7 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 //
-// Keep in sync with https://github.com/dotnet/corert/blob/master/src/Native/ObjWriter/cordebuginfo.h
+// Keep in sync with https://github.com/dotnet/runtime/blob/main/src/coreclr/inc/cordebuginfo.h
 //
 
 /**********************************************************************************/
