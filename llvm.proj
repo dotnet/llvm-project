@@ -52,9 +52,9 @@
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm'" Include="-DLLVM_TARGET_ARCH=ARM" />
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'Windows_NT'" Include="-DLLVM_DEFAULT_TARGET_TRIPLE=aarch64-windows-msvc" />
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm' and '$(BuildOS)' == 'Windows_NT'" Include="-DLLVM_DEFAULT_TARGET_TRIPLE=arm-windows-msvc" />
-    <_LLVMBuildArgs Condition="('$(TargetArchitecture)' == 'arm' or '$(TargetArchitecture)' == 'arm64') and '$(BuildOS)' == 'Linux'" Include="-DLLVM_DEFAULT_TARGET_TRIPLE=$(CLANG_TARGET)" />
-    <_LLVMBuildArgs Condition="('$(TargetArchitecture)' == 'arm' or '$(TargetArchitecture)' == 'arm64') and '$(BuildOS)' == 'Linux'" Include="-DCMAKE_OBJCOPY=/usr/bin/$(CLANG_TARGET)-objcopy" />
-    <_LLVMBuildArgs Condition="('$(TargetArchitecture)' == 'arm' or '$(TargetArchitecture)' == 'arm64') and '$(BuildOS)' == 'Linux'" Include="-DCMAKE_STRIP=/usr/bin/$(CLANG_TARGET)-strip" />
+    <_LLVMBuildArgs Condition="'$(ClangTarget)' != '' and '$(BuildOS)' == 'Linux'" Include="-DLLVM_DEFAULT_TARGET_TRIPLE=$(ClangTarget)" />
+    <_LLVMBuildArgs Condition="'$(ClangTarget)' != '' and '$(BuildOS)' == 'Linux'" Include="-DCMAKE_OBJCOPY=/usr/bin/$(ClangTarget)-objcopy" />
+    <_LLVMBuildArgs Condition="'$(ClangTarget)' != '' and '$(BuildOS)' == 'Linux'" Include="-DCMAKE_STRIP=/usr/bin/$(ClangTarget)-strip" />
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'OSX'" Include="-DLLVM_DEFAULT_TARGET_TRIPLE=arm64-apple-darwin" />
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'OSX'" Include="-DCMAKE_OSX_ARCHITECTURES=arm64"/>
     <!-- Enable CMake cross-compilation support by setting CMAKE_SYSTEM_NAME manually, see https://github.com/llvm/llvm-project/issues/52819 -->
@@ -99,7 +99,7 @@
   </ItemGroup>
 
   <PropertyGroup Condition="'$(BuildOS)' != 'Windows_NT'">
-    <_CrossCFlags Condition="'$(BuildOS)' == 'Linux' and ('$(TargetArchitecture)' == 'arm64' or '$(TargetArchitecture)' == 'arm')">--target=$(CLANG_TARGET) --sysroot=$(ROOTFS_DIR)</_CrossCFlags>
+    <_CrossCFlags Condition="'$(BuildOS)' == 'Linux' and '$(ClangTarget)' != ''">--target=$(ClangTarget) --sysroot=$(ROOTFS_DIR)</_CrossCFlags>
     <_CrossCFlags Condition="'$(BuildOS)' == 'OSX' and '$(TargetArchitecture)' == 'arm64'">--target=aarch64-apple-darwin</_CrossCFlags>
     <_ExeLinkerFlags>$(_CrossCFlags)</_ExeLinkerFlags>
     <_ExeLinkerFlags Condition="'$(BuildOS)' == 'Linux'">-Wl,--build-id $(_ExeLinkerFlags)</_ExeLinkerFlags>

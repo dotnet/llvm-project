@@ -82,19 +82,18 @@ stages:
           displayName: 'Clean up working directory'
 
         - bash: |
-            ./build.sh --ci --restore --build --arch x64 -configuration $(_BuildConfig) $(_InternalBuildArgs) /p:BuildLLVMTableGenOnly=true $(ClangVersionArg)
+            ./build.sh --ci --restore --build --arch x64 -configuration "$(_BuildConfig)" $(_InternalBuildArgs) /p:BuildLLVMTableGenOnly=true $(ClangVersionArg)
           displayName: 'Build host llvm-tblgen for cross-compiling'
           condition: and(succeeded(), ne(variables['assetManifestPlatform'], 'x64'))
 
         - bash: |
-            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg) $(Devtoolset7Arg) $(ClangVersionArg)
+            ./build.sh --ci --restore --build --pack $(archflag) --configuration "$(_BuildConfig)" $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg) $(Devtoolset7Arg) $(ClangVersionArg) /p:ClangTarget="$(clangtarget)"
           displayName: 'Build and package'
           env:
             ROOTFS_DIR: $(rootfs)
-            CLANG_TARGET: $(clangtarget)
 
         - bash: |
-            ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) $(ClangVersionArg) --projects $(Build.SourcesDirectory)/llvm.proj
+            ./eng/common/build.sh --ci --restore --publish --configuration "$(_BuildConfig)" $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) $(ClangVersionArg) --projects $(Build.SourcesDirectory)/llvm.proj
           displayName: Publish packages
           condition: and(succeeded(), ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest'))
 
@@ -142,19 +141,18 @@ stages:
           displayName: 'Clean up working directory'
 
         - bash: |
-            ./build.sh --ci --restore --build --arch x64 -configuration $(_BuildConfig) $(_InternalBuildArgs) /p:BuildLLVMTableGenOnly=true $(ClangVersionArg)
+            ./build.sh --ci --restore --build --arch x64 -configuration "$(_BuildConfig)" $(_InternalBuildArgs) /p:BuildLLVMTableGenOnly=true $(ClangVersionArg)
           displayName: 'Build host llvm-tblgen for cross-compiling'
           condition: and(succeeded(), ne(variables['assetManifestPlatform'], 'x64'))
 
         - bash: |
-            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg) /p:OutputRid=linux-musl-$(assetManifestPlatform) $(ClangVersionArg)
+            ./build.sh --ci --restore --build --pack $(archflag) --configuration "$(_BuildConfig)" $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg) /p:OutputRid=linux-musl-$(assetManifestPlatform) $(ClangVersionArg) /p:ClangTarget="$(clangtarget)"
           displayName: 'Build and package'
           env:
             ROOTFS_DIR: $(rootfs)
-            CLANG_TARGET: $(clangtarget)
 
         - bash: |
-            ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) $(ClangVersionArg) --projects $(Build.SourcesDirectory)/llvm.proj
+            ./eng/common/build.sh --ci --restore --publish --configuration "$(_BuildConfig)" $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) $(ClangVersionArg) --projects $(Build.SourcesDirectory)/llvm.proj
           displayName: Publish packages
           condition: and(succeeded(), ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest'))
 
@@ -188,16 +186,16 @@ stages:
           displayName: 'Clean up working directory'
 
         - bash: |
-            ./build.sh --ci --restore --build --arch x64 -configuration $(_BuildConfig) $(_InternalBuildArgs) /p:BuildLLVMTableGenOnly=true
+            ./build.sh --ci --restore --build --arch x64 -configuration "$(_BuildConfig)" $(_InternalBuildArgs) /p:BuildLLVMTableGenOnly=true
           displayName: 'Build host llvm-tblgen for cross-compiling'
           condition: and(succeeded(), ne(variables['assetManifestPlatform'], 'x64'))
 
         - bash: |
-            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg)
+            ./build.sh --ci --restore --build --pack $(archflag) --configuration "$(_BuildConfig)" $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg)
           displayName: 'Build and package'
 
         - bash: 
-            ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) --projects $(Build.SourcesDirectory)/llvm.proj
+            ./eng/common/build.sh --ci --restore --publish --configuration "$(_BuildConfig)" $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) --projects $(Build.SourcesDirectory)/llvm.proj
           displayName: Publish packages
           condition: and(succeeded(), ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest'))
 
@@ -268,14 +266,14 @@ stages:
             git reset --hard HEAD
           displayName: 'Clean up working directory'
 
-        - powershell: eng\build.ps1 -ci -restore -build -arch x64 -configuration $(_BuildConfig) $(_InternalBuildArgs) /p:BuildLLVMTableGenOnly=true
+        - powershell: eng\build.ps1 -ci -restore -build -arch x64 -configuration "$(_BuildConfig)" $(_InternalBuildArgs) /p:BuildLLVMTableGenOnly=true
           displayName: 'Build host llvm-tblgen for cross-compiling'
           condition: and(succeeded(), ne(variables['assetManifestPlatform'], 'x64'))
 
-        - powershell: eng\build.ps1 -ci -restore -build -pack $(archflag) -configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg)
+        - powershell: eng\build.ps1 -ci -restore -build -pack $(archflag) -configuration "$(_BuildConfig)" $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg)
           displayName: 'Build and package'
 
-        - powershell: eng\common\build.ps1 -ci -restore -publish -configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(_BuildConfig)-$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) -projects $(Build.SourcesDirectory)\llvm.proj
+        - powershell: eng\common\build.ps1 -ci -restore -publish -configuration "$(_BuildConfig)" $(_InternalBuildArgs) /p:AssetManifestOS="$(_BuildConfig)"-$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) -projects $(Build.SourcesDirectory)\llvm.proj
           displayName: Publish packages
           condition: and(succeeded(), ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest'))
 
