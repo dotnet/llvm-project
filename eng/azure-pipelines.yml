@@ -202,7 +202,7 @@ stages:
       ############ WINDOWS BUILD ############
       - job: Build_Windows
         displayName: Windows
-        timeoutInMinutes: 180
+        timeoutInMinutes: 210
         strategy:
           matrix:
             # Release
