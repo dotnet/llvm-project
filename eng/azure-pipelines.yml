@@ -20,7 +20,7 @@ stages:
   jobs:
   - template: /eng/common/templates/jobs/jobs.yml
     parameters:
-      enablePublishBuildArtifacts: true=clang++-
+      enablePublishBuildArtifacts: true
       enablePublishBuildAssets: true
       enablePublishUsingPipelines: true
       jobs:
