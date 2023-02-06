@@ -28,7 +28,7 @@ stages:
       ############ LINUX BUILD ############
       - job: Build_Linux
         displayName: Linux
-        timeoutInMinutes: 180
+        timeoutInMinutes: 210
         variables:
         - _BuildConfig: Release
         strategy:
@@ -159,7 +159,7 @@ stages:
       ############ MACOS BUILD ############
       - job: Build_macOS
         displayName: macOS
-        timeoutInMinutes: 180
+        timeoutInMinutes: 210
         variables:
         - _BuildConfig: Release
         strategy:
