@@ -3,6 +3,7 @@
   <PropertyGroup>
     <GitHubRepositoryName>llvm-project</GitHubRepositoryName>
     <SourceBuildManagedOnly>true</SourceBuildManagedOnly>
+    <PackageLicenseFile>$(RepoRoot)/llvm/LICENSE.TXT</PackageLicenseFile>
   </PropertyGroup>
 
 </Project>
