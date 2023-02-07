@@ -28,7 +28,7 @@
     </_SetupEnvironment>
     <_CMakeConfigureCommand>$(_SetupEnvironment) cmake $(_LLVMSourceDir) -G "$(CMakeGenerator)" @(_LLVMBuildArgs->'%(Identity)',' ')</_CMakeConfigureCommand>
     <_BuildSubset Condition="'$(BuildLLVMTableGenOnly)' == 'true'">llvm-tblgen clang-tblgen</_BuildSubset>
-    <_BuildSubset Condition="'$(BuildObjWriterOnly)' == 'true'">objwriter llvm-mca FileCheck</_BuildSubset>
+    <_BuildSubset Condition="'$(BuildObjWriterOnly)' == 'true'">objwriter llvm-mca llvm-dwarfdump FileCheck</_BuildSubset>
     <_BuildCommand Condition="'$(CMakeGenerator)' == 'Unix Makefiles'">$(_SetupEnvironment) make $(_BuildSubset) -j$([System.Environment]::ProcessorCount)</_BuildCommand>
     <_BuildCommand Condition="'$(CMakeGenerator)' == 'Ninja'">$(_SetupEnvironment) ninja $(_BuildSubset)</_BuildCommand>
     <_CMakeInstallCommand Condition="'$(BuildObjWriterOnly)' == 'true'">
@@ -36,6 +36,7 @@
 
     cmake -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_PREFIX=$(_LLVMInstallDir) -DCMAKE_INSTALL_COMPONENT=objwriter -P cmake_install.cmake
     cmake -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_PREFIX=$(_LLVMInstallDir) -DCMAKE_INSTALL_COMPONENT=llvm-mca -P cmake_install.cmake
+    cmake -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_PREFIX=$(_LLVMInstallDir) -DCMAKE_INSTALL_COMPONENT=llvm-dwarfdump -P cmake_install.cmake
     cmake -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_PREFIX=$(_LLVMInstallDir) -DCMAKE_INSTALL_COMPONENT=FileCheck -P cmake_install.cmake
     </_CMakeInstallCommand>
     <_CMakeInstallCommand Condition="'$(BuildObjWriterOnly)' != 'true'">$(_SetupEnvironment) cmake -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_PREFIX=$(_LLVMInstallDir) -P cmake_install.cmake</_CMakeInstallCommand>
@@ -71,7 +72,7 @@
     <_LLVMBuildArgs Include='-DLLVM_BUILD_TESTS=OFF' />
     <_LLVMBuildArgs Include='-DLLVM_BUILD_EXAMPLES=OFF' />
     <_LLVMBuildArgs Include='-DLLVM_INCLUDE_EXAMPLES=OFF' />
-    <_LLVMBuildArgs Include='-DLLVM_TOOLS_TO_BUILD="opt%3Bllc%3Bllvm-config%3Bllvm-dis%3Bllvm-mc%3Bllvm-as%3Bobjwriter%3Bllvm-mca%3BFileCheck"' />
+    <_LLVMBuildArgs Include='-DLLVM_TOOLS_TO_BUILD="opt%3Bllc%3Bllvm-config%3Bllvm-dis%3Bllvm-mc%3Bllvm-as%3Bobjwriter%3Bllvm-mca%3Bllvm-dwarfdump%3BFileCheck"' />
     <_LLVMBuildArgs Include='-DLLVM_ENABLE_LIBXML2=OFF' />
     <_LLVMBuildArgs Include='-DLLVM_ENABLE_TERMINFO=OFF' />
     <_LLVMBuildArgs Include='-DLLVM_EXTERNALIZE_DEBUGINFO=ON' />
