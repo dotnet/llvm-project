@@ -417,7 +417,7 @@ void DwarfClassTypeInfo::Dump(UserDefinedDwarfTypesBuilder *TypeBuilder, MCObjec
   }
 
   if (isEmpty) {
-      // If there are no child nodes we need to write an empty record
+    // If there are no child nodes we need to write an empty record
     Streamer->emitIntValue(0, 1);
   }
 
