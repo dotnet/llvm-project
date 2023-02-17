@@ -399,26 +399,16 @@ void DwarfClassTypeInfo::Dump(UserDefinedDwarfTypesBuilder *TypeBuilder, MCObjec
   if (IsForwardDecl)
     return;
 
-  bool isEmpty = true;
-
   for (auto &Field : Fields) {
-    isEmpty = false;
     Field.Dump(TypeBuilder, Streamer, TypeSection, StrSection);
   }
 
   for (auto &StaticField : StaticFields) {
-    isEmpty = false;
     StaticField.Dump(TypeBuilder, Streamer, TypeSection, StrSection);
   }
 
   for (auto *Function : MemberFunctions) {
-    isEmpty = false;
     Function->Dump(TypeBuilder, Streamer, TypeSection, StrSection);
-  }
-
-  if (isEmpty) {
-    // If there are no child nodes we need to write an empty record
-    Streamer->emitIntValue(0, 1);
   }
 
   // Terminate DIE
