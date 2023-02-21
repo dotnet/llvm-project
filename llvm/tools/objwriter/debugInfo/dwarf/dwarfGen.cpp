@@ -815,7 +815,7 @@ void SubprogramInfo::DumpTypeInfo(MCObjectStreamer *Streamer, UserDefinedDwarfTy
       ? HasChildren() ? DwarfAbbrev::SubprogramStatic
                       : DwarfAbbrev::SubprogramStaticNoChildren
 	  : HasChildren() ? DwarfAbbrev::Subprogram
-				      : DwarfAbbrev::SubprogramNoChildren;
+                      : DwarfAbbrev::SubprogramNoChildren;
 
   Streamer->emitULEB128IntValue(abbrev);
 
