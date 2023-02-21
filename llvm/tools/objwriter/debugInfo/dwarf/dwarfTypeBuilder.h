@@ -215,6 +215,8 @@ protected:
   void DumpTypeInfo(MCObjectStreamer *Streamer, UserDefinedDwarfTypesBuilder *TypeBuilder) override;
 
 private:
+  bool HasChildren() const { return BaseClassId != 0 || !Fields.empty() || !StaticFields.empty() || !MemberFunctions.empty(); }
+
   std::string Name;
   bool IsStruct;
   uint32_t BaseClassId;

@@ -98,8 +98,25 @@ void Dump(MCObjectStreamer *Streamer, uint16_t DwarfVersion, unsigned TargetPoin
         dwarf::DW_AT_object_pointer, dwarf::DW_FORM_ref4,
         0, 0,
 
+    SubprogramNoChildren,
+        dwarf::DW_TAG_subprogram, dwarf::DW_CHILDREN_no,
+        dwarf::DW_AT_specification, dwarf::DW_FORM_ref4,
+        dwarf::DW_AT_low_pc, dwarf::DW_FORM_addr,
+        dwarf::DW_AT_high_pc, DW_FORM_size,
+        dwarf::DW_AT_frame_base, dwarf::DW_FORM_exprloc,
+        dwarf::DW_AT_object_pointer, dwarf::DW_FORM_ref4,
+        0, 0,
+
     SubprogramStatic,
         dwarf::DW_TAG_subprogram, dwarf::DW_CHILDREN_yes,
+        dwarf::DW_AT_specification, dwarf::DW_FORM_ref4,
+        dwarf::DW_AT_low_pc, dwarf::DW_FORM_addr,
+        dwarf::DW_AT_high_pc, DW_FORM_size,
+        dwarf::DW_AT_frame_base, dwarf::DW_FORM_exprloc,
+        0, 0,
+
+    SubprogramStaticNoChildren,
+        dwarf::DW_TAG_subprogram, dwarf::DW_CHILDREN_no,
         dwarf::DW_AT_specification, dwarf::DW_FORM_ref4,
         dwarf::DW_AT_low_pc, dwarf::DW_FORM_addr,
         dwarf::DW_AT_high_pc, DW_FORM_size,
@@ -215,6 +232,12 @@ void Dump(MCObjectStreamer *Streamer, uint16_t DwarfVersion, unsigned TargetPoin
 
     ClassType,
         dwarf::DW_TAG_class_type, dwarf::DW_CHILDREN_yes,
+        dwarf::DW_AT_name, dwarf::DW_FORM_strp,
+        dwarf::DW_AT_byte_size, dwarf::DW_FORM_data4,
+        0, 0,
+
+    ClassTypeNoChildren,
+        dwarf::DW_TAG_class_type, dwarf::DW_CHILDREN_no,
         dwarf::DW_AT_name, dwarf::DW_FORM_strp,
         dwarf::DW_AT_byte_size, dwarf::DW_FORM_data4,
         0, 0,

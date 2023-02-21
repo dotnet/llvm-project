@@ -66,6 +66,7 @@ private:
   void DumpVars(UserDefinedDwarfTypesBuilder *TypeBuilder, MCObjectStreamer *Streamer,
       MCSection *TypeSection, MCSection *StrSection);
   void DumpEHClauses(MCObjectStreamer *Streamer, MCSection *TypeSection);
+  bool HasChildren();
 
   std::string Name;
   int Size;

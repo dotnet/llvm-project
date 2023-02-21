@@ -796,8 +796,10 @@ void SubprogramInfo::Dump(UserDefinedDwarfTypesBuilder *TypeBuilder, MCObjectStr
   Streamer->SwitchSection(TypeSection);
   DumpEHClauses(Streamer, TypeSection);
 
-  // Terminate subprogram DIE
-  Streamer->emitIntValue(0, 1);
+  if (HasChildren()) {
+    // End list of children
+    Streamer->emitIntValue(0, 1);
+  }
 }
 
 void SubprogramInfo::DumpTypeInfo(MCObjectStreamer *Streamer, UserDefinedDwarfTypesBuilder *TypeBuilder) {
@@ -809,8 +811,13 @@ void SubprogramInfo::DumpTypeInfo(MCObjectStreamer *Streamer, UserDefinedDwarfTy
   // Subprogram DIE
 
   // Abbrev Number
-  Streamer->emitULEB128IntValue(IsStatic ? DwarfAbbrev::SubprogramStatic :
-      DwarfAbbrev::Subprogram);
+  auto abbrev = IsStatic
+      ? HasChildren() ? DwarfAbbrev::SubprogramStatic
+                      : DwarfAbbrev::SubprogramStaticNoChildren
+	  : HasChildren() ? DwarfAbbrev::Subprogram
+				      : DwarfAbbrev::SubprogramNoChildren;
+
+  Streamer->emitULEB128IntValue(abbrev);
 
   // DW_AT_specification
   EmitInfoOffset(Streamer, MethodTypeInfo, 4);
@@ -894,6 +901,10 @@ void SubprogramInfo::DumpEHClauses(MCObjectStreamer *Streamer, MCSection *TypeSe
     DumpEHClause(Streamer, TypeSection, DwarfAbbrev::CatchBlock,
         SymExpr, EHClause.HandlerOffset, EHClause.HandlerLength);
   }
+}
+
+bool SubprogramInfo::HasChildren() {
+  return !MethodTypeInfo->IsStatic() || !DebugEHClauseInfos.empty() || !VarInfos.empty();
 }
 
 // DwarfGen
