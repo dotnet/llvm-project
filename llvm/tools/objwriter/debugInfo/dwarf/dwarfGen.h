@@ -60,13 +60,13 @@ public:
 protected:
   void DumpStrings(MCObjectStreamer *Streamer) override {}
   void DumpTypeInfo(MCObjectStreamer *Streamer, UserDefinedDwarfTypesBuilder *TypeBuilder) override;
+  bool HasChildren() override;
 
 private:
   void DumpDebugLoc(MCObjectStreamer *Streamer, MCSection *LocSection);
   void DumpVars(UserDefinedDwarfTypesBuilder *TypeBuilder, MCObjectStreamer *Streamer,
       MCSection *TypeSection, MCSection *StrSection);
   void DumpEHClauses(MCObjectStreamer *Streamer, MCSection *TypeSection);
-  bool HasChildren();
 
   std::string Name;
   int Size;

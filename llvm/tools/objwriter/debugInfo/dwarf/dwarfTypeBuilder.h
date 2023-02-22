@@ -40,6 +40,8 @@ public:
 protected:
   virtual void DumpStrings(MCObjectStreamer *Streamer) = 0;
   virtual void DumpTypeInfo(MCObjectStreamer *Streamer, UserDefinedDwarfTypesBuilder *TypeBuilder) = 0;
+  virtual bool HasChildren() { return false; }
+  virtual void EndChildrenList(MCObjectStreamer *Streamer);
 
   static void EmitSectionOffset(MCObjectStreamer *Streamer,
                                 MCSymbol *Symbol,
@@ -124,6 +126,7 @@ public:
 protected:
   void DumpStrings(MCObjectStreamer *Streamer) override;
   void DumpTypeInfo(MCObjectStreamer *Streamer, UserDefinedDwarfTypesBuilder *TypeBuilder) override;
+  bool HasChildren() override { return !Records.empty(); }
 
 private:
   std::string Name;
@@ -213,9 +216,7 @@ public:
 protected:
   void DumpStrings(MCObjectStreamer *Streamer) override;
   void DumpTypeInfo(MCObjectStreamer *Streamer, UserDefinedDwarfTypesBuilder *TypeBuilder) override;
-
-private:
-  bool HasChildren() const { return BaseClassId != 0 || !Fields.empty() || !StaticFields.empty() || !MemberFunctions.empty(); }
+  bool HasChildren() override;
 
   std::string Name;
   bool IsStruct;
@@ -240,6 +241,8 @@ public:
 protected:
   void DumpStrings(MCObjectStreamer *Streamer) override;
   void DumpTypeInfo(MCObjectStreamer *Streamer, UserDefinedDwarfTypesBuilder *TypeBuilder) override;
+  // ArrayTypeInfo always contains a SubrangeType entry
+  bool HasChildren() override { return true; }
 
 private:
   uint32_t ElementType;

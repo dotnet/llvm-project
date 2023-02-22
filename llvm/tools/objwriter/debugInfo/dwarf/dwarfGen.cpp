@@ -796,10 +796,7 @@ void SubprogramInfo::Dump(UserDefinedDwarfTypesBuilder *TypeBuilder, MCObjectStr
   Streamer->SwitchSection(TypeSection);
   DumpEHClauses(Streamer, TypeSection);
 
-  if (HasChildren()) {
-    // End list of children
-    Streamer->emitIntValue(0, 1);
-  }
+  DwarfInfo::EndChildrenList(Streamer);
 }
 
 void SubprogramInfo::DumpTypeInfo(MCObjectStreamer *Streamer, UserDefinedDwarfTypesBuilder *TypeBuilder) {
