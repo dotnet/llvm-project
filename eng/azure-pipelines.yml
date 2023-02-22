@@ -13,6 +13,7 @@ pr:
 
 variables:
 - template: /eng/common-variables.yml
+- template: /eng/common/templates/variables/pool-providers.yml
 
 stages:
 - stage: build
@@ -68,9 +69,10 @@ stages:
               ClangVersionArg: /p:ClangVersion=clang-9 /p:ClangPlusVersion=clang++-9
         pool:
           ${{ if eq(variables['System.TeamProject'], 'public') }}:
-            vmImage: ubuntu-20.04
+            name: $(DncEngPublicBuildPool)
+            demands: ImageOverride -equals Build.Ubuntu.1804.Amd64
           ${{ if eq(variables['System.TeamProject'], 'internal') }}:
-            name: NetCore1ESPool-Internal
+            name: $(DncEngInternalBuildPool)
             demands: ImageOverride -equals Build.Ubuntu.1804.Amd64
         container:
           image: $(imagename)
@@ -127,9 +129,10 @@ stages:
               ClangVersionArg: /p:ClangVersion=clang-15 /p:ClangPlusVersion=clang++-15
         pool:
           ${{ if eq(variables['System.TeamProject'], 'public') }}:
-            vmImage: ubuntu-20.04
+            name: $(DncEngPublicBuildPool)
+            demands: ImageOverride -equals Build.Ubuntu.1804.Amd64
           ${{ if eq(variables['System.TeamProject'], 'internal') }}:
-            name: NetCore1ESPool-Internal
+            name: $(DncEngInternalBuildPool)
             demands: ImageOverride -equals Build.Ubuntu.1804.Amd64
         container:
           image: $(imagename)
@@ -251,10 +254,10 @@ stages:
               ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\clang-tblgen.exe
         pool:
           ${{ if eq(variables['System.TeamProject'], 'public') }}:
-            name: NetCore-Public
+            name: $(DncEngPublicBuildPool)
             demands: ImageOverride -equals windows.vs2022.amd64.open
           ${{ if eq(variables['System.TeamProject'], 'internal') }}:
-            name: NetCore1ESPool-Internal
+            name: $(DncEngInternalBuildPool)
             demands: ImageOverride -equals windows.vs2022.amd64
         steps:
         - checkout: self
