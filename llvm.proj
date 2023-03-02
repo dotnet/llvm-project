@@ -68,11 +68,12 @@
     <_LLVMBuildArgs Include="-DLLVM_BUILD_LLVM_C_DYLIB=OFF" />
     <_LLVMBuildArgs Include="-DLLVM_ENABLE_DIA_SDK=OFF" />
     <_LLVMBuildArgs Include="-DLLVM_INCLUDE_TESTS=OFF" />
-    <_LLVMBuildArgs Include='-DLLVM_TARGETS_TO_BUILD="X86%3BAArch64%3BARM"' />
+    <_LLVMBuildArgs Include='-DLLVM_TARGETS_TO_BUILD="X86%3BAArch64%3BARM%3BWebAssembly"' />
     <_LLVMBuildArgs Include='-DLLVM_BUILD_TESTS=OFF' />
     <_LLVMBuildArgs Include='-DLLVM_BUILD_EXAMPLES=OFF' />
     <_LLVMBuildArgs Include='-DLLVM_INCLUDE_EXAMPLES=OFF' />
-    <_LLVMBuildArgs Include='-DLLVM_TOOLS_TO_BUILD="opt%3Bllc%3Bllvm-config%3Bllvm-dis%3Bllvm-mc%3Bllvm-as%3Bobjwriter%3Bllvm-mca%3Bllvm-dwarfdump%3BFileCheck"' />
+    <_LLVMBuildArgs Include='-DLLVM_TOOLS_TO_BUILD="llc%3Bllvm-ar%3Bllvm-as%3Bllvm-config%3Bllvm-cxxfilt%3Bllvm-dis%3Bllvm-dwarfdump%3Bllvm-mc%3Bllvm-mca%3Bllvm-nm%3Bllvm-objcopy%3Bllvm-objdump%3Bllvm-size%3Bllvm-strings%3Bllvm-strip%3Bobjwriter%3Bopt%3BFileCheck"' />
+    <_LLVMBuildArgs Include='-DLLVM_INSTALL_BINUTILS_SYMLINKS=TRUE' />
     <_LLVMBuildArgs Include='-DLLVM_ENABLE_LIBXML2=OFF' />
     <_LLVMBuildArgs Include='-DLLVM_ENABLE_TERMINFO=OFF' />
     <_LLVMBuildArgs Include='-DLLVM_EXTERNALIZE_DEBUGINFO=ON' />
@@ -85,14 +86,10 @@
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT' and '$(Configuration)' == 'Debug'" Include='-DLLVM_USE_CRT_DEBUG=MTd' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT' and '$(Configuration)' == 'Debug'" Include='-DLLVM_USE_CRT_RELEASE=MTd' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT'" Include='-DLLVM_ENABLE_ZLIB=OFF' />
-  </ItemGroup>
-
-  <ItemGroup>
-    <_LLVMBuildArgs Include='-DLLVM_ENABLE_PROJECTS=clang' />
+    <_LLVMBuildArgs Include='-DLLVM_ENABLE_PROJECTS="lld%3Bclang%3Bclang-tools-extra"' />
     <_LLVMBuildArgs Include='-DLLVM_BUILD_TOOLS:BOOL=ON' />
     <_LLVMBuildArgs Include='-DLLVM_INSTALL_UTILS:BOOL=ON' />
     <_LLVMBuildArgs Include="-DLLVM_INCLUDE_UTILS:BOOL=ON" />
-    <_LLVMBuildArgs Include='-DCLANG_BUILD_TOOLS=OFF' />
     <_LLVMBuildArgs Include='-DCLANG_INCLUDE_TESTS=OFF' />
     <_LLVMBuildArgs Include='-DCLANG_ENABLE_ARCMT=OFF' />
     <_LLVMBuildArgs Include='-DCLANG_ENABLE_STATIC_ANALYZER=OFF' />
@@ -129,13 +126,16 @@
   </Target>
 
   <Target Name="_LLVMBuild">
+    <Message Text="Running command '$(_CMakeConfigureCommand)'" Importance="High" />
     <Exec WorkingDirectory="$(_LLVMBuildDir)"
           Command="$(_CMakeConfigureCommand)"
           Condition="!Exists('$(_LLVMBuildDir)/CMakeCache.txt')"
           IgnoreStandardErrorWarningFormat="true" />
+    <Message Text="Running command '$(_BuildCommand)'" Importance="High" />
     <Exec WorkingDirectory="$(_LLVMBuildDir)"
           Command="$(_BuildCommand)"
           IgnoreStandardErrorWarningFormat="true" />
+    <Message Text="Running command '$(_CMakeInstallCommand)'" Importance="High" />
     <Exec WorkingDirectory="$(_LLVMBuildDir)"
           Command="$(_CMakeInstallCommand)"
           IgnoreStandardErrorWarningFormat="true"
@@ -143,13 +143,33 @@
   </Target>
 
   <Target Name="_LLVMAfterBuild" Condition="'$(BuildLLVMTableGenOnly)' != 'true'">
-    <RemoveDir Directories="$(_LLVMInstallDir)/share" />
+    <!-- Files to remove from install tree -->
     <ItemGroup>
       <FilesToDelete Include="$(_LLVMInstallDir)/lib/libLTO*" />
       <FilesToDelete Include="$(_LLVMInstallDir)/lib/LLVMHello*" />
       <FilesToDelete Include="$(_LLVMInstallDir)/lib/BugpointPasses.*" />
-      <FilesToDelete Include="$(_LLVMInstallDir)/lib/clang*" />
+      <FilesToDelete Include="$(_LLVMInstallDir)/bin/c-index-test*" />
       <FilesToDelete Include="$(_LLVMInstallDir)/bin/clang-*" />
+      <FilesToDelete Include="$(_LLVMInstallDir)/bin/clangd*" />
+      <FilesToDelete Include="$(_LLVMInstallDir)/bin/count*" />
+      <FilesToDelete Include="$(_LLVMInstallDir)/bin/diagtool*" />
+      <FilesToDelete Include="$(_LLVMInstallDir)/bin/*dlltool*" />
+      <FilesToDelete Include="$(_LLVMInstallDir)/bin/find-all-symbols*" />
+      <FilesToDelete Include="$(_LLVMInstallDir)/bin/hmaptool*" />
+      <FilesToDelete Include="$(_LLVMInstallDir)/bin/llvm-PerfectShuffle*" />
+      <FilesToDelete Include="$(_LLVMInstallDir)/bin/modularize*" />
+      <FilesToDelete Include="$(_LLVMInstallDir)/bin/not*" />
+      <FilesToDelete Include="$(_LLVMInstallDir)/bin/pp-trace*" />
+      <FilesToDelete Include="$(_LLVMInstallDir)/bin/yaml-bench*" />
+    </ItemGroup>
+    <!-- Files previously marked for removal, which we want exceptions for (i.e. to keep after all) -->
+    <ItemGroup>
+      <FilesToDelete Remove="$(_LLVMInstallDir)/bin/clang-apply-replacements*" />
+      <FilesToDelete Remove="$(_LLVMInstallDir)/bin/clang-14*" />
+      <FilesToDelete Remove="$(_LLVMInstallDir)/bin/clang-cl*" />
+      <FilesToDelete Remove="$(_LLVMInstallDir)/bin/clang-cpp*" />
+      <FilesToDelete Remove="$(_LLVMInstallDir)/bin/clang-format*" />
+      <FilesToDelete Remove="$(_LLVMInstallDir)/bin/clang-tidy*" />
     </ItemGroup>
     <Delete Files="@(FilesToDelete)" ContinueOnError="true" TreatErrorsAsWarnings="true" />
   </Target>
