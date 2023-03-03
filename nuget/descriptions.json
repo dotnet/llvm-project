@@ -30,6 +30,11 @@
         "CommonTypes": [ ]
     },
     {
+        "Name": "Microsoft.NETCore.Runtime.Mono.LLVM.Wasm.Transport",
+        "Description": "Clang compiler and tools, used by the Mono .NET Core runtime to target WASI.",
+        "CommonTypes": [ ]
+    },
+    {
         "Name": "Microsoft.NETCore.Runtime.ObjWriter",
         "Description": "ELF/PE/Mach-O object file writer based on LLVM used in .NET AOT compiler. Internal implementation package not meant for direct consumption.  Please do not reference directly.",
         "CommonTypes": [ ]

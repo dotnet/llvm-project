@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ItemGroup>
+    <File Include="$(_LLVMInstallDir)\bin\ar.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\c++filt.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\clang.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\clang++.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\clang-14.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\clang-14.pdb" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\clang-apply-replacements.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\clang-apply-replacements.pdb" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\clang-cl.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\clang-cpp.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\clang-format.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\clang-format.pdb" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\clang-tidy.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\clang-tidy.pdb" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\git-clang-format.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\ld.lld.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\ld64.lld.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\lld.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\lld.pdb" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\lld-link.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-ar.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-ar.pdb" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-cxxfilt.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-cxxfilt.pdb" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-dwarfdump.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-dwarfdump.pdb" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-mc.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-mc.pdb" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-nm.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-nm.pdb" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-objcopy.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-objcopy.pdb" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-objdump.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-objdump.pdb" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-ranlib.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-size.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-size.pdb" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-strings.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-strings.pdb" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-strip.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\nm.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\objcopy.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\objdump.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\ranlib.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\run-clang-tidy.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\size.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\strings.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\strip.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\wasm-ld.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\share\**" TargetPath="tools\$(PackageTargetRuntime)\share\%(RecursiveDir)%(Filename)%(Extension)" />
+    <File Include="$(_LLVMInstallDir)\lib\clang\**" TargetPath="tools\$(PackageTargetRuntime)\lib\clang\%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+</Project>
