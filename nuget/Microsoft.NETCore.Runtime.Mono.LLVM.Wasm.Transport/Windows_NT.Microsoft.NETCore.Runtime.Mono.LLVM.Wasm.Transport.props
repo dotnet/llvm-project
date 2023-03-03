@@ -4,9 +4,8 @@
     <File Include="$(_LLVMInstallDir)\bin\ar.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
     <File Include="$(_LLVMInstallDir)\bin\c++filt.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
     <File Include="$(_LLVMInstallDir)\bin\clang.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\clang.pdb" TargetPath="tools\$(PackageTargetRuntime)\bin" />
     <File Include="$(_LLVMInstallDir)\bin\clang++.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
-    <File Include="$(_LLVMInstallDir)\bin\clang-14.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
-    <File Include="$(_LLVMInstallDir)\bin\clang-14.pdb" TargetPath="tools\$(PackageTargetRuntime)\bin" />
     <File Include="$(_LLVMInstallDir)\bin\clang-apply-replacements.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
     <File Include="$(_LLVMInstallDir)\bin\clang-apply-replacements.pdb" TargetPath="tools\$(PackageTargetRuntime)\bin" />
     <File Include="$(_LLVMInstallDir)\bin\clang-cl.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
