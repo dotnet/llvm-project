@@ -14,7 +14,7 @@
     <File Include="$(_LLVMInstallDir)\bin\clang-format.pdb" TargetPath="tools\$(PackageTargetRuntime)\bin" />
     <File Include="$(_LLVMInstallDir)\bin\clang-tidy.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
     <File Include="$(_LLVMInstallDir)\bin\clang-tidy.pdb" TargetPath="tools\$(PackageTargetRuntime)\bin" />
-    <File Include="$(_LLVMInstallDir)\bin\git-clang-format.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\git-clang-format" TargetPath="tools\$(PackageTargetRuntime)\bin" />
     <File Include="$(_LLVMInstallDir)\bin\ld.lld.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
     <File Include="$(_LLVMInstallDir)\bin\ld64.lld.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
     <File Include="$(_LLVMInstallDir)\bin\lld.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
@@ -44,7 +44,7 @@
     <File Include="$(_LLVMInstallDir)\bin\objcopy.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
     <File Include="$(_LLVMInstallDir)\bin\objdump.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
     <File Include="$(_LLVMInstallDir)\bin\ranlib.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
-    <File Include="$(_LLVMInstallDir)\bin\run-clang-tidy.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\run-clang-tidy" TargetPath="tools\$(PackageTargetRuntime)\bin" />
     <File Include="$(_LLVMInstallDir)\bin\size.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
     <File Include="$(_LLVMInstallDir)\bin\strings.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
     <File Include="$(_LLVMInstallDir)\bin\strip.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
