@@ -171,6 +171,7 @@ macro(add_clang_tool name)
 
     if(APPLE)
       if(LLVM_EXTERNALIZE_DEBUGINFO_INSTALL)
+        set(output_name "$<TARGET_FILE_NAME:${name}>.${file_ext}")
         if(LLVM_EXTERNALIZE_DEBUGINFO_OUTPUT_DIR)
           set(output_path "${LLVM_EXTERNALIZE_DEBUGINFO_OUTPUT_DIR}/${output_name}")
         else()
