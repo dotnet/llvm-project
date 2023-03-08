@@ -37,16 +37,16 @@ public:
 
   const MCExpr *GetInfoExpr() { return InfoExpr; }
 
+  static void EmitSectionOffset(MCObjectStreamer *Streamer,
+                                MCSymbol *Symbol,
+                                unsigned Size,
+                                uint32_t Offset = 0);
+
 protected:
   virtual void DumpStrings(MCObjectStreamer *Streamer) = 0;
   virtual void DumpTypeInfo(MCObjectStreamer *Streamer, UserDefinedDwarfTypesBuilder *TypeBuilder) = 0;
   virtual bool HasChildren() { return false; }
   virtual void EndChildrenList(MCObjectStreamer *Streamer);
-
-  static void EmitSectionOffset(MCObjectStreamer *Streamer,
-                                MCSymbol *Symbol,
-                                unsigned Size,
-                                uint32_t Offset = 0);
 
   static const MCExpr *CreateOffsetExpr(MCContext &Context,
                                         MCSymbol *BeginSymbol,

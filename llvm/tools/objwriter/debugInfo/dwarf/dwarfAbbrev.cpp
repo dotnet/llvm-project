@@ -36,10 +36,10 @@ void Dump(MCObjectStreamer *Streamer, uint16_t DwarfVersion, unsigned TargetPoin
   const uint16_t AbbrevTable[] = {
     CompileUnit,
         dwarf::DW_TAG_compile_unit, dwarf::DW_CHILDREN_yes,
-        dwarf::DW_AT_producer, dwarf::DW_FORM_string,
+        dwarf::DW_AT_producer, dwarf::DW_FORM_strp,
         dwarf::DW_AT_language, dwarf::DW_FORM_data2,
-        dwarf::DW_AT_name, dwarf::DW_FORM_string,
-        dwarf::DW_AT_comp_dir, dwarf::DW_FORM_string,
+        dwarf::DW_AT_name, dwarf::DW_FORM_strp,
+        dwarf::DW_AT_comp_dir, dwarf::DW_FORM_strp,
         dwarf::DW_AT_low_pc, dwarf::DW_FORM_addr,
         dwarf::DW_AT_high_pc, DW_FORM_size,
         dwarf::DW_AT_stmt_list, (DwarfVersion >= 4 ? dwarf::DW_FORM_sec_offset : dwarf::DW_FORM_data4),

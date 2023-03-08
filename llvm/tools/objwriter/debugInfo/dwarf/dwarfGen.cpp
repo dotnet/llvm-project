@@ -927,6 +927,24 @@ void DwarfGen::EmitCompileUnit() {
     Streamer->emitLabel(AbbrevSectionSymbol);
   }
 
+  // Create strings for producer, name and directory in the compile unit.
+  Streamer->SwitchSection(context.getObjectFileInfo()->getDwarfStrSection());
+
+  MCSymbol *ProducerStrSymbol = context.createTempSymbol();
+  Streamer->emitLabel(ProducerStrSymbol);
+  Streamer->emitBytes(StringRef("NetRuntime"));
+  Streamer->emitIntValue(0, 1);
+
+  MCSymbol *NameStrSymbol = context.createTempSymbol();
+  Streamer->emitLabel(NameStrSymbol);
+  Streamer->emitBytes(StringRef("il.cpp"));
+  Streamer->emitIntValue(0, 1);
+
+  MCSymbol *DirStrSymbol = context.createTempSymbol();
+  Streamer->emitLabel(DirStrSymbol);
+  Streamer->emitBytes(StringRef("/_"));
+  Streamer->emitIntValue(0, 1);
+
   MCSection *debugSection = context.getObjectFileInfo()->getDwarfInfoSection();
   Streamer->SwitchSection(debugSection);
 
@@ -964,9 +982,8 @@ void DwarfGen::EmitCompileUnit() {
   // Abbrev Number
   Streamer->emitULEB128IntValue(DwarfAbbrev::CompileUnit);
 
-  // DW_AT_producer: CoreRT
-  Streamer->emitBytes(StringRef("CoreRT"));
-  Streamer->emitIntValue(0, 1);
+  // DW_AT_producer: NetRuntime
+  DwarfInfo::EmitSectionOffset(Streamer, ProducerStrSymbol, 4);
 
   // DW_AT_language
 #ifdef FEATURE_LANGID_CS
@@ -975,18 +992,16 @@ void DwarfGen::EmitCompileUnit() {
   Streamer->emitIntValue(dwarf::DW_LANG_C_plus_plus, 2);
 #endif
 
-  // We need to generate DW_AT_name and DW_AT_compdir to get Apple's ld64 to correctly
+  // We need to generate DW_AT_name and DW_AT_comp_dir to get Apple's ld64 to correctly
   // generate debug map in final executable. If we don't generate it then the linker
   // will skip over the object file.
   // Ref: https://github.com/apple-oss-distributions/ld64/blob/dbf8f7feb5579761f1623b004bd468bdea7c6225/src/ld/OutputFile.cpp#L7166
 
   // DW_AT_name
-  Streamer->emitBytes(StringRef("IL.c"));
-  Streamer->emitIntValue(0, 1);
+  DwarfInfo::EmitSectionOffset(Streamer, NameStrSymbol, 4);
 
-  // DW_AT_compdir
-  Streamer->emitBytes(StringRef("/tmp"));
-  Streamer->emitIntValue(0, 1);
+  // DW_AT_comp_dir
+  DwarfInfo::EmitSectionOffset(Streamer, DirStrSymbol, 4);
 
   // There need to be global DW_AT_low_pc/DW_AT_high_pc symbols to indicate the base and
   // size of the range covered by the symbols. Currently we use a shortcut where we emit
