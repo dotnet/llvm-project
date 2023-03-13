@@ -22,6 +22,8 @@
     <File Include="$(_LLVMInstallDir)\bin\lld-link.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
     <File Include="$(_LLVMInstallDir)\bin\llvm-ar.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
     <File Include="$(_LLVMInstallDir)\bin\llvm-ar.pdb" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-config.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-config.pdb" TargetPath="tools\$(PackageTargetRuntime)\bin" />
     <File Include="$(_LLVMInstallDir)\bin\llvm-cxxfilt.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
     <File Include="$(_LLVMInstallDir)\bin\llvm-cxxfilt.pdb" TargetPath="tools\$(PackageTargetRuntime)\bin" />
     <File Include="$(_LLVMInstallDir)\bin\llvm-dwarfdump.exe" TargetPath="tools\$(PackageTargetRuntime)\bin" />
