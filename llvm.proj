@@ -151,16 +151,12 @@
       <FilesToDelete Include="$(_LLVMInstallDir)/bin/c-index-test*" />
       <FilesToDelete Include="$(_LLVMInstallDir)/bin/clang-*" />
       <FilesToDelete Include="$(_LLVMInstallDir)/bin/clangd*" />
-      <FilesToDelete Include="$(_LLVMInstallDir)/bin/count*" />
       <FilesToDelete Include="$(_LLVMInstallDir)/bin/diagtool*" />
       <FilesToDelete Include="$(_LLVMInstallDir)/bin/*dlltool*" />
       <FilesToDelete Include="$(_LLVMInstallDir)/bin/find-all-symbols*" />
       <FilesToDelete Include="$(_LLVMInstallDir)/bin/hmaptool*" />
-      <FilesToDelete Include="$(_LLVMInstallDir)/bin/llvm-PerfectShuffle*" />
       <FilesToDelete Include="$(_LLVMInstallDir)/bin/modularize*" />
-      <FilesToDelete Include="$(_LLVMInstallDir)/bin/not*" />
       <FilesToDelete Include="$(_LLVMInstallDir)/bin/pp-trace*" />
-      <FilesToDelete Include="$(_LLVMInstallDir)/bin/yaml-bench*" />
     </ItemGroup>
     <!-- Files previously marked for removal, which we want exceptions for (i.e. to keep after all) -->
     <ItemGroup>
