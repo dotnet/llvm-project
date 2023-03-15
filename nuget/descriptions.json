@@ -30,8 +30,13 @@
         "CommonTypes": [ ]
     },
     {
-        "Name": "Microsoft.NETCore.Runtime.Mono.LLVM.Wasm.Transport",
-        "Description": "Clang compiler and tools, used by the Mono .NET Core runtime to target WASI.",
+        "Name": "Microsoft.NETCore.Runtime.Mono.LLVM.Wasm.A.Transport",
+        "Description": "Clang compiler and tools, used by the Mono .NET Core runtime to target WASI (Part 1).",
+        "CommonTypes": [ ]
+    },
+    {
+        "Name": "Microsoft.NETCore.Runtime.Mono.LLVM.Wasm.B.Transport",
+        "Description": "Clang compiler and tools, used by the Mono .NET Core runtime to target WASI (Part 2).",
         "CommonTypes": [ ]
     },
     {
