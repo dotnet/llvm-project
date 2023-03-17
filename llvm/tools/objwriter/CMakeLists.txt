@@ -7,7 +7,7 @@ set(LLVM_LINK_COMPONENTS
   Support
   )
 
-if (MSVC)
+if (MSVC AND (LLVM_USE_CRT_RELEASE STREQUAL "MT"))
   # Force uCRT to be dynamically linked for Release build
   set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} /NODEFAULTLIB:libucrt.lib /DEFAULTLIB:ucrt.lib")
 endif()
