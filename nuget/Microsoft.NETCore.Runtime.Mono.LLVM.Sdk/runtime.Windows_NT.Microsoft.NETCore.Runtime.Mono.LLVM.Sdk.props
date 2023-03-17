@@ -9,7 +9,7 @@
     <File Include="$(_LLVMInstallDir)\bin\llvm-dis.pdb" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\llvm-tblgen.exe" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\llvm-tblgen.pdb" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
-    <File Include="$(_LLVMInstallDir)\lib\**" Exclude="$(_LLVMInstallDir)\lib\clang*.lib;$(_LLVMInstallDir)\lib\clang*.pdb;$(_LLVMInstallDir)\lib\lld*.lib;$(_LLVMInstallDir)\lib\lld*.pdb;" TargetPath="tools\$(PackageTargetRuntime)\lib\%(RecursiveDir)%(Filename)%(Extension)" />
-    <File Include="$(_LLVMInstallDir)\include\**" Exclude="$(_LLVMInstallDir)\include\clang-tidy\**;$(_LLVMInstallDir)\include\lld\**" TargetPath="tools\$(PackageTargetRuntime)\include\%(RecursiveDir)%(Filename)%(Extension)" />
+    <File Include="$(_LLVMInstallDir)\lib\**" Exclude="$(_LLVMInstallDir)\lib\clang*.lib;$(_LLVMInstallDir)\lib\clang*.pdb;$(_LLVMInstallDir)\lib\lld*.lib;$(_LLVMInstallDir)\lib\lld*.pdb;" TargetPath="tools\$(PackageTargetRuntime)\lib\%(RecursiveDir)\" />
+    <File Include="$(_LLVMInstallDir)\include\**" Exclude="$(_LLVMInstallDir)\include\clang-tidy\**;$(_LLVMInstallDir)\include\lld\**" TargetPath="tools\$(PackageTargetRuntime)\include\%(RecursiveDir)\" />
   </ItemGroup>
 </Project>
