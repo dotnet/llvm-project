@@ -65,7 +65,7 @@
     <File Include="$(_LLVMInstallDir)\share\**" TargetPath="tools\$(PackageTargetRuntime)\share\%(RecursiveDir)\" />
     <File Include="$(_LLVMInstallDir)\lib\clang\**" TargetPath="tools\$(PackageTargetRuntime)\lib\clang\%(RecursiveDir)\" />
     <File Include="$(_LLVMInstallDir)\lib\cmake\**" TargetPath="tools\$(PackageTargetRuntime)\lib\cmake\%(RecursiveDir)\" />
-    <File Include="$(_LLVMInstallDir)\lib\libLLVM*.lib" TargetPath="tools\$(PackageTargetRuntime)\lib\" />
-    <File Include="$(_LLVMInstallDir)\lib\libobjwriter*dll" TargetPath="tools\$(PackageTargetRuntime)\lib\" />
+    <File Include="$(_LLVMInstallDir)\lib\LLVM*.lib" TargetPath="tools\$(PackageTargetRuntime)\lib\" />
+    <File Include="$(_LLVMInstallDir)\lib\objwriter*lib" TargetPath="tools\$(PackageTargetRuntime)\lib\" />
   </ItemGroup>
 </Project>
