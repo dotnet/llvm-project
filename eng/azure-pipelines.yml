@@ -147,6 +147,7 @@ stages:
               LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\llvm-tblgen.exe
         pool:
           ${{ if eq(variables['System.TeamProject'], 'public') }}:
+            name: NetCore-Svc-Public
             vmImage: ImageOverride -equals windows.vs2019.amd64.open
           ${{ if eq(variables['System.TeamProject'], 'internal') }}:
             name: NetCore1ESPool-Svc-Internal
