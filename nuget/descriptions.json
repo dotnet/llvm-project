@@ -48,5 +48,10 @@
         "Name": "Microsoft.NETCore.Runtime.JIT.Tools",
         "Description": "Tools such as FileCheck and llvm-mca used for testing the .NET JIT compiler. Internal implementation package not meant for direct consumption.  Please do not reference directly.",
         "CommonTypes": [ ]
-    }
+    },
+    {
+        "Name": "Microsoft.NETCore.Runtime.Wasm.LLVM.Transport",
+        "Description": "Clang compiler and tools, used by the Mono .NET Core runtime to target WebAssembly.",
+        "CommonTypes": [ ]
+    },
 ]
