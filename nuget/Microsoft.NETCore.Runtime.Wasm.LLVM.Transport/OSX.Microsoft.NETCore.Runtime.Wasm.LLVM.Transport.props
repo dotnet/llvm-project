@@ -6,7 +6,6 @@
     <File Include="$(_LLVMInstallDir)\bin\clang++" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\clang-14" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\clang-14.dwarf" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
-    <File Include="$(_LLVMInstallDir)\bin\lld" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\lld.dwarf" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\llvm-addr2line" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\llvm-ar" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
@@ -33,6 +32,7 @@
     <File Include="$(_LLVMInstallDir)\bin\llvm-strip" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\llvm-symbolizer" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\llvm-symbolizer.dwarf" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\wasm-ld" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\lib\clang\include\**" TargetPath="tools\$(PackageTargetRuntime)\lib\clang\include\%(RecursiveDir)\" />
   </ItemGroup>
 </Project>
