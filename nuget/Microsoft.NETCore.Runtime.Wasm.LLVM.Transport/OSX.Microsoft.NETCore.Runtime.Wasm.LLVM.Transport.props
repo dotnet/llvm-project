@@ -33,6 +33,6 @@
     <File Include="$(_LLVMInstallDir)\bin\llvm-symbolizer" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\llvm-symbolizer.dwarf" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\wasm-ld" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
-    <File Include="$(_LLVMInstallDir)\lib\clang\include\**" TargetPath="tools\$(PackageTargetRuntime)\lib\clang\include\%(RecursiveDir)\" />
+    <File Include="$(_LLVMInstallDir)\lib\clang\$(LLVMVersion.Trim())\include\**" TargetPath="tools\$(PackageTargetRuntime)\lib\clang\$(LLVMVersion.Trim())\include\%(RecursiveDir)\" />
   </ItemGroup>
 </Project>

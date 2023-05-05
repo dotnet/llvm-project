@@ -55,8 +55,9 @@
 
   <PropertyGroup>
     <!-- Central place to set the versions of all nuget packages produced in the repo -->
-    <PackageVersion Condition="'$(PackageVersion)' == '' AND !Exists('$(_LLVMBuildDir)\version.txt')">1.0.0</PackageVersion>
-    <PackageVersion Condition="'$(PackageVersion)' == '' AND Exists('$(_LLVMBuildDir)\version.txt')">$([System.IO.File]::ReadAllText('$(_LLVMBuildDir)\version.txt'))</PackageVersion>
+    <LLVMVersion Condition="'$(LLVMVersion)' == '' AND !Exists('$(_LLVMBuildDir)\version.txt')">1.0.0</LLVMVersion>
+    <LLVMVersion Condition="'$(LLVMVersion)' == '' AND Exists('$(_LLVMBuildDir)\version.txt')">$([System.IO.File]::ReadAllText('$(_LLVMBuildDir)\version.txt'))</LLVMVersion>
+    <PackageVersion Condition="'$(LLVMVersion)' != '' and '$(PackageVersion)' == ''">$(LLVMVersion)</PackageVersion>
 
     <!-- Set the boolean below to true to generate packages with stabilized versions -->
     <StabilizePackageVersion Condition="'$(StabilizePackageVersion)' == ''">false</StabilizePackageVersion>
