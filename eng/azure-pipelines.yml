@@ -29,7 +29,7 @@ stages:
       ############ LINUX BUILD ############
       - job: Build_Linux
         displayName: Linux
-        timeoutInMinutes: 480
+        timeoutInMinutes: 600
         variables:
         - _BuildConfig: Release
         strategy:
@@ -102,7 +102,7 @@ stages:
       ############ LINUX MUSL BUILD ############
       - job: Build_Linux_musl
         displayName: Linux_musl
-        timeoutInMinutes: 480
+        timeoutInMinutes: 600
         variables:
         - _BuildConfig: Release
         strategy:
@@ -162,7 +162,7 @@ stages:
       ############ MACOS BUILD ############
       - job: Build_macOS
         displayName: macOS
-        timeoutInMinutes: 480
+        timeoutInMinutes: 600
         variables:
         - _BuildConfig: Release
         strategy:
@@ -205,7 +205,7 @@ stages:
       ############ WINDOWS BUILD ############
       - job: Build_Windows
         displayName: Windows
-        timeoutInMinutes: 480
+        timeoutInMinutes: 600
         strategy:
           matrix:
             # Release
