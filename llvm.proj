@@ -43,8 +43,8 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(BuildOS)' != 'Windows_NT'">
-    <_CrossCFlags Condition="'$(BuildOS)' == 'Linux'">--target=$(ClangTarget) --sysroot=$(ROOTFS_DIR) --gcc-toolchain=$(ROOTFS_DIR)/usr</_CrossCFlags>
-    <_CrossCFlags Condition="'$(BuildOS)' == 'OSX'">--target=$(ClangTarget)</_CrossCFlags>
+    <_CrossCFlags>--target=$(ClangTarget)</_CrossCFlags>
+    <_CrossCFlags Condition="'$(BuildOS)' == 'Linux'">$(_CrossCFlags) --sysroot=$(ROOTFS_DIR) --gcc-toolchain=$(ROOTFS_DIR)/usr</_CrossCFlags>
     <_SharedLinkerFlags>$(_CrossCFlags)</_SharedLinkerFlags>
     <_SharedLinkerFlags Condition="'$(BuildOS)' == 'Linux'">-Wl,--build-id -fuse-ld=lld $(_SharedLinkerFlags)</_SharedLinkerFlags>
     <ClangBinDir Condition="'$(ClangBinDir)' == ''">/usr/bin</ClangBinDir>
@@ -66,6 +66,7 @@
     <!-- Enable CMake cross-compilation support by setting CMAKE_SYSTEM_NAME manually, see https://github.com/llvm/llvm-project/issues/52819 -->
     <_LLVMBuildArgs Condition="('$(TargetArchitecture)' == 'arm' or '$(TargetArchitecture)' == 'arm64') and '$(BuildOS)' == 'Windows_NT'" Include="-DCMAKE_SYSTEM_NAME=Windows" />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include="-DCMAKE_SYSTEM_NAME=Linux" />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'OSX'" Include="-DCMAKE_SYSTEM_NAME=Darwin" />
     <_LLVMBuildArgs Condition="'$(LLVMTableGenPath)' != ''" Include='-DLLVM_TABLEGEN="$(LLVMTableGenPath)"' />
     <_LLVMBuildArgs Condition="'$(ClangTableGenPath)' != ''" Include='-DCLANG_TABLEGEN="$(ClangTableGenPath)"' />
     <_LLVMBuildArgs Include="-DCMAKE_BUILD_TYPE=Release" />
@@ -98,7 +99,7 @@
     <_LLVMBuildArgs Include='-DCLANG_INCLUDE_TESTS=OFF' />
     <_LLVMBuildArgs Include='-DCLANG_ENABLE_ARCMT=OFF' />
     <_LLVMBuildArgs Include='-DCLANG_ENABLE_STATIC_ANALYZER=OFF' />
-    <_LLVMBuildArgs Include='-DCROSS_TOOLCHAIN_FLAGS_LLVM_NATIVE="-DCMAKE_EXE_LINKER_FLAGS_INIT=-fuse-ld=lld;-DCMAKE_SHARED_LINKER_FLAGS_INIT=-fuse-ld=lld"' />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include='-DCROSS_TOOLCHAIN_FLAGS_LLVM_NATIVE="-DCMAKE_EXE_LINKER_FLAGS_INIT=-fuse-ld=lld;-DCMAKE_SHARED_LINKER_FLAGS_INIT=-fuse-ld=lld"' />
   </ItemGroup>
 
   <ItemGroup Condition="'$(BuildOS)' != 'Windows_NT'">
