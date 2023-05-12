@@ -41,7 +41,6 @@ stages:
               rootfs: /crossrootfs/x64
               ClangTargetArg: /p:ClangTarget=x86_64-linux-gnu
               archflag: --arch x64
-              ClangVersionArg: /p:ClangVersion=clang /p:ClangPlusVersion=clang++
             arm64:
               assetManifestOS: linux
               assetManifestPlatform: arm64
@@ -49,7 +48,6 @@ stages:
               rootfs: /crossrootfs/arm64
               ClangTargetArg: /p:ClangTarget=aarch64-linux-gnu
               archflag: --arch arm64
-              ClangVersionArg: /p:ClangVersion=clang /p:ClangPlusVersion=clang++
             arm:
               assetManifestOS: linux
               assetManifestPlatform: arm
@@ -57,7 +55,6 @@ stages:
               rootfs: /crossrootfs/arm
               ClangTargetArg: /p:ClangTarget=arm-linux-gnueabihf
               archflag: --arch arm
-              ClangVersionArg: /p:ClangVersion=clang /p:ClangPlusVersion=clang++
         pool:
           ${{ if eq(variables['System.TeamProject'], 'public') }}:
             name: $(DncEngPublicBuildPool)
@@ -75,13 +72,13 @@ stages:
           displayName: 'Clean up working directory'
 
         - bash: |
-            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(ClangVersionArg) $(ClangTargetArg)
+            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(ClangTargetArg)
           displayName: 'Build and package'
           env:
             ROOTFS_DIR: $(rootfs)
 
         - bash: |
-            ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) $(ClangVersionArg) --projects $(Build.SourcesDirectory)/llvm.proj
+            ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) --projects $(Build.SourcesDirectory)/llvm.proj
           displayName: Publish packages
           condition: and(succeeded(), ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest'))
 
@@ -100,7 +97,6 @@ stages:
               rootfs: /crossrootfs/x64
               ClangTargetArg: /p:ClangTarget=x86_64-alpine-linux-musl
               archflag: --arch x64
-              ClangVersionArg: /p:ClangVersion=clang /p:ClangPlusVersion=clang++
             arm64:
               assetManifestOS: linux-musl
               assetManifestPlatform: arm64
@@ -108,7 +104,6 @@ stages:
               rootfs: /crossrootfs/arm64
               ClangTargetArg: /p:ClangTarget=aarch64-alpine-linux-musl
               archflag: --arch arm64
-              ClangVersionArg: /p:ClangVersion=clang /p:ClangPlusVersion=clang++
         pool:
           ${{ if eq(variables['System.TeamProject'], 'public') }}:
             name: $(DncEngPublicBuildPool)
@@ -126,13 +121,13 @@ stages:
           displayName: 'Clean up working directory'
 
         - bash: |
-            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:OutputRid=linux-musl-$(assetManifestPlatform) $(ClangVersionArg) $(ClangTargetArg)
+            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:OutputRid=linux-musl-$(assetManifestPlatform) $(ClangTargetArg)
           displayName: 'Build and package'
           env:
             ROOTFS_DIR: $(rootfs)
 
         - bash: |
-            ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) $(ClangVersionArg) --projects $(Build.SourcesDirectory)/llvm.proj
+            ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) --projects $(Build.SourcesDirectory)/llvm.proj
           displayName: Publish packages
           condition: and(succeeded(), ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest'))
 

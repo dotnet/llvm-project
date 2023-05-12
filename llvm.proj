@@ -96,9 +96,9 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(BuildOS)' != 'Windows_NT'">
-    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include="-DCMAKE_C_COMPILER=$(ClangVersion)" />
-    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include="-DCMAKE_CXX_COMPILER=$(ClangPlusVersion)" />
-    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include="-DCMAKE_ASM_COMPILER=$(ClangVersion)" />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include="-DCMAKE_C_COMPILER=clang" />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include="-DCMAKE_CXX_COMPILER=clang++" />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include="-DCMAKE_ASM_COMPILER=clang" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(BuildOS)' != 'Windows_NT'">
