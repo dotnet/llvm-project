@@ -46,6 +46,7 @@
     <_CrossCFlags Condition="'$(BuildOS)' == 'OSX' and '$(TargetArchitecture)' == 'arm64'">--target=aarch64-apple-darwin</_CrossCFlags>
     <_SharedLinkerFlags>$(_CrossCFlags)</_SharedLinkerFlags>
     <_SharedLinkerFlags Condition="'$(BuildOS)' == 'Linux'">-Wl,--build-id -fuse-ld=lld $(_SharedLinkerFlags)</_SharedLinkerFlags>
+    <ClangBinDir Condition="'$(ClangBinDir)' == ''">/usr/bin</ClangBinDir>
   </PropertyGroup>
 
   <ItemGroup>
@@ -96,7 +97,6 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(BuildOS)' != 'Windows_NT'">
-    <ClangBinDir Condition="'$(ClangBinDir)' == ''">/usr/bin</ClangBinDir>
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include="-DCMAKE_C_COMPILER=clang" />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include="-DCMAKE_CXX_COMPILER=$(ClangBinDir)/clang++" />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include="-DCMAKE_ASM_COMPILER=$(ClangBinDir)/clang" />
