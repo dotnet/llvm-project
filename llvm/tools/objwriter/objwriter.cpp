@@ -229,6 +229,8 @@ MCSection *ObjectWriter::GetSection(const char *SectionName,
     } else {
       Section = ObjFileInfo->getBSSSection();
     } 
+  } else if (strcmp(SectionName, "comment") == 0 && OutContext->getObjectFileType() == MCContext::IsELF) {
+    Section = OutContext->getELFSection(".comment", ELF::SHT_PROGBITS, ELF::SHF_MERGE | ELF::SHF_STRINGS | ELF::SHF_GNU_RETAIN, 1);
   } else {
     Section = GetSpecificSection(SectionName, attributes, ComdatName);
   }
