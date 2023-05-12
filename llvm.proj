@@ -27,7 +27,6 @@
 
     </_SetupEnvironment>
     <_CMakeConfigureCommand>$(_SetupEnvironment) cmake $(_LLVMSourceDir) -G "$(CMakeGenerator)" @(_LLVMBuildArgs->'%(Identity)',' ')</_CMakeConfigureCommand>
-    <_BuildSubset Condition="'$(BuildLLVMTableGenOnly)' == 'true'">llvm-tblgen clang-tblgen</_BuildSubset>
     <_BuildSubset Condition="'$(BuildObjWriterOnly)' == 'true'">objwriter llvm-mca llvm-dwarfdump FileCheck</_BuildSubset>
     <_BuildCommand Condition="'$(CMakeGenerator)' == 'Unix Makefiles'">$(_SetupEnvironment) make $(_BuildSubset) -j$([System.Environment]::ProcessorCount)</_BuildCommand>
     <_BuildCommand Condition="'$(CMakeGenerator)' == 'Ninja'">$(_SetupEnvironment) ninja $(_BuildSubset)</_BuildCommand>
@@ -63,8 +62,6 @@
     <!-- Enable CMake cross-compilation support by setting CMAKE_SYSTEM_NAME manually, see https://github.com/llvm/llvm-project/issues/52819 -->
     <_LLVMBuildArgs Condition="('$(TargetArchitecture)' == 'arm' or '$(TargetArchitecture)' == 'arm64') and '$(BuildOS)' == 'Windows_NT'" Include="-DCMAKE_SYSTEM_NAME=Windows" />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include="-DCMAKE_SYSTEM_NAME=Linux" />
-    <_LLVMBuildArgs Condition="'$(LLVMTableGenPath)' != ''" Include='-DLLVM_TABLEGEN="$(LLVMTableGenPath)"' />
-    <_LLVMBuildArgs Condition="'$(ClangTableGenPath)' != ''" Include='-DCLANG_TABLEGEN="$(ClangTableGenPath)"' />
     <_LLVMBuildArgs Include="-DCMAKE_BUILD_TYPE=Release" />
     <_LLVMBuildArgs Include='-DLEGAL_COPYRIGHT="\xa9 Microsoft Corporation. All rights reserved."' />
     <_LLVMBuildArgs Include="-DLLVM_BUILD_LLVM_C_DYLIB=OFF" />
@@ -132,8 +129,7 @@
     <Message Text="Running command '$(_CMakeInstallCommand)'" Importance="High" />
     <Exec WorkingDirectory="$(_LLVMBuildDir)"
           Command="$(_CMakeInstallCommand)"
-          IgnoreStandardErrorWarningFormat="true"
-          Condition="'$(BuildLLVMTableGenOnly)' != 'true'" />
+          IgnoreStandardErrorWarningFormat="true" />
   </Target>
 
   <Target Name="_WriteVersionFile" AfterTargets="_LLVMBuild">
@@ -145,7 +141,7 @@
       Lines="$(LLVMEmsdkVersion)" />
   </Target>
 
-  <Target Name="_LLVMAfterBuild" Condition="'$(BuildLLVMTableGenOnly)' != 'true'">
+  <Target Name="_LLVMAfterBuild">
     <!-- Files to remove from install tree -->
     <ItemGroup>
       <FilesToDelete Include="$(_LLVMInstallDir)/lib/libLTO*" />
