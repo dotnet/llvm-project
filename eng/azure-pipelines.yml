@@ -147,10 +147,12 @@ stages:
             x64:
               assetManifestOS: osx
               assetManifestPlatform: x64
+              clangTargetArg: /p:ClangTarget=x86_64-apple-darwin
               archflag: --arch x64
             arm64:
               assetManifestOS: osx
               assetManifestPlatform: arm64
+              clangTargetArg: /p:ClangTarget=aarch64-apple-darwin
               archflag: --arch arm64
         pool:
           vmImage: macos-11
