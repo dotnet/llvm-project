@@ -242,7 +242,7 @@ stages:
         - powershell: eng\build.ps1 -ci -restore -build -arch x64 -configuration $(_BuildConfig) $(_InternalBuildArgs) /p:BuildLLVMTableGenOnly=true
           displayName: 'Build host llvm-tblgen for cross-compiling'
 
-        - powershell: eng\build.ps1 -ci -restore -build -pack $(archflag) -configuration $(_BuildConfig) $(_InternalBuildArgs)
+        - powershell: eng\build.ps1 -ci -restore -build -pack $(archflag) -configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg)
           displayName: 'Build and package'
 
         - powershell: eng\common\build.ps1 -ci -restore -publish -configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(_BuildConfig)-$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) -projects $(Build.SourcesDirectory)\llvm.proj
