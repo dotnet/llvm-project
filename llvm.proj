@@ -55,8 +55,8 @@
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'Windows_NT'" Include="-DLLVM_DEFAULT_TARGET_TRIPLE=aarch64-windows-msvc" />
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm' and '$(BuildOS)' == 'Windows_NT'" Include="-DLLVM_DEFAULT_TARGET_TRIPLE=arm-windows-msvc" />
     <_LLVMBuildArgs Condition="'$(ClangTarget)' != '' and '$(BuildOS)' == 'Linux'" Include="-DLLVM_DEFAULT_TARGET_TRIPLE=$(ClangTarget)" />
-    <_LLVMBuildArgs Condition="'$(ClangTarget)' != '' and '$(BuildOS)' == 'Linux'" Include="-DCMAKE_OBJCOPY=/usr/local/bin/llvm-objcopy" />
-    <_LLVMBuildArgs Condition="'$(ClangTarget)' != '' and '$(BuildOS)' == 'Linux'" Include="-DCMAKE_STRIP=/usr/local/bin/llvm-strip" />
+    <_LLVMBuildArgs Condition="'$(ClangTarget)' != '' and '$(BuildOS)' == 'Linux'" Include="-DCMAKE_OBJCOPY=$(ClangBinDir)/llvm-objcopy" />
+    <_LLVMBuildArgs Condition="'$(ClangTarget)' != '' and '$(BuildOS)' == 'Linux'" Include="-DCMAKE_STRIP=$(ClangBinDir)/llvm-strip" />
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'OSX'" Include="-DLLVM_DEFAULT_TARGET_TRIPLE=arm64-apple-darwin" />
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'OSX'" Include="-DCMAKE_OSX_ARCHITECTURES=arm64"/>
     <!-- Enable CMake cross-compilation support by setting CMAKE_SYSTEM_NAME manually, see https://github.com/llvm/llvm-project/issues/52819 -->
@@ -96,9 +96,10 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(BuildOS)' != 'Windows_NT'">
+    <ClangBinDir Condition="'$(ClangBinDir)' == ''">/usr/bin</ClangBinDir>
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include="-DCMAKE_C_COMPILER=clang" />
-    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include="-DCMAKE_CXX_COMPILER=clang++" />
-    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include="-DCMAKE_ASM_COMPILER=clang" />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include="-DCMAKE_CXX_COMPILER=$(ClangBinDir)/clang++" />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include="-DCMAKE_ASM_COMPILER=$(ClangBinDir)/clang" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(BuildOS)' != 'Windows_NT'">

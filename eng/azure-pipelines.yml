@@ -40,6 +40,7 @@ stages:
               imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:cbl-mariner-2.0-cross-amd64
               rootfs: /crossrootfs/x64
               ClangTargetArg: /p:ClangTarget=x86_64-linux-gnu
+              ClangBinDirArg: /p:ClangBinDir=/usr/local/bin
               archflag: --arch x64
             arm64:
               assetManifestOS: linux
@@ -47,6 +48,7 @@ stages:
               imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:cbl-mariner-2.0-cross-arm64
               rootfs: /crossrootfs/arm64
               ClangTargetArg: /p:ClangTarget=aarch64-linux-gnu
+              ClangBinDirArg: /p:ClangBinDir=/usr/local/bin
               archflag: --arch arm64
             arm:
               assetManifestOS: linux
@@ -54,6 +56,7 @@ stages:
               imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:cbl-mariner-2.0-cross-arm
               rootfs: /crossrootfs/arm
               ClangTargetArg: /p:ClangTarget=arm-linux-gnueabihf
+              ClangBinDirArg: /p:ClangBinDir=/usr/local/bin
               archflag: --arch arm
         pool:
           ${{ if eq(variables['System.TeamProject'], 'public') }}:
@@ -72,7 +75,7 @@ stages:
           displayName: 'Clean up working directory'
 
         - bash: |
-            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(ClangTargetArg)
+            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(ClangBinDirArg) $(ClangTargetArg)
           displayName: 'Build and package'
           env:
             ROOTFS_DIR: $(rootfs)
@@ -96,6 +99,7 @@ stages:
               imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:cbl-mariner-2.0-cross-amd64-alpine
               rootfs: /crossrootfs/x64
               ClangTargetArg: /p:ClangTarget=x86_64-alpine-linux-musl
+              ClangBinDirArg: /p:ClangBinDir=/usr/local/bin
               archflag: --arch x64
             arm64:
               assetManifestOS: linux-musl
@@ -103,6 +107,7 @@ stages:
               imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:cbl-mariner-2.0-cross-arm64-alpine
               rootfs: /crossrootfs/arm64
               ClangTargetArg: /p:ClangTarget=aarch64-alpine-linux-musl
+              ClangBinDirArg: /p:ClangBinDir=/usr/local/bin
               archflag: --arch arm64
         pool:
           ${{ if eq(variables['System.TeamProject'], 'public') }}:
@@ -121,7 +126,7 @@ stages:
           displayName: 'Clean up working directory'
 
         - bash: |
-            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:OutputRid=linux-musl-$(assetManifestPlatform) $(ClangTargetArg)
+            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:OutputRid=linux-musl-$(assetManifestPlatform) $(ClangBinDirArg) $(ClangTargetArg)
           displayName: 'Build and package'
           env:
             ROOTFS_DIR: $(rootfs)
