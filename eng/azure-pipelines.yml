@@ -164,7 +164,7 @@ stages:
           displayName: 'Clean up working directory'
 
         - bash: |
-            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs)
+            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(ClangTargetArg) $(_InternalBuildArgs)
           displayName: 'Build and package'
 
         - bash: |
