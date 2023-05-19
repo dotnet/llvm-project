@@ -244,7 +244,7 @@ void MCObjectStreamer::emitCFISections(bool EH, bool Debug) {
 }
 
 void MCObjectStreamer::emitValueImpl(const MCExpr *Value, unsigned Size,
-                                     SMLoc Loc) {
+                                     SMLoc Loc, bool isPCRelative) {
   MCStreamer::emitValueImpl(Value, Size, Loc);
   MCDataFragment *DF = getOrCreateDataFragment();
   flushPendingLabels(DF, DF->getContents().size());
@@ -264,8 +264,13 @@ void MCObjectStreamer::emitValueImpl(const MCExpr *Value, unsigned Size,
   }
   DF->getFixups().push_back(
       MCFixup::create(DF->getContents().size(), Value,
-                      MCFixup::getKindForSize(Size, false), Loc));
+                      MCFixup::getKindForSize(Size, isPCRelative), Loc));
   DF->getContents().resize(DF->getContents().size() + Size, 0);
+}
+
+void MCObjectStreamer::emitValueImpl(const MCExpr *Value, unsigned Size,
+                                     SMLoc Loc) {
+  emitValueImpl(Value, Size, Loc, false);
 }
 
 MCSymbol *MCObjectStreamer::emitCFILabel() {

@@ -455,6 +455,8 @@ unsigned ARMAsmBackend::adjustFixupValue(const MCAssembler &Asm,
   case FK_Data_2:
   case FK_Data_4:
     return Value;
+  case FK_PCRel_4:
+    return Value;
   case FK_SecRel_2:
     return Value;
   case FK_SecRel_4:
@@ -975,6 +977,9 @@ static unsigned getFixupKindNumBytes(unsigned Kind) {
   case ARM::fixup_bfcsel_else_target:
   case ARM::fixup_wls:
   case ARM::fixup_le:
+    return 4;
+
+  case FK_PCRel_4:
     return 4;
 
   case FK_SecRel_2:

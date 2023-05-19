@@ -1,0 +1,102 @@
+trigger:
+  none
+
+schedules:
+  - cron: 0 12 * * 1
+    displayName: Weekly Monday CodeQL/Semmle run
+    branches:
+      include:
+      - dotnet/main
+      - objwriter/12.x
+    always: true
+
+variables:
+  - template: /eng/common-variables.yml
+  - name: Codeql.Enabled
+    value: True
+  - name: Codeql.Cadence
+    value: 0
+  - name: Codeql.TSAEnabled
+    value: True
+  - name: Codeql.BuildIdentifier
+    value: $(System.JobDisplayName)
+
+stages:
+- stage: Build
+  jobs:
+  - template: /eng/common/templates/jobs/jobs.yml
+    parameters:
+      jobs:
+
+      ############ LINUX BUILD ############
+      - job: Build_Linux
+        displayName: Linux
+        timeoutInMinutes: 480
+        variables:
+        - _BuildConfig: Release
+        strategy:
+          matrix:
+            x64:
+              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:centos-7-20220716123527-d0bc8ed
+              archflag: --arch x64
+              Devtoolset7Arg: /p:ForceDevtoolset7=true
+        pool:
+          ${{ if eq(variables['System.TeamProject'], 'public') }}:
+            vmImage: ubuntu-20.04
+          ${{ if eq(variables['System.TeamProject'], 'internal') }}:
+            name: NetCore1ESPool-Internal
+            demands: ImageOverride -equals Build.Ubuntu.1804.Amd64
+        container:
+          image: $(imagename)
+        steps:
+        - bash: |
+            set -ex
+            git clean -ffdx
+            git reset --hard HEAD
+          displayName: 'Clean up working directory'
+
+        - task: CodeQL3000Init@0
+          displayName: Initialize CodeQL (manually-injected)
+
+        - bash: |
+            ./build.sh --ci --restore --build $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(Devtoolset7Arg)
+          displayName: 'Build'
+
+        - task: CodeQL3000Finalize@0
+          displayName: Finalize CodeQL (manually-injected)
+
+      ############ WINDOWS BUILD ############
+      - job: Build_Windows
+        displayName: Windows
+        timeoutInMinutes: 600
+        strategy:
+          matrix:
+            # Release
+            x64_release:
+              _BuildConfig: Release
+              archflag: -arch x64
+        pool:
+          ${{ if eq(variables['System.TeamProject'], 'public') }}:
+            name: NetCore-Public
+            demands: ImageOverride -equals windows.vs2022.amd64.open
+          ${{ if eq(variables['System.TeamProject'], 'internal') }}:
+            name: NetCore1ESPool-Internal
+            demands: ImageOverride -equals windows.vs2022.amd64
+        steps:
+        - checkout: self
+          clean: true
+          fetchDepth: 2
+
+        - script: |
+            git clean -ffdx
+            git reset --hard HEAD
+          displayName: 'Clean up working directory'
+
+        - task: CodeQL3000Init@0
+          displayName: Initialize CodeQL (manually-injected)
+
+        - powershell: eng\build.ps1 -ci -restore -build $(archflag) -configuration $(_BuildConfig) $(_InternalBuildArgs)
+          displayName: 'Build'
+
+        - task: CodeQL3000Finalize@0
+          displayName: Finalize CodeQL (manually-injected)

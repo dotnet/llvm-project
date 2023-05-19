@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ItemGroup>
+    <File Include="$(ProjectDir)\clang\bindings\python\clang\**" TargetPath="bindings\python\clang\" />
+    <File Include="$(_LLVMInstallDir)\bin\libclang.dll" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-config.exe" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-config.pdb" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-dis.exe" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-dis.pdb" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-tblgen.exe" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-tblgen.pdb" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\lib\**" Exclude="$(_LLVMInstallDir)\lib\clang*.lib;$(_LLVMInstallDir)\lib\clang*.pdb;$(_LLVMInstallDir)\lib\lld*.lib;$(_LLVMInstallDir)\lib\lld*.pdb;" TargetPath="tools\$(PackageTargetRuntime)\lib\%(RecursiveDir)\" />
+    <File Include="$(_LLVMInstallDir)\include\**" Exclude="$(_LLVMInstallDir)\include\clang-tidy\**;$(_LLVMInstallDir)\include\lld\**" TargetPath="tools\$(PackageTargetRuntime)\include\%(RecursiveDir)\" />
+  </ItemGroup>
+</Project>
