@@ -99,7 +99,7 @@
     <_LLVMBuildArgs Include='-DCLANG_INCLUDE_TESTS=OFF' />
     <_LLVMBuildArgs Include='-DCLANG_ENABLE_ARCMT=OFF' />
     <_LLVMBuildArgs Include='-DCLANG_ENABLE_STATIC_ANALYZER=OFF' />
-    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include='-DCROSS_TOOLCHAIN_FLAGS_LLVM_NATIVE="-DCMAKE_EXE_LINKER_FLAGS_INIT=-fuse-ld=lld;-DCMAKE_SHARED_LINKER_FLAGS_INIT=-fuse-ld=lld"' />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include='-DCROSS_TOOLCHAIN_FLAGS_LLVM_NATIVE="-DCMAKE_C_COMPILER=clang%3B-DCMAKE_CXX_COMPILER=clang++%3B-DCMAKE_ASM_COMPILER=clang%3B-DCMAKE_EXE_LINKER_FLAGS_INIT=-fuse-ld=lld%3B-DCMAKE_SHARED_LINKER_FLAGS_INIT=-fuse-ld=lld"' />
   </ItemGroup>
 
   <ItemGroup Condition="'$(BuildOS)' != 'Windows_NT'">
