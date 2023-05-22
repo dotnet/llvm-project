@@ -21,6 +21,7 @@
 #include "llvm/DebugInfo/CodeView/SymbolRecord.h"
 #include "llvm/MC/MCAsmBackend.h"
 #include "llvm/MC/MCAsmInfo.h"
+#include "llvm/MC/MCAssembler.h"
 #include "llvm/MC/MCContext.h"
 #include "llvm/MC/MCCodeEmitter.h"
 #include "llvm/MC/MCDwarf.h"
@@ -117,7 +118,7 @@ bool ObjectWriter::Init(llvm::StringRef ObjectFilePath, const char* tripleName) 
   OutContext->setObjectFileInfo(ObjFileInfo.get());
   
   CodeEmitter =
-      TheTarget->createMCCodeEmitter(*InstrInfo, *RegisterInfo, *OutContext);
+      TheTarget->createMCCodeEmitter(*InstrInfo, *OutContext);
   if (!CodeEmitter)
     return error("no code emitter for target " + TripleName);
 
@@ -164,17 +165,17 @@ void ObjectWriter::Finish() {
 
     // Emit all address-taken functions into the GFIDs section
     // to support control flow guard.
-    Streamer->SwitchSection(ObjFileInfo->getGFIDsSection());
+    Streamer->switchSection(ObjFileInfo->getGFIDsSection());
     for (const MCSymbol* S : AddressTakenFunctions) {
-      Streamer->EmitCOFFSymbolIndex(S);
+      Streamer->emitCOFFSymbolIndex(S);
     }
 
     // Emit the feat.00 symbol that controls various linker behaviors
     MCSymbol* S = OutContext->getOrCreateSymbol(StringRef("@feat.00"));
-    Streamer->BeginCOFFSymbolDef(S);
-    Streamer->EmitCOFFSymbolStorageClass(COFF::IMAGE_SYM_CLASS_STATIC);
-    Streamer->EmitCOFFSymbolType(COFF::IMAGE_SYM_DTYPE_NULL);
-    Streamer->EndCOFFSymbolDef();
+    Streamer->beginCOFFSymbolDef(S);
+    Streamer->emitCOFFSymbolStorageClass(COFF::IMAGE_SYM_CLASS_STATIC);
+    Streamer->emitCOFFSymbolType(COFF::IMAGE_SYM_DTYPE_NULL);
+    Streamer->endCOFFSymbolDef();
     int64_t Feat00Flags = 0;
 
     Feat00Flags |= 0x800; // cfGuardCF flags this object as control flow guard aware
@@ -184,7 +185,7 @@ void ObjectWriter::Finish() {
       S, MCConstantExpr::create(Feat00Flags, *OutContext));
   }
 
-  Streamer->Finish();
+  Streamer->finish();
 }
 
 void ObjectWriter::SetDwarfVersion(uint16_t v) {
@@ -195,7 +196,7 @@ void ObjectWriter::SwitchSection(const char *SectionName,
                                  CustomSectionAttributes attributes,
                                  const char *ComdatName) {
   MCSection *Section = GetSection(SectionName, attributes, ComdatName);
-  Streamer->SwitchSection(Section);
+  Streamer->switchSection(Section);
   if (Sections.count(Section) == 0) {
     Sections.insert(Section);
     if (OutContext->getObjectFileType() == MCContext::IsMachO) {
@@ -228,8 +229,6 @@ MCSection *ObjectWriter::GetSection(const char *SectionName,
     } else {
       Section = ObjFileInfo->getBSSSection();
     } 
-  } else if (strcmp(SectionName, "comment") == 0 && OutContext->getObjectFileType() == MCContext::IsELF) {
-    Section = OutContext->getELFSection(".comment", ELF::SHT_PROGBITS, ELF::SHF_MERGE | ELF::SHF_STRINGS | ELF::SHF_GNU_RETAIN, 1);
   } else {
     Section = GetSpecificSection(SectionName, attributes, ComdatName);
   }
@@ -347,7 +346,7 @@ void ObjectWriter::EmitAlignment(int ByteAlignment) {
     }
   }
 
-  Streamer->emitValueToAlignment(ByteAlignment, fillValue);
+  Streamer->emitValueToAlignment(Align(ByteAlignment), fillValue);
 }
 
 void ObjectWriter::EmitBlob(int BlobSize, const char *Blob) {
@@ -411,7 +410,7 @@ unsigned ObjectWriter::GetDFSize() {
 
 void ObjectWriter::EmitRelocDirective(const int Offset, StringRef Name, const MCExpr *Expr) {
   const MCExpr *OffsetExpr = MCConstantExpr::create(Offset, *OutContext);
-  Optional<std::pair<bool, std::string>> result = Streamer->emitRelocDirective(*OffsetExpr, Name, Expr, SMLoc(), *SubtargetInfo);
+  std::optional<std::pair<bool, std::string>> result = Streamer->emitRelocDirective(*OffsetExpr, Name, Expr, SMLoc(), *SubtargetInfo);
   assert(!result.hasValue());
 }
 
@@ -567,8 +566,8 @@ void ObjectWriter::EmitWinFrameInfo(const char *FunctionName, int StartOffset,
         cast<MCSectionCOFF>(Section), FunctionSection->getCOMDATSymbol());
   }
 
-  Streamer->SwitchSection(Section);
-  Streamer->emitValueToAlignment(4);
+  Streamer->switchSection(Section);
+  Streamer->emitValueToAlignment(Align(4));
 
   const MCExpr *BaseRefRel =
       GetSymbolRefExpr(FunctionName, MCSymbolRefExpr::VK_COFF_IMGREL32);
@@ -713,7 +712,7 @@ void ObjectWriter::EmitVarDefRange(const MCSymbol *Fn,
   const MCExpr *Offset = MCConstantExpr::create(Range.OffsetStart, *OutContext);
   const MCExpr *Expr = MCBinaryExpr::createAdd(BaseSym, Offset, *OutContext);
   EmitCOFFSecRel32Value(Expr);
-  Streamer->EmitCOFFSectionIndex(Fn);
+  Streamer->emitCOFFSectionIndex(Fn);
   Streamer->emitIntValue(Range.Range, 2);
 }
 
@@ -877,7 +876,7 @@ void ObjectWriter::EmitCVDebugFunctionInfo(const char *FunctionName,
   Streamer->emitLabel(FnEnd);
 
   MCSection *Section = ObjFileInfo->getCOFFDebugSymbolsSection();
-  Streamer->SwitchSection(Section);
+  Streamer->switchSection(Section);
   // Emit debug section magic before the first entry.
   if (FuncId == 1) {
     Streamer->emitIntValue(COFF::DEBUG_SECTION_MAGIC, 4);
@@ -906,8 +905,8 @@ void ObjectWriter::EmitCVDebugFunctionInfo(const char *FunctionName,
 
     Streamer->emitBytes(StringRef((char *)&ProcSymbol.Parent, HeaderSize));
     // Emit relocation
-    Streamer->EmitCOFFSecRel32(Fn, 0);
-    Streamer->EmitCOFFSectionIndex(Fn);
+    Streamer->emitCOFFSecRel32(Fn, 0);
+    Streamer->emitCOFFSectionIndex(Fn);
 
     // Emit flags
     Streamer->emitIntValue(0, 1);
@@ -930,7 +929,7 @@ void ObjectWriter::EmitCVDebugFunctionInfo(const char *FunctionName,
   Streamer->emitLabel(SymbolsEnd);
 
   // Every subsection must be aligned to a 4-byte boundary.
-  Streamer->emitValueToAlignment(4);
+  Streamer->emitValueToAlignment(Align(4));
 
   // We have an assembler directive that takes care of the whole line table.
   // We also increase function id for the next function.
@@ -958,7 +957,7 @@ void ObjectWriter::EmitDebugFileInfo(int FileId, const char *FileName) {
   if (OutContext->getObjectFileType() == MCContext::IsCOFF) {
     // TODO: we could pipe through the checksum and hash algorithm from the managed PDB
     ArrayRef<uint8_t> ChecksumAsBytes;
-    Streamer->EmitCVFileDirective(FileId, FileName, ChecksumAsBytes, 0);
+    Streamer->emitCVFileDirective(FileId, FileName, ChecksumAsBytes, 0);
   } else {
     Streamer->emitDwarfFileDirective(FileId, "", FileName);
   }
@@ -968,7 +967,7 @@ void ObjectWriter::EmitDebugFunctionInfo(const char *FunctionName,
                                          int FunctionSize,
                                          unsigned MethodTypeIndex) {
   if (OutContext->getObjectFileType() == MCContext::IsCOFF) {
-    Streamer->EmitCVFuncIdDirective(FuncId);
+    Streamer->emitCVFuncIdDirective(FuncId);
     EmitCVDebugFunctionInfo(FunctionName, FunctionSize);
   } else {
     if (OutContext->getObjectFileType() == MCContext::IsELF) {
@@ -1006,7 +1005,7 @@ void ObjectWriter::EmitDebugLoc(int NativeOffset, int FileId, int LineNumber,
                                 int ColNumber) {
   assert(FileId > 0 && "FileId should be greater than 0.");
   if (OutContext->getObjectFileType() == MCContext::IsCOFF) {
-    Streamer->EmitCVFuncIdDirective(FuncId);
+    Streamer->emitCVFuncIdDirective(FuncId);
     Streamer->emitCVLocDirective(FuncId, FileId, LineNumber, ColNumber, false,
                                  true, "", SMLoc());
   } else {
@@ -1020,7 +1019,7 @@ void ObjectWriter::EmitCVUserDefinedTypesSymbols() {
     return;
   }
   MCSection *Section = ObjFileInfo->getCOFFDebugSymbolsSection();
-  Streamer->SwitchSection(Section);
+  Streamer->switchSection(Section);
 
   MCSymbol *SymbolsBegin = OutContext->createTempSymbol(),
            *SymbolsEnd = OutContext->createTempSymbol();
@@ -1037,7 +1036,7 @@ void ObjectWriter::EmitCVUserDefinedTypesSymbols() {
     Streamer->emitBytes(StringRef(UDT.first.c_str(), NameLength));
   }
   Streamer->emitLabel(SymbolsEnd);
-  Streamer->emitValueToAlignment(4);
+  Streamer->emitValueToAlignment(Align(4));
 }
 
 void ObjectWriter::EmitDebugModuleInfo() {
@@ -1053,7 +1052,7 @@ void ObjectWriter::EmitDebugModuleInfo() {
 
   if (OutContext->getObjectFileType() == MCContext::IsCOFF) {
     MCSection *Section = ObjFileInfo->getCOFFDebugSymbolsSection();
-    Streamer->SwitchSection(Section);
+    Streamer->switchSection(Section);
     Streamer->emitCVFileChecksumsDirective();
     Streamer->emitCVStringTableDirective();
   } else {
@@ -1175,7 +1174,7 @@ void ObjectWriter::EmitARMExIdxPerOffset()
     {
     case CFI_REL_OFFSET:
       assert(IsVector == (Reg >= 16) && "Unexpected Register Type");
-      RegSet.push_back(MRI->getLLVMRegNum(Reg, true).getValue());
+      RegSet.push_back(MRI->getLLVMRegNum(Reg, true).value());
       break;
     case CFI_ADJUST_CFA_OFFSET:
       assert(Reg == DWARF_REG_ILLEGAL &&
@@ -1183,7 +1182,7 @@ void ObjectWriter::EmitARMExIdxPerOffset()
       ATS.emitPad(CFIsPerOffset[i].Offset);
       break;
     case CFI_DEF_CFA_REGISTER:
-      ATS.emitMovSP(MRI->getLLVMRegNum(Reg, true).getValue());
+      ATS.emitMovSP(MRI->getLLVMRegNum(Reg, true).value());
       break;
     default:
       assert(false && "Unrecognized CFI");

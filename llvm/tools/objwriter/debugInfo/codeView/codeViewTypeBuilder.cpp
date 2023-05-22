@@ -32,7 +32,7 @@ UserDefinedCodeViewTypesBuilder::UserDefinedCodeViewTypesBuilder()
 }
 
 void UserDefinedCodeViewTypesBuilder::EmitCodeViewMagicVersion() {
-  Streamer->emitValueToAlignment(4);
+  Streamer->emitValueToAlignment(Align(4));
   Streamer->AddComment("Debug section magic");
   Streamer->emitIntValue(COFF::DEBUG_SECTION_MAGIC, 4);
 }
@@ -48,7 +48,7 @@ void UserDefinedCodeViewTypesBuilder::EmitTypeInformation(
   if (TypeTable.empty())
     return;
 
-  Streamer->SwitchSection(TypeSection);
+  Streamer->switchSection(TypeSection);
   EmitCodeViewMagicVersion();
 
   TypeTable.ForEachRecord([&](TypeIndex FieldTypeIndex,

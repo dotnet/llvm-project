@@ -12,7 +12,9 @@
 
 #include "llvm/MC/MCContext.h"
 #include "llvm/MC/MCAsmInfo.h"
+#include "llvm/MC/MCExpr.h"
 #include "llvm/MC/MCObjectFileInfo.h"
+#include "llvm/MC/MCSymbol.h"
 #include "llvm/Support/LEB128.h"
 
 #ifdef FEATURE_LANGID_CS
@@ -549,7 +551,7 @@ void LexicalScope::AddVar(VarInfo *Info) {
 
 void LexicalScope::Dump(UserDefinedDwarfTypesBuilder *TypeBuilder, MCObjectStreamer *Streamer,
       MCSection *TypeSection, MCSection *StrSection, const MCExpr *SymExpr) {
-  Streamer->SwitchSection(TypeSection);
+  Streamer->switchSection(TypeSection);
 
   if (!IsFuncScope)
   {
@@ -685,7 +687,7 @@ void VarInfo::DumpLocsIfNeeded(MCObjectStreamer *Streamer,
   if (!IsDebugLocNeeded())
     return;
 
-  Streamer->SwitchSection(LocSection);
+  Streamer->switchSection(LocSection);
 
   MCContext &context = Streamer->getContext();
   unsigned TargetPointerSize = context.getAsmInfo()->getCodePointerSize();
@@ -793,7 +795,7 @@ void SubprogramInfo::Dump(UserDefinedDwarfTypesBuilder *TypeBuilder, MCObjectStr
   DumpVars(TypeBuilder, Streamer, TypeSection, StrSection);
 
   // Dump try-catch blocks
-  Streamer->SwitchSection(TypeSection);
+  Streamer->switchSection(TypeSection);
   DumpEHClauses(Streamer, TypeSection);
 
   DwarfInfo::EndChildrenList(Streamer);
@@ -922,13 +924,13 @@ void DwarfGen::EmitCompileUnit() {
   if (context.getAsmInfo()->doesDwarfUseRelocationsAcrossSections()) {
     LineSectionSymbol = Streamer->getDwarfLineTableSymbol(0);
 
-    Streamer->SwitchSection(context.getObjectFileInfo()->getDwarfAbbrevSection());
+    Streamer->switchSection(context.getObjectFileInfo()->getDwarfAbbrevSection());
     AbbrevSectionSymbol = context.createTempSymbol();
     Streamer->emitLabel(AbbrevSectionSymbol);
   }
 
   // Create strings for producer, name and directory in the compile unit.
-  Streamer->SwitchSection(context.getObjectFileInfo()->getDwarfStrSection());
+  Streamer->switchSection(context.getObjectFileInfo()->getDwarfStrSection());
 
   MCSymbol *ProducerStrSymbol = context.createTempSymbol();
   Streamer->emitLabel(ProducerStrSymbol);
@@ -946,7 +948,7 @@ void DwarfGen::EmitCompileUnit() {
   Streamer->emitIntValue(0, 1);
 
   MCSection *debugSection = context.getObjectFileInfo()->getDwarfInfoSection();
-  Streamer->SwitchSection(debugSection);
+  Streamer->switchSection(debugSection);
 
   InfoStart = debugSection->getBeginSymbol();
   InfoEnd = context.createTempSymbol();
@@ -1062,7 +1064,7 @@ void DwarfGen::EmitAranges() {
     return;
 
   MCContext &context = Streamer->getContext();
-  Streamer->SwitchSection(context.getObjectFileInfo()->getDwarfARangesSection());
+  Streamer->switchSection(context.getObjectFileInfo()->getDwarfARangesSection());
 
   auto &Sections = context.getGenDwarfSectionSyms();
 
@@ -1145,13 +1147,13 @@ void DwarfGen::Finish() {
   }
 
   // Add the NULL terminating the Compile Unit DIE's.
-  Streamer->SwitchSection(context.getObjectFileInfo()->getDwarfInfoSection());
+  Streamer->switchSection(context.getObjectFileInfo()->getDwarfInfoSection());
 
   Streamer->emitIntValue(0, 1);
 
   Streamer->emitLabel(InfoEnd);
 
-  Streamer->SwitchSection(context.getObjectFileInfo()->getDwarfAbbrevSection());
+  Streamer->switchSection(context.getObjectFileInfo()->getDwarfAbbrevSection());
 
   // Terminate the abbreviations for this compilation unit
   Streamer->emitIntValue(0, 1);

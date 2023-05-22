@@ -11,7 +11,9 @@
 #include "dwarfAbbrev.h"
 #include "llvm/MC/MCContext.h"
 #include "llvm/MC/MCAsmInfo.h"
+#include "llvm/MC/MCExpr.h"
 #include "llvm/MC/MCObjectFileInfo.h"
+#include "llvm/MC/MCSymbol.h"
 
 #include <sstream>
 #include <vector>
@@ -32,12 +34,12 @@ void DwarfInfo::Dump(UserDefinedDwarfTypesBuilder *TypeBuilder, MCObjectStreamer
 
   DumpTypes(TypeBuilder, Streamer, TypeSection, StrSection);
 
-  Streamer->SwitchSection(StrSection);
+  Streamer->switchSection(StrSection);
   StrSymbol = context.createTempSymbol();
   Streamer->emitLabel(StrSymbol);
   DumpStrings(Streamer);
 
-  Streamer->SwitchSection(TypeSection);
+  Streamer->switchSection(TypeSection);
   Streamer->emitLabel(InfoSymbol);
   DumpTypeInfo(Streamer, TypeBuilder);
 }
@@ -271,7 +273,7 @@ void DwarfEnumTypeInfo::Dump(UserDefinedDwarfTypesBuilder *TypeBuilder, MCObject
   }
 
   // Terminate DIE
-  Streamer->SwitchSection(TypeSection);
+  Streamer->switchSection(TypeSection);
   EndChildrenList(Streamer);
 }
 
@@ -419,7 +421,7 @@ void DwarfClassTypeInfo::Dump(UserDefinedDwarfTypesBuilder *TypeBuilder, MCObjec
   }
 
   // Terminate DIE
-  Streamer->SwitchSection(TypeSection);
+  Streamer->switchSection(TypeSection);
   DwarfInfo::EndChildrenList(Streamer);
 }
 
