@@ -183,44 +183,38 @@ stages:
               _BuildConfig: Release
               assetManifestOS: win
               assetManifestPlatform: x64
-              LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\llvm-tblgen.exe
-              ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\clang-tblgen.exe
+              LLVMTableGenArg: /p:NativeTablegenDir=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin
               archflag: -arch x64
             arm64_release:
               _BuildConfig: Release
               assetManifestOS: win
               assetManifestPlatform: arm64
-              LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\llvm-tblgen.exe
-              ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\clang-tblgen.exe
+              LLVMTableGenArg: /p:NativeTablegenDir=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin
               archflag: -arch arm64
             arm_release:
               _BuildConfig: Release
               assetManifestOS: win
               assetManifestPlatform: arm
-              LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\llvm-tblgen.exe
-              ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\clang-tblgen.exe
+              LLVMTableGenArg: /p:NativeTablegenDir=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin
               archflag: -arch arm
             # Debug
             x64_debug:
               _BuildConfig: Debug
               assetManifestOS: win
               assetManifestPlatform: x64
-              LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\llvm-tblgen.exe
-              ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\clang-tblgen.exe
+              LLVMTableGenArg: /p:NativeTablegenDir=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin
               archflag: -arch x64
             arm64_debug:
               _BuildConfig: Debug
               assetManifestOS: win
               assetManifestPlatform: arm64
-              LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\llvm-tblgen.exe
-              ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\clang-tblgen.exe
+              LLVMTableGenArg: /p:NativeTablegenDir=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin
               archflag: -arch arm64
             arm_debug:
               _BuildConfig: Debug
               assetManifestOS: win
               assetManifestPlatform: arm
-              LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\llvm-tblgen.exe
-              ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\clang-tblgen.exe
+              LLVMTableGenArg: /p:NativeTablegenDir=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin
               archflag: -arch arm
         pool:
           ${{ if eq(variables['System.TeamProject'], 'public') }}:
@@ -242,7 +236,7 @@ stages:
         - powershell: eng\build.ps1 -ci -restore -build -arch x64 -configuration $(_BuildConfig) $(_InternalBuildArgs) /p:BuildLLVMTableGenOnly=true
           displayName: 'Build host llvm-tblgen for cross-compiling'
 
-        - powershell: eng\build.ps1 -ci -restore -build -pack $(archflag) -configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg)
+        - powershell: eng\build.ps1 -ci -restore -build -pack $(archflag) -configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg)
           displayName: 'Build and package'
 
         - powershell: eng\common\build.ps1 -ci -restore -publish -configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(_BuildConfig)-$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) -projects $(Build.SourcesDirectory)\llvm.proj
