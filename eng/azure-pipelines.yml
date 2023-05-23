@@ -37,7 +37,7 @@ stages:
             x64:
               assetManifestOS: linux
               assetManifestPlatform: x64
-              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:cbl-mariner-2.0-cross-amd64
+              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:cbl-mariner-2.0-cross-ubuntu-18.04-amd64
               rootfs: /crossrootfs/x64
               ClangTargetArg: /p:ClangTarget=x86_64-linux-gnu
               ClangBinDirArg: /p:ClangBinDir=/usr/local/bin
@@ -45,7 +45,7 @@ stages:
             arm64:
               assetManifestOS: linux
               assetManifestPlatform: arm64
-              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:cbl-mariner-2.0-cross-arm64
+              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:cbl-mariner-2.0-cross-ubuntu-18.04-arm64
               rootfs: /crossrootfs/arm64
               ClangTargetArg: /p:ClangTarget=aarch64-linux-gnu
               ClangBinDirArg: /p:ClangBinDir=/usr/local/bin
@@ -53,7 +53,7 @@ stages:
             arm:
               assetManifestOS: linux
               assetManifestPlatform: arm
-              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:cbl-mariner-2.0-cross-arm
+              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:cbl-mariner-2.0-cross-ubuntu-18.04-arm
               rootfs: /crossrootfs/arm
               ClangTargetArg: /p:ClangTarget=arm-linux-gnueabihf
               ClangBinDirArg: /p:ClangBinDir=/usr/local/bin
