@@ -7,7 +7,6 @@
     <CMakeGenerator Condition="$(CMakeGenerator) == '' and '$(BuildOS)' == 'Windows_NT'">Ninja</CMakeGenerator>
     <_VCVarsScriptName Condition="'$(BuildOS)' == 'Windows_NT'">vcvars64.bat</_VCVarsScriptName>
     <_VCVarsScriptName Condition="'$(BuildOS)' == 'Windows_NT' and '$(TargetArchitecture)' == 'arm64'">vcvarsamd64_arm64.bat</_VCVarsScriptName>
-    <_VCVarsScriptName Condition="'$(BuildOS)' == 'Windows_NT' and '$(TargetArchitecture)' == 'arm'">vcvarsamd64_arm.bat</_VCVarsScriptName>
     <_SetupEnvironment Condition="'$(BuildOS)' == 'Windows_NT'">
     :: VisualStudio includes vswhere.exe that can be used to locate current VisualStudio installation.
     set VSWHERE_TOOLS_BIN=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe
@@ -56,7 +55,6 @@
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm'" Include="-DLLVM_TARGET_ARCH=ARM" />
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'x64'" Include="-DLLVM_TARGET_ARCH=X86_64" />
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'Windows_NT'" Include="-DLLVM_DEFAULT_TARGET_TRIPLE=aarch64-windows-msvc" />
-    <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm' and '$(BuildOS)' == 'Windows_NT'" Include="-DLLVM_DEFAULT_TARGET_TRIPLE=arm-windows-msvc" />
     <_LLVMBuildArgs Condition="'$(ClangTarget)' != '' and '$(BuildOS)' == 'Linux'" Include="-DLLVM_DEFAULT_TARGET_TRIPLE=$(ClangTarget)" />
     <_LLVMBuildArgs Condition="'$(ClangTarget)' != '' and '$(BuildOS)' == 'Linux'" Include="-DCMAKE_OBJCOPY=$(ClangBinDir)/llvm-objcopy" />
     <_LLVMBuildArgs Condition="'$(ClangTarget)' != '' and '$(BuildOS)' == 'Linux'" Include="-DCMAKE_STRIP=$(ClangBinDir)/llvm-strip" />
@@ -65,7 +63,7 @@
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'OSX'" Include="-DLLVM_DEFAULT_TARGET_TRIPLE=arm64-apple-darwin" />
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'OSX'" Include="-DCMAKE_OSX_ARCHITECTURES=arm64"/>
     <!-- Enable CMake cross-compilation support by setting CMAKE_SYSTEM_NAME manually, see https://github.com/llvm/llvm-project/issues/52819 -->
-    <_LLVMBuildArgs Condition="('$(TargetArchitecture)' == 'arm' or '$(TargetArchitecture)' == 'arm64') and '$(BuildOS)' == 'Windows_NT'" Include="-DCMAKE_SYSTEM_NAME=Windows" />
+    <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'Windows_NT'" Include="-DCMAKE_SYSTEM_NAME=Windows" />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include="-DCMAKE_SYSTEM_NAME=Linux" />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'OSX'" Include="-DCMAKE_SYSTEM_NAME=Darwin" />
     <_LLVMBuildArgs Include="-DCMAKE_BUILD_TYPE=Release" />
