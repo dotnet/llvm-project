@@ -80,6 +80,7 @@
     <_LLVMBuildArgs Include='-DLLVM_INSTALL_BINUTILS_SYMLINKS=TRUE' />
     <_LLVMBuildArgs Include='-DLLVM_ENABLE_LIBXML2=OFF' />
     <_LLVMBuildArgs Include='-DLLVM_ENABLE_TERMINFO=OFF' />
+    <_LLVMBuildArgs Include='-DLLVM_ENABLE_ZSTD=OFF' />
     <_LLVMBuildArgs Include='-DLLVM_EXTERNALIZE_DEBUGINFO=ON' />
     <_LLVMBuildArgs Include='-DLLVM_EXTERNALIZE_DEBUGINFO_INSTALL=ON' />
     <_LLVMBuildArgs Include='-DLLVM_ENABLE_PDB=ON' />
