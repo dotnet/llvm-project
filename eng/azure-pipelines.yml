@@ -191,12 +191,6 @@ stages:
               assetManifestPlatform: arm64
               LLVMTableGenArg: /p:NativeTablegenDir=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin
               archflag: -arch arm64
-            arm_release:
-              _BuildConfig: Release
-              assetManifestOS: win
-              assetManifestPlatform: arm
-              LLVMTableGenArg: /p:NativeTablegenDir=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin
-              archflag: -arch arm
             # Debug
             x64_debug:
               _BuildConfig: Debug
@@ -210,12 +204,6 @@ stages:
               assetManifestPlatform: arm64
               LLVMTableGenArg: /p:NativeTablegenDir=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin
               archflag: -arch arm64
-            arm_debug:
-              _BuildConfig: Debug
-              assetManifestOS: win
-              assetManifestPlatform: arm
-              LLVMTableGenArg: /p:NativeTablegenDir=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin
-              archflag: -arch arm
         pool:
           ${{ if eq(variables['System.TeamProject'], 'public') }}:
             name: $(DncEngPublicBuildPool)
