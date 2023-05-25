@@ -4,5 +4,7 @@
     <File Include="$(_LLVMInstallDir)\bin\llvm-mca" TargetPath="runtimes\$(PackageTargetRuntime)\native\" />
     <File Include="$(_LLVMInstallDir)\bin\llvm-dwarfdump" TargetPath="runtimes\$(PackageTargetRuntime)\native\" />
     <File Include="$(_LLVMInstallDir)\bin\FileCheck" TargetPath="runtimes\$(PackageTargetRuntime)\native\" />
+    <File Include="$(_LibCxxInstallDir)\lib\libc++.so.1" TargetPath="runtimes\$(PackageTargetRuntime)\lib\" />
+    <File Include="$(_LibCxxInstallDir)\lib\libc++abi.so.1" TargetPath="runtimes\$(PackageTargetRuntime)\lib\" />
   </ItemGroup>
 </Project>

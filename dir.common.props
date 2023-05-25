@@ -51,6 +51,10 @@
     <_LLVMBuildDir Condition="'$(_LLVMBuildDir)'==''">$(MSBuildThisFileDirectory)/artifacts/obj/BuildRoot-$(TargetArchitecture)</_LLVMBuildDir>
     <_LLVMInstallDir Condition="'$(_LLVMInstallDir)'==''">$(MSBuildThisFileDirectory)/artifacts/obj/InstallRoot-$(TargetArchitecture)</_LLVMInstallDir>
 
+    <_LibCxxSourceDir Condition="'$(_LibCxxSourceDir)'==''">$(MSBuildThisFileDirectory)/runtimes</_LibCxxSourceDir>
+    <_LibCxxBuildDir Condition="'$(_LibCxxBuildDir)'==''">$(MSBuildThisFileDirectory)/artifacts/obj/libcxx/BuildRoot-$(TargetArchitecture)</_LibCxxBuildDir>
+    <_LibCxxInstallDir Condition="'$(_LibCxxInstallDir)'==''">$(MSBuildThisFileDirectory)/artifacts/obj/libcxx/InstallRoot-$(TargetArchitecture)</_LibCxxInstallDir>
+
   </PropertyGroup>
 
   <PropertyGroup>
