@@ -10,5 +10,7 @@
     <File Include="$(_LLVMInstallDir)\bin\llvm-tblgen.dbg" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\lib\**" Exclude="$(_LLVMInstallDir)\lib\libclang*.a;$(_LLVMInstallDir)\lib\cmake\lld\**" TargetPath="tools\$(PackageTargetRuntime)\lib\%(RecursiveDir)\" />
     <File Include="$(_LLVMInstallDir)\include\**" Exclude="$(_LLVMInstallDir)\include\clang-tidy\**;$(_LLVMInstallDir)\include\lld\**" TargetPath="tools\$(PackageTargetRuntime)\include\%(RecursiveDir)\" />
+    <File Include="$(_LibCxxInstallDir)\lib\*" Exclude="$(_LibCxxInstallDir)\lib\libc++.so.1;$(_LibCxxInstallDir)\lib\libc++abi.so.1" TargetPath="tools\$(PackageTargetRuntime)\lib\" />
+    <File Include="$(_LibCxxInstallDir)\include\**" TargetPath="tools\$(PackageTargetRuntime)\include\%(RecursiveDir)\" />
   </ItemGroup>
 </Project>

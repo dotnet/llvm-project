@@ -2,5 +2,7 @@
 <Project>
   <ItemGroup>
     <File Include="$(_LLVMInstallDir)\lib\libobjwriter.so" TargetPath="runtimes\$(PackageTargetRuntime)\native\" />
+    <File Include="$(_LibCxxInstallDir)\lib\libc++.so.1" TargetPath="runtimes\$(PackageTargetRuntime)\lib\" />
+    <File Include="$(_LibCxxInstallDir)\lib\libc++abi.so.1" TargetPath="runtimes\$(PackageTargetRuntime)\lib\" />
   </ItemGroup>
 </Project>
