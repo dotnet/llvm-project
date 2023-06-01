@@ -161,6 +161,21 @@
     <Exec WorkingDirectory="$(_LibCxxBuildDir)"
           Command="$(_BuildCommand) install"
           IgnoreStandardErrorWarningFormat="true" />
+    <ItemGroup>
+      <_LibCxxUnstripped Include="libc++.so.1.0" />
+      <_LibCxxUnstripped Include="libc++abi.so.1.0" />
+      <_LibCxxUnstripped Include="libunwind.so.1.0" />
+    </ItemGroup>
+    <PropertyGroup>
+      <DebugSuffix>.dbg</DebugSuffix>
+    </PropertyGroup>
+    <Message Text="** Running 'llvm-strip'" />
+    <Exec WorkingDirectory="$(_LibCxxInstallDir)\lib"
+          Command="$(ClangBinDir)/llvm-strip -o %(_LibCxxUnstripped.Identity)$(DebugSuffix) --only-keep-debug %(_LibCxxUnstripped.Identity)"
+          IgnoreStandardErrorWarningFormat="true" />
+    <Exec WorkingDirectory="$(_LibCxxInstallDir)\lib"
+          Command="$(ClangBinDir)/llvm-strip --strip-all %(_LibCxxUnstripped.Identity)"
+          IgnoreStandardErrorWarningFormat="true" />
   </Target>
 
   <Target Name="_LLVMBuild">
