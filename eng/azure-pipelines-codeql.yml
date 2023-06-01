@@ -7,11 +7,12 @@ schedules:
     branches:
       include:
       - dotnet/main
-      - objwriter/12.x
+      - dotnet/release/*
     always: true
 
 variables:
   - template: /eng/common-variables.yml
+  - template: /eng/common/templates/variables/pool-providers.yml
   - name: Codeql.Enabled
     value: True
   - name: Codeql.Cadence
@@ -31,21 +32,26 @@ stages:
       ############ LINUX BUILD ############
       - job: Build_Linux
         displayName: Linux
-        timeoutInMinutes: 480
+        timeoutInMinutes: 600
         variables:
         - _BuildConfig: Release
         strategy:
           matrix:
             x64:
-              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:centos-7-20220716123527-d0bc8ed
+              assetManifestOS: linux
+              assetManifestPlatform: x64
+              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:cbl-mariner-2.0-cross-amd64
+              rootfs: /crossrootfs/x64
+              ClangTargetArg: /p:ClangTarget=x86_64-linux-gnu
+              ClangBinDirArg: /p:ClangBinDir=/usr/local/bin
               archflag: --arch x64
-              Devtoolset7Arg: /p:ForceDevtoolset7=true
         pool:
           ${{ if eq(variables['System.TeamProject'], 'public') }}:
-            vmImage: ubuntu-20.04
+            name: $(DncEngPublicBuildPool)
+            demands: ImageOverride -equals build.ubuntu.2204.amd64.open
           ${{ if eq(variables['System.TeamProject'], 'internal') }}:
-            name: NetCore1ESPool-Internal
-            demands: ImageOverride -equals Build.Ubuntu.1804.Amd64
+            name: $(DncEngInternalBuildPool)
+            demands: ImageOverride -equals build.ubuntu.2204.amd64
         container:
           image: $(imagename)
         steps:
@@ -59,8 +65,10 @@ stages:
           displayName: Initialize CodeQL (manually-injected)
 
         - bash: |
-            ./build.sh --ci --restore --build $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(Devtoolset7Arg)
-          displayName: 'Build'
+            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(ClangBinDirArg) $(ClangTargetArg)
+          displayName: 'Build and package'
+          env:
+            ROOTFS_DIR: $(rootfs)
 
         - task: CodeQL3000Finalize@0
           displayName: Finalize CodeQL (manually-injected)
@@ -74,13 +82,39 @@ stages:
             # Release
             x64_release:
               _BuildConfig: Release
+              assetManifestOS: win
+              assetManifestPlatform: x64
+              LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\llvm-tblgen.exe
+              ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\clang-tblgen.exe
               archflag: -arch x64
+            arm64_release:
+              _BuildConfig: Release
+              assetManifestOS: win
+              assetManifestPlatform: arm64
+              LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\llvm-tblgen.exe
+              ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\clang-tblgen.exe
+              archflag: -arch arm64
+            # Debug
+            x64_debug:
+              _BuildConfig: Debug
+              assetManifestOS: win
+              assetManifestPlatform: x64
+              LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\llvm-tblgen.exe
+              ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\clang-tblgen.exe
+              archflag: -arch x64
+            arm64_debug:
+              _BuildConfig: Debug
+              assetManifestOS: win
+              assetManifestPlatform: arm64
+              LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\llvm-tblgen.exe
+              ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\clang-tblgen.exe
+              archflag: -arch arm64
         pool:
           ${{ if eq(variables['System.TeamProject'], 'public') }}:
-            name: NetCore-Public
+            name: $(DncEngPublicBuildPool)
             demands: ImageOverride -equals windows.vs2022.amd64.open
           ${{ if eq(variables['System.TeamProject'], 'internal') }}:
-            name: NetCore1ESPool-Internal
+            name: $(DncEngInternalBuildPool)
             demands: ImageOverride -equals windows.vs2022.amd64
         steps:
         - checkout: self
@@ -95,8 +129,11 @@ stages:
         - task: CodeQL3000Init@0
           displayName: Initialize CodeQL (manually-injected)
 
-        - powershell: eng\build.ps1 -ci -restore -build $(archflag) -configuration $(_BuildConfig) $(_InternalBuildArgs)
-          displayName: 'Build'
+        - powershell: eng\build.ps1 -ci -restore -build -arch x64 -configuration $(_BuildConfig) $(_InternalBuildArgs) /p:BuildLLVMTableGenOnly=true
+          displayName: 'Build host llvm-tblgen for cross-compiling'
+
+        - powershell: eng\build.ps1 -ci -restore -build -pack $(archflag) -configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg)
+          displayName: 'Build and package'
 
         - task: CodeQL3000Finalize@0
           displayName: Finalize CodeQL (manually-injected)
