@@ -14,6 +14,9 @@ pr:
 variables:
 - template: /eng/common-variables.yml
 - template: /eng/common/templates/variables/pool-providers.yml
+# disable CodeQL here, we have a separate pipeline for it
+- name: Codeql.Enabled
+  value: false
 
 stages:
 - stage: build
