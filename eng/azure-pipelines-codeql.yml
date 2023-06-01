@@ -87,28 +87,6 @@ stages:
               LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\llvm-tblgen.exe
               ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\clang-tblgen.exe
               archflag: -arch x64
-            arm64_release:
-              _BuildConfig: Release
-              assetManifestOS: win
-              assetManifestPlatform: arm64
-              LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\llvm-tblgen.exe
-              ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\clang-tblgen.exe
-              archflag: -arch arm64
-            # Debug
-            x64_debug:
-              _BuildConfig: Debug
-              assetManifestOS: win
-              assetManifestPlatform: x64
-              LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\llvm-tblgen.exe
-              ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\clang-tblgen.exe
-              archflag: -arch x64
-            arm64_debug:
-              _BuildConfig: Debug
-              assetManifestOS: win
-              assetManifestPlatform: arm64
-              LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\llvm-tblgen.exe
-              ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\clang-tblgen.exe
-              archflag: -arch arm64
         pool:
           ${{ if eq(variables['System.TeamProject'], 'public') }}:
             name: $(DncEngPublicBuildPool)
