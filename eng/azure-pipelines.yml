@@ -2,13 +2,13 @@ trigger:
   batch: true
   branches:
     include:
-    - dotnet/main
+    - dotnet/main*
     - dotnet/release/*
 
 pr:
   branches:
     include:
-    - dotnet/main
+    - dotnet/main*
     - dotnet/release/*
 
 variables:
