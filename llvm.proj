@@ -147,6 +147,7 @@
       <_LibCxxBuildArgs Include='-DCMAKE_POSITION_INDEPENDENT_CODE=ON' />
       <_LibCxxBuildArgs Include="-DCMAKE_CXX_COMPILER_TARGET=$(ClangTarget)" />
       <_LibCxxBuildArgs Include="-DLLVM_DEFAULT_TARGET_TRIPLE=$(ClangTarget)" />
+      <_LibCxxBuildArgs Condition="$(ClangTarget.ToLowerInvariant().Contains('musl'))" Include="-DLIBCXX_HAS_MUSL_LIBC=ON" />
     </ItemGroup>
     <Message Text="** Configuring bootstrap libc++ '$(_LibCxxConfigureCommand)'" Importance="High" />
     <Exec WorkingDirectory="$(_LibCxxBuildDir)"
