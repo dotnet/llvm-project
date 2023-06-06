@@ -46,7 +46,7 @@
     <_CrossCFlags>--target=$(ClangTarget)</_CrossCFlags>
     <_CrossCFlags Condition="'$(BuildOS)' == 'Linux'">$(_CrossCFlags) --sysroot=$(ROOTFS_DIR) --gcc-toolchain=$(ROOTFS_DIR)/usr</_CrossCFlags>
     <_SharedLinkerFlags>$(_CrossCFlags)</_SharedLinkerFlags>
-    <_SharedLinkerFlags Condition="'$(BuildOS)' == 'Linux'">-Wl,--build-id -Wl,-rpath,../lib -fuse-ld=lld $(_SharedLinkerFlags)</_SharedLinkerFlags>
+    <_SharedLinkerFlags Condition="'$(BuildOS)' == 'Linux'">-Wl,--build-id -Wl,-rpath,'%5C%24ORIGIN' -fuse-ld=lld $(_SharedLinkerFlags)</_SharedLinkerFlags>
     <ClangBinDir Condition="'$(ClangBinDir)' == ''">/usr/bin</ClangBinDir>
   </PropertyGroup>
 
