@@ -121,6 +121,8 @@ unsigned ARMELFObjectWriter::GetRelocTypeInner(const MCValue &Target,
       case MCSymbolRefExpr::VK_ARM_PREL31:
         return ELF::R_ARM_PREL31;
       }
+    case FK_PCRel_4:
+      return ELF::R_ARM_REL32;
     case ARM::fixup_arm_blx:
     case ARM::fixup_arm_uncondbl:
       switch (Modifier) {

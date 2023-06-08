@@ -150,6 +150,7 @@ public:
   virtual void emitPad(int64_t Offset);
   virtual void emitRegSave(const SmallVectorImpl<unsigned> &RegList,
                            bool isVector);
+  virtual void emitLsda(const MCSymbol *Symbol);
   virtual void emitUnwindRaw(int64_t StackOffset,
                              const SmallVectorImpl<uint8_t> &Opcodes);
 
@@ -683,6 +684,9 @@ public:
   /// etc.
   virtual void emitBytes(StringRef Data);
 
+  /// \brief Emit the given \p Instruction data into the current section.
+  virtual void emitInstructionBytes(StringRef Data);
+
   /// Functionally identical to EmitBytes. When emitting textual assembly, this
   /// method uses .byte directives instead of .ascii or .asciz for readability.
   virtual void emitBinaryData(StringRef Data);
@@ -1020,6 +1024,7 @@ public:
   virtual void emitCFIWindowSave(SMLoc Loc = {});
   virtual void emitCFINegateRAState(SMLoc Loc = {});
   virtual void emitCFILabelDirective(SMLoc Loc, StringRef Name);
+  virtual void emitCFICompactUnwindEncoding(unsigned Encoding);
 
   virtual void emitWinCFIStartProc(const MCSymbol *Symbol, SMLoc Loc = SMLoc());
   virtual void emitWinCFIEndProc(SMLoc Loc = SMLoc());

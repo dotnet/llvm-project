@@ -117,6 +117,11 @@ public:
                                  const MCExpr *Value) override;
   void emitValueImpl(const MCExpr *Value, unsigned Size,
                      SMLoc Loc = SMLoc()) override;
+  /// \brief EmitValueImpl with additional param, that allows to emit PCRelative
+  /// MCFixup.
+  void emitValueImpl(const MCExpr *Value, unsigned Size, SMLoc Loc,
+                     bool isPCRelative);
+
   void emitULEB128Value(const MCExpr *Value) override;
   void emitSLEB128Value(const MCExpr *Value) override;
   void emitWeakReference(MCSymbol *Alias, const MCSymbol *Symbol) override;
