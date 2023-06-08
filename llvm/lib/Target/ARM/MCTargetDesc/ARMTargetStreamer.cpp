@@ -98,6 +98,7 @@ void ARMTargetStreamer::emitMovSP(unsigned Reg, int64_t Offset) {}
 void ARMTargetStreamer::emitPad(int64_t Offset) {}
 void ARMTargetStreamer::emitRegSave(const SmallVectorImpl<unsigned> &RegList,
                                     bool isVector) {}
+void ARMTargetStreamer::emitLsda(const MCSymbol *Symbol) {}
 void ARMTargetStreamer::emitUnwindRaw(int64_t StackOffset,
                                       const SmallVectorImpl<uint8_t> &Opcodes) {
 }

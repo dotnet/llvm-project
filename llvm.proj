@@ -1,0 +1,240 @@
+<Project>
+  <Import Project="Directory.Build.props" />
+  <Import Project="Directory.Build.targets" />
+
+  <PropertyGroup>
+    <CMakeGenerator Condition="$(CMakeGenerator) == '' and '$(BuildOS)' != 'Windows_NT'">Unix Makefiles</CMakeGenerator>
+    <CMakeGenerator Condition="$(CMakeGenerator) == '' and '$(BuildOS)' == 'Windows_NT'">Ninja</CMakeGenerator>
+    <_VCVarsScriptName Condition="'$(BuildOS)' == 'Windows_NT'">vcvars64.bat</_VCVarsScriptName>
+    <_VCVarsScriptName Condition="'$(BuildOS)' == 'Windows_NT' and '$(TargetArchitecture)' == 'arm64'">vcvarsamd64_arm64.bat</_VCVarsScriptName>
+    <_SetupEnvironment Condition="'$(BuildOS)' == 'Windows_NT'">
+    :: VisualStudio includes vswhere.exe that can be used to locate current VisualStudio installation.
+    set VSWHERE_TOOLS_BIN=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe
+    set VS_VCINSTALL_DIR=
+
+    :: Try to locate installed VisualStudio VC environment.
+    if "%VCINSTALLDIR%" == "" if exist "%VSWHERE_TOOLS_BIN%" (
+        for /f "tokens=*" %%a in ('"%VSWHERE_TOOLS_BIN%" -latest -prerelease -property installationPath') do (
+            set VS_VCINSTALL_DIR=%%a\VC\
+        )
+    )
+
+    if NOT "%VCINSTALLDIR%" == "" set VS_VCINSTALL_DIR=%VCINSTALLDIR%
+
+    :: Run VS build environment script.
+    call "%VS_VCINSTALL_DIR%\Auxiliary\Build\$(_VCVarsScriptName)"
+
+    </_SetupEnvironment>
+    <_CMakeConfigureCommand>$(_SetupEnvironment) cmake $(_LLVMSourceDir) -G "$(CMakeGenerator)" @(_LLVMBuildArgs->'%(Identity)',' ')</_CMakeConfigureCommand>
+    <_LibCxxConfigureCommand>$(_SetupEnvironment) cmake $(_LibCxxSourceDir) -G "$(CMakeGenerator)" @(_LibCxxBuildArgs->'%(Identity)',' ')</_LibCxxConfigureCommand>
+    <_BuildSubset Condition="'$(BuildLLVMTableGenOnly)' == 'true'">llvm-tblgen clang-tblgen llvm-config clang-tidy-confusable-chars-gen clang-pseudo-gen</_BuildSubset>
+    <_BuildSubset Condition="'$(BuildObjWriterOnly)' == 'true'">objwriter llvm-mca llvm-dwarfdump FileCheck</_BuildSubset>
+    <_BuildCommand Condition="'$(CMakeGenerator)' == 'Unix Makefiles'">$(_SetupEnvironment) make $(_BuildSubset) -j$([System.Environment]::ProcessorCount)</_BuildCommand>
+    <_BuildCommand Condition="'$(CMakeGenerator)' == 'Ninja'">$(_SetupEnvironment) ninja $(_BuildSubset)</_BuildCommand>
+    <_CMakeInstallCommand Condition="'$(BuildObjWriterOnly)' == 'true'">
+    $(_SetupEnvironment) 
+
+    cmake -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_PREFIX=$(_LLVMInstallDir) -DCMAKE_INSTALL_COMPONENT=objwriter -P cmake_install.cmake
+    cmake -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_PREFIX=$(_LLVMInstallDir) -DCMAKE_INSTALL_COMPONENT=llvm-mca -P cmake_install.cmake
+    cmake -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_PREFIX=$(_LLVMInstallDir) -DCMAKE_INSTALL_COMPONENT=llvm-dwarfdump -P cmake_install.cmake
+    cmake -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_PREFIX=$(_LLVMInstallDir) -DCMAKE_INSTALL_COMPONENT=FileCheck -P cmake_install.cmake
+    </_CMakeInstallCommand>
+    <_CMakeInstallCommand Condition="'$(BuildObjWriterOnly)' != 'true'">$(_SetupEnvironment) cmake -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_PREFIX=$(_LLVMInstallDir) -P cmake_install.cmake</_CMakeInstallCommand>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(BuildOS)' != 'Windows_NT'">
+    <_CrossCFlags>--target=$(ClangTarget)</_CrossCFlags>
+    <_CrossCFlags Condition="'$(BuildOS)' == 'Linux'">$(_CrossCFlags) --sysroot=$(ROOTFS_DIR) --gcc-toolchain=$(ROOTFS_DIR)/usr</_CrossCFlags>
+    <_SharedLinkerFlags>$(_CrossCFlags)</_SharedLinkerFlags>
+    <_SharedLinkerFlags Condition="'$(BuildOS)' == 'Linux'">-Wl,--build-id -Wl,-rpath,'%5C%24ORIGIN' -fuse-ld=lld $(_SharedLinkerFlags)</_SharedLinkerFlags>
+    <ClangBinDir Condition="'$(ClangBinDir)' == ''">/usr/bin</ClangBinDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64'" Include="-DLLVM_TARGET_ARCH=AARCH64" />
+    <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm'" Include="-DLLVM_TARGET_ARCH=ARM" />
+    <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'x64'" Include="-DLLVM_TARGET_ARCH=X86_64" />
+    <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'Windows_NT'" Include="-DLLVM_DEFAULT_TARGET_TRIPLE=aarch64-windows-msvc" />
+    <_LLVMBuildArgs Condition="'$(ClangTarget)' != '' and '$(BuildOS)' == 'Linux'" Include="-DLLVM_DEFAULT_TARGET_TRIPLE=$(ClangTarget)" />
+    <_LLVMBuildArgs Condition="'$(ClangTarget)' != '' and '$(BuildOS)' == 'Linux'" Include="-DCMAKE_OBJCOPY=$(ClangBinDir)/llvm-objcopy" />
+    <_LLVMBuildArgs Condition="'$(ClangTarget)' != '' and '$(BuildOS)' == 'Linux'" Include="-DCMAKE_STRIP=$(ClangBinDir)/llvm-strip" />
+    <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'x64' and '$(BuildOS)' == 'OSX'" Include="-DLLVM_DEFAULT_TARGET_TRIPLE=x86_64-apple-darwin" />
+    <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'x64' and '$(BuildOS)' == 'OSX'" Include="-DCMAKE_OSX_ARCHITECTURES=x86_64"/>
+    <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'OSX'" Include="-DLLVM_DEFAULT_TARGET_TRIPLE=arm64-apple-darwin" />
+    <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'OSX'" Include="-DCMAKE_OSX_ARCHITECTURES=arm64"/>
+    <!-- Enable CMake cross-compilation support by setting CMAKE_SYSTEM_NAME manually, see https://github.com/llvm/llvm-project/issues/52819 -->
+    <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'Windows_NT'" Include="-DCMAKE_SYSTEM_NAME=Windows" />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include="-DCMAKE_SYSTEM_NAME=Linux" />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'OSX'" Include="-DCMAKE_SYSTEM_NAME=Darwin" />
+    <_LLVMBuildArgs Include="-DCMAKE_BUILD_TYPE=Release" />
+    <_LLVMBuildArgs Include='-DLEGAL_COPYRIGHT="\xa9 Microsoft Corporation. All rights reserved."' />
+    <_LLVMBuildArgs Include="-DLLVM_BUILD_LLVM_C_DYLIB=OFF" />
+    <_LLVMBuildArgs Include="-DLLVM_ENABLE_DIA_SDK=OFF" />
+    <_LLVMBuildArgs Include="-DLLVM_INCLUDE_TESTS=OFF" />
+    <_LLVMBuildArgs Include='-DLLVM_TARGETS_TO_BUILD="X86%3BAArch64%3BARM%3BWebAssembly"' />
+    <_LLVMBuildArgs Include='-DLLVM_BUILD_TESTS=OFF' />
+    <_LLVMBuildArgs Include='-DLLVM_BUILD_EXAMPLES=OFF' />
+    <_LLVMBuildArgs Include='-DLLVM_INCLUDE_EXAMPLES=OFF' />
+    <_LLVMBuildArgs Include='-DLLVM_TOOLS_TO_BUILD="llc%3Bllvm-addr2line%3Bllvm-ar%3Bllvm-as%3Bllvm-config%3Bllvm-cxxfilt%3Bllvm-dis%3Bllvm-dwarfdump%3Bllvm-dwp%3Bllvm-mc%3Bllvm-mca%3Bllvm-nm%3Bllvm-objcopy%3Bllvm-objdump%3Bllvm-ranlib%3Bllvm-readobj%3Bllvm-size%3Bllvm-strings%3Bllvm-strip%3Bllvm-symbolizer%3Bobjwriter%3Bopt%3BFileCheck"' />
+    <_LLVMBuildArgs Include='-DLLVM_INSTALL_BINUTILS_SYMLINKS=TRUE' />
+    <_LLVMBuildArgs Include='-DLLVM_ENABLE_LIBXML2=OFF' />
+    <_LLVMBuildArgs Include='-DLLVM_ENABLE_TERMINFO=OFF' />
+    <_LLVMBuildArgs Include='-DLLVM_ENABLE_ZSTD=OFF' />
+    <_LLVMBuildArgs Include='-DLLVM_EXTERNALIZE_DEBUGINFO=ON' />
+    <_LLVMBuildArgs Include='-DLLVM_EXTERNALIZE_DEBUGINFO_INSTALL=ON' />
+    <_LLVMBuildArgs Include='-DLLVM_ENABLE_PDB=ON' />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include='-DLLVM_EXTERNALIZE_DEBUGINFO_EXTENSION=dbg' />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'OSX'" Include='-DLLVM_EXTERNALIZE_DEBUGINFO_EXTENSION=dwarf -DLLVM_EXTERNALIZE_DEBUGINFO_FLATTEN=ON' />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT' and '$(Configuration)' == 'Release'" Include='-DLLVM_USE_CRT_DEBUG=MT' />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT' and '$(Configuration)' == 'Release'" Include='-DLLVM_USE_CRT_RELEASE=MT' />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT' and '$(Configuration)' == 'Debug'" Include='-DLLVM_USE_CRT_DEBUG=MTd' />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT' and '$(Configuration)' == 'Debug'" Include='-DLLVM_USE_CRT_RELEASE=MTd' />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT'" Include='-DLLVM_ENABLE_ZLIB=OFF' />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT'" Include='-DLLVM_NATIVE_TOOL_DIR=$(NativeTablegenDir)' />
+    <_LLVMBuildArgs Include='-DLLVM_ENABLE_PROJECTS="lld%3Bclang%3Bclang-tools-extra"' />
+    <_LLVMBuildArgs Include='-DLLVM_BUILD_TOOLS:BOOL=ON' />
+    <_LLVMBuildArgs Include='-DLLVM_INSTALL_UTILS:BOOL=ON' />
+    <_LLVMBuildArgs Include="-DLLVM_INCLUDE_UTILS:BOOL=ON" />
+    <_LLVMBuildArgs Include='-DCLANG_INCLUDE_TESTS=OFF' />
+    <_LLVMBuildArgs Include='-DCLANG_ENABLE_ARCMT=OFF' />
+    <_LLVMBuildArgs Include='-DLLVM_ENABLE_LIBCXX=ON' />
+    <_LLVMBuildArgs Include='-DCLANG_ENABLE_STATIC_ANALYZER=OFF' />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include='-DCMAKE_POSITION_INDEPENDENT_CODE=ON' />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include='-DCROSS_TOOLCHAIN_FLAGS_LLVM_NATIVE="-DCMAKE_C_COMPILER=clang%3B-DCMAKE_CXX_COMPILER=clang++%3B-DCMAKE_ASM_COMPILER=clang%3B-DCMAKE_EXE_LINKER_FLAGS_INIT=-fuse-ld=lld%3B-DCMAKE_SHARED_LINKER_FLAGS_INIT=-fuse-ld=lld"' />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(BuildOS)' != 'Windows_NT'">
+    <_LLVMBuildArgs Include="-DCMAKE_C_COMPILER=clang" />
+    <_LLVMBuildArgs Include="-DCMAKE_CXX_COMPILER=clang++" />
+    <_LLVMBuildArgs Include="-DCMAKE_ASM_COMPILER=clang" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(BuildOS)' == 'Linux'">
+    <_LibCxxCFlags>-I$(_LibCxxInstallDir)/include/c++/v1 -L$(_LibCxxInstallDir)/lib -stdlib=libc++</_LibCxxCFlags>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(BuildOS)' != 'Windows_NT'">
+    <_LLVMBuildArgs Include='-DCMAKE_C_FLAGS="-I../llvm/include -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CrossCFlags)"' />
+    <_LLVMBuildArgs Include='-DCMAKE_CXX_FLAGS="-I../llvm/include $(_LibCxxCFlags) -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CrossCFlags) "' />
+    <_LLVMBuildArgs Include='-DCMAKE_ASM_FLAGS="-I../llvm/include -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CrossCFlags) "' />
+    <_LLVMBuildArgs Include='-DCMAKE_EXE_LINKER_FLAGS_INIT="$(_SharedLinkerFlags)"' />
+    <_LLVMBuildArgs Include='-DCMAKE_SHARED_LINKER_FLAGS_INIT="$(_SharedLinkerFlags)"' />
+    <_LLVMBuildArgs Include='-DCMAKE_MODULE_LINKER_FLAGS_INIT="$(_SharedLinkerFlags)"' />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'OSX' and '$(TargetArchitecture)' == 'arm64'" Include='-DCMAKE_OSX_DEPLOYMENT_TARGET=11.0' />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'OSX' and '$(TargetArchitecture)' == 'x64'" Include='-DCMAKE_OSX_DEPLOYMENT_TARGET=10.13' />
+  </ItemGroup>
+
+  <Target Name="_LLVMBeforeBuild">
+    <MakeDir Directories="$(_LLVMBuildDir)" Condition="!Exists('$(_LLVMBuildDir)')" />
+    <MakeDir Directories="$(_LibCxxBuildDir)" Condition="!Exists('$(_LibCxxBuildDir)') and '$(BuildOS)' == 'Linux'" />
+  </Target>
+
+  <Target Name="_LibCxxBootstrap" Condition="'$(BuildOS)' == 'Linux'" BeforeTargets="_LLVMBuild">
+    <ItemGroup>
+      <_LibCxxBuildArgs Include='-DLLVM_ENABLE_RUNTIMES="libcxx%3Blibcxxabi%3Blibunwind"' />
+      <_LibCxxBuildArgs Include="-DCMAKE_C_COMPILER=clang" />
+      <_LibCxxBuildArgs Include="-DCMAKE_CXX_COMPILER=clang++" />
+      <_LibCxxBuildArgs Include="-DCMAKE_ASM_COMPILER=clang" />
+      <_LibCxxBuildArgs Include='-DCMAKE_C_FLAGS="-D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CrossCFlags)"' />
+      <_LibCxxBuildArgs Include='-DCMAKE_CXX_FLAGS="-D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CrossCFlags)"' />
+      <_LibCxxBuildArgs Include='-DCMAKE_ASM_FLAGS="-D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CrossCFlags)"' />
+      <_LibCxxBuildArgs Include='-DCMAKE_EXE_LINKER_FLAGS_INIT="-Wl,--build-id -fuse-ld=lld"' />
+      <_LibCxxBuildArgs Include='-DCMAKE_SHARED_LINKER_FLAGS_INIT="-Wl,--build-id -fuse-ld=lld"' />
+      <_LibCxxBuildArgs Include='-DCMAKE_MODULE_LINKER_FLAGS_INIT="-Wl,--build-id -fuse-ld=lld"' />
+      <_LibCxxBuildArgs Include='-DCMAKE_INSTALL_PREFIX=$(_LibCxxInstallDir)' />
+      <_LibCxxBuildArgs Include='-DCMAKE_POSITION_INDEPENDENT_CODE=ON' />
+      <_LibCxxBuildArgs Include="-DCMAKE_CXX_COMPILER_TARGET=$(ClangTarget)" />
+      <_LibCxxBuildArgs Include="-DLLVM_DEFAULT_TARGET_TRIPLE=$(ClangTarget)" />
+      <_LibCxxBuildArgs Condition="$(ClangTarget.ToLowerInvariant().Contains('musl'))" Include="-DLIBCXX_HAS_MUSL_LIBC=ON" />
+    </ItemGroup>
+    <Message Text="** Configuring bootstrap libc++ '$(_LibCxxConfigureCommand)'" Importance="High" />
+    <Exec WorkingDirectory="$(_LibCxxBuildDir)"
+          Command="$(_LibCxxConfigureCommand)"
+          Condition="!Exists('$(_LibCxxBuildDir)/CMakeCache.txt')"
+          IgnoreStandardErrorWarningFormat="true" />
+    <Message Text="** Building bootstrap libc++ '$(_BuildCommand)'" Importance="High" />
+    <Exec WorkingDirectory="$(_LibCxxBuildDir)"
+          Command="$(_BuildCommand)"
+          IgnoreStandardErrorWarningFormat="true" />
+    <Message Text="** Installing bootstrap libc++ '$(_CMakeInstallCommand)'" Importance="High" />
+    <Exec WorkingDirectory="$(_LibCxxBuildDir)"
+          Command="$(_BuildCommand) install"
+          IgnoreStandardErrorWarningFormat="true" />
+    <ItemGroup>
+      <_LibCxxUnstripped Include="libc++.so.1.0" />
+      <_LibCxxUnstripped Include="libc++abi.so.1.0" />
+      <_LibCxxUnstripped Include="libunwind.so.1.0" />
+    </ItemGroup>
+    <PropertyGroup>
+      <DebugSuffix>.dbg</DebugSuffix>
+    </PropertyGroup>
+    <Message Text="** Running 'llvm-strip'" />
+    <Exec WorkingDirectory="$(_LibCxxInstallDir)\lib"
+          Command="$(ClangBinDir)/llvm-strip -o %(_LibCxxUnstripped.Identity)$(DebugSuffix) --only-keep-debug %(_LibCxxUnstripped.Identity)"
+          IgnoreStandardErrorWarningFormat="true" />
+    <Exec WorkingDirectory="$(_LibCxxInstallDir)\lib"
+          Command="$(ClangBinDir)/llvm-strip --strip-all %(_LibCxxUnstripped.Identity)"
+          IgnoreStandardErrorWarningFormat="true" />
+  </Target>
+
+  <Target Name="_LLVMBuild">
+    <Message Text="Running command '$(_CMakeConfigureCommand)'" Importance="High" />
+    <Exec WorkingDirectory="$(_LLVMBuildDir)"
+          Command="$(_CMakeConfigureCommand)"
+          Condition="!Exists('$(_LLVMBuildDir)/CMakeCache.txt')"
+          IgnoreStandardErrorWarningFormat="true" />
+    <Message Text="Running command '$(_BuildCommand)'" Importance="High" />
+    <Exec WorkingDirectory="$(_LLVMBuildDir)"
+          Command="$(_BuildCommand)"
+          IgnoreStandardErrorWarningFormat="true" />
+    <Message Text="Running command '$(_CMakeInstallCommand)'" Importance="High" />
+    <Exec WorkingDirectory="$(_LLVMBuildDir)"
+          Command="$(_CMakeInstallCommand)"
+          IgnoreStandardErrorWarningFormat="true"
+          Condition="'$(BuildLLVMTableGenOnly)' != 'true'" />
+  </Target>
+
+  <Target Name="_WriteVersionFile" AfterTargets="_LLVMBuild">
+    <PropertyGroup>
+      <LLVMEmsdkVersion>llvm-$(PackageVersion.Trim())-dotnet</LLVMEmsdkVersion>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(_LLVMInstallDir)\.emsdk_version"
+      Overwrite="true"
+      Lines="$(LLVMEmsdkVersion)" />
+  </Target>
+
+  <Target Name="_LLVMAfterBuild" Condition="'$(BuildLLVMTableGenOnly)' != 'true'">
+    <!-- Files to remove from install tree -->
+    <ItemGroup>
+      <FilesToDelete Include="$(_LLVMInstallDir)/lib/libLTO*" />
+      <FilesToDelete Include="$(_LLVMInstallDir)/lib/LLVMHello*" />
+      <FilesToDelete Include="$(_LLVMInstallDir)/lib/BugpointPasses.*" />
+      <FilesToDelete Include="$(_LLVMInstallDir)/bin/c-index-test*" />
+      <FilesToDelete Include="$(_LLVMInstallDir)/bin/clang-*" />
+      <FilesToDelete Include="$(_LLVMInstallDir)/bin/clangd*" />
+      <FilesToDelete Include="$(_LLVMInstallDir)/bin/diagtool*" />
+      <FilesToDelete Include="$(_LLVMInstallDir)/bin/*dlltool*" />
+      <FilesToDelete Include="$(_LLVMInstallDir)/bin/find-all-symbols*" />
+      <FilesToDelete Include="$(_LLVMInstallDir)/bin/hmaptool*" />
+      <FilesToDelete Include="$(_LLVMInstallDir)/bin/modularize*" />
+      <FilesToDelete Include="$(_LLVMInstallDir)/bin/pp-trace*" />
+    </ItemGroup>
+    <!-- Files previously marked for removal, which we want exceptions for (i.e. to keep after all) -->
+    <ItemGroup>
+      <FilesToDelete Remove="$(_LLVMInstallDir)/bin/clang-apply-replacements*" />
+      <FilesToDelete Remove="$(_LLVMInstallDir)/bin/clang-16*" />
+      <FilesToDelete Remove="$(_LLVMInstallDir)/bin/clang-cl*" />
+      <FilesToDelete Remove="$(_LLVMInstallDir)/bin/clang-cpp*" />
+      <FilesToDelete Remove="$(_LLVMInstallDir)/bin/clang-format*" />
+      <FilesToDelete Remove="$(_LLVMInstallDir)/bin/clang-tidy*" />
+    </ItemGroup>
+    <Delete Files="@(FilesToDelete)" ContinueOnError="true" TreatErrorsAsWarnings="true" />
+  </Target>
+
+  <Target Name="Build" DependsOnTargets="_LLVMBeforeBuild;_LLVMBuild;_LLVMAfterBuild" />
+  <Target Name="Restore" />
+  <Target Name="Test" />
+  <Target Name="Pack" DependsOnTargets="Build">
+    <MSBuild Projects="nuget/packages.builds" Targets="Build" />
+  </Target>
+</Project>

@@ -201,4 +201,7 @@
 /* Define if logf128 is available */
 #cmakedefine LLVM_HAS_LOGF128
 
+/* Mono api version */
+#cmakedefine MONO_API_VERSION ${MONO_API_VERSION}
+
 #endif

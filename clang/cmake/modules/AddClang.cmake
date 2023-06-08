@@ -178,6 +178,56 @@ macro(add_clang_tool name)
                                  DEPENDS ${name}
                                  COMPONENT ${name})
       endif()
+
+      if(APPLE)
+        if(LLVM_EXTERNALIZE_DEBUGINFO_INSTALL)
+          if(LLVM_EXTERNALIZE_DEBUGINFO_EXTENSION)
+            set(file_ext ${LLVM_EXTERNALIZE_DEBUGINFO_EXTENSION})
+          elseif(LLVM_EXTERNALIZE_DEBUGINFO_FLATTEN)
+            set(file_ext dwarf)
+          else()
+            set(file_ext dSYM)
+          endif()
+          set(output_name "$<TARGET_FILE_NAME:${name}>.${file_ext}")
+          if(LLVM_EXTERNALIZE_DEBUGINFO_OUTPUT_DIR)
+            set(output_path "${LLVM_EXTERNALIZE_DEBUGINFO_OUTPUT_DIR}/${output_name}")
+          else()
+            set(output_path "${output_name}")
+          endif()
+          get_filename_component(debuginfo_absolute_path ${output_path} REALPATH BASE_DIR $<TARGET_FILE_DIR:${name}>)
+          install(FILES ${debuginfo_absolute_path} DESTINATION bin OPTIONAL COMPONENT ${name})
+        endif()
+      elseif(WIN32)
+        if(LLVM_EXTERNALIZE_DEBUGINFO_INSTALL)
+          install(FILES $<TARGET_PDB_FILE:${name}> DESTINATION bin OPTIONAL COMPONENT ${name})
+        endif()
+      else()
+        if(LLVM_EXTERNALIZE_DEBUGINFO_INSTALL)
+          if(LLVM_EXTERNALIZE_DEBUGINFO_EXTENSION)
+            set(file_ext ${LLVM_EXTERNALIZE_DEBUGINFO_EXTENSION})
+          else()
+            set(file_ext debug)
+          endif()
+
+          set(output_name "$<TARGET_FILE_NAME:${name}>.${file_ext}")
+
+          if(LLVM_EXTERNALIZE_DEBUGINFO_OUTPUT_DIR)
+            set(output_path "${LLVM_EXTERNALIZE_DEBUGINFO_OUTPUT_DIR}/${output_name}")
+            # If an output dir is specified, it must be manually mkdir'd on Linux,
+            # as that directory needs to exist before we can pipe to a file in it.
+            add_custom_command(TARGET ${name} POST_BUILD
+              WORKING_DIRECTORY ${LLVM_RUNTIME_OUTPUT_INTDIR}
+              COMMAND ${CMAKE_COMMAND} -E make_directory ${LLVM_EXTERNALIZE_DEBUGINFO_OUTPUT_DIR}
+              )
+          else()
+            set(output_path "${output_name}")
+          endif()
+
+          get_filename_component(debuginfo_absolute_path ${output_path} REALPATH BASE_DIR $<TARGET_FILE_DIR:${name}>)
+          install(FILES ${debuginfo_absolute_path} DESTINATION bin OPTIONAL COMPONENT ${name})
+        endif()
+      endif()
+
       set_property(GLOBAL APPEND PROPERTY CLANG_EXPORTS ${name})
     endif()
   endif()
