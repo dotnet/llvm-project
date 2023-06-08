@@ -1,0 +1,117 @@
+trigger:
+  none
+
+schedules:
+  - cron: 0 12 * * 1
+    displayName: Weekly Monday CodeQL/Semmle run
+    branches:
+      include:
+      - dotnet/main
+      - dotnet/release/*
+    always: true
+
+variables:
+  - template: /eng/common-variables.yml
+  - template: /eng/common/templates/variables/pool-providers.yml
+  - name: Codeql.Enabled
+    value: True
+  - name: Codeql.Cadence
+    value: 0
+  - name: Codeql.TSAEnabled
+    value: True
+  - name: Codeql.BuildIdentifier
+    value: $(System.JobDisplayName)
+
+stages:
+- stage: Build
+  jobs:
+  - template: /eng/common/templates/jobs/jobs.yml
+    parameters:
+      jobs:
+
+      ############ LINUX BUILD ############
+      - job: Build_Linux
+        displayName: Linux
+        timeoutInMinutes: 600
+        variables:
+        - _BuildConfig: Release
+        strategy:
+          matrix:
+            x64:
+              assetManifestOS: linux
+              assetManifestPlatform: x64
+              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:cbl-mariner-2.0-cross-amd64
+              rootfs: /crossrootfs/x64
+              ClangTargetArg: /p:ClangTarget=x86_64-linux-gnu
+              ClangBinDirArg: /p:ClangBinDir=/usr/local/bin
+              archflag: --arch x64
+        pool:
+          ${{ if eq(variables['System.TeamProject'], 'public') }}:
+            name: $(DncEngPublicBuildPool)
+            demands: ImageOverride -equals build.ubuntu.2204.amd64.open
+          ${{ if eq(variables['System.TeamProject'], 'internal') }}:
+            name: $(DncEngInternalBuildPool)
+            demands: ImageOverride -equals build.ubuntu.2204.amd64
+        container:
+          image: $(imagename)
+        steps:
+        - bash: |
+            set -ex
+            git clean -ffdx
+            git reset --hard HEAD
+          displayName: 'Clean up working directory'
+
+        - task: CodeQL3000Init@0
+          displayName: Initialize CodeQL (manually-injected)
+
+        - bash: |
+            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(ClangBinDirArg) $(ClangTargetArg)
+          displayName: 'Build and package'
+          env:
+            ROOTFS_DIR: $(rootfs)
+
+        - task: CodeQL3000Finalize@0
+          displayName: Finalize CodeQL (manually-injected)
+
+      ############ WINDOWS BUILD ############
+      - job: Build_Windows
+        displayName: Windows
+        timeoutInMinutes: 600
+        strategy:
+          matrix:
+            # Release
+            x64_release:
+              _BuildConfig: Release
+              assetManifestOS: win
+              assetManifestPlatform: x64
+              LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\llvm-tblgen.exe
+              ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\clang-tblgen.exe
+              archflag: -arch x64
+        pool:
+          ${{ if eq(variables['System.TeamProject'], 'public') }}:
+            name: $(DncEngPublicBuildPool)
+            demands: ImageOverride -equals windows.vs2022.amd64.open
+          ${{ if eq(variables['System.TeamProject'], 'internal') }}:
+            name: $(DncEngInternalBuildPool)
+            demands: ImageOverride -equals windows.vs2022.amd64
+        steps:
+        - checkout: self
+          clean: true
+          fetchDepth: 2
+
+        - script: |
+            git clean -ffdx
+            git reset --hard HEAD
+          displayName: 'Clean up working directory'
+
+        - task: CodeQL3000Init@0
+          displayName: Initialize CodeQL (manually-injected)
+
+        - powershell: eng\build.ps1 -ci -restore -build -arch x64 -configuration $(_BuildConfig) $(_InternalBuildArgs) /p:BuildLLVMTableGenOnly=true
+          displayName: 'Build host llvm-tblgen for cross-compiling'
+
+        - powershell: eng\build.ps1 -ci -restore -build -pack $(archflag) -configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg)
+          displayName: 'Build and package'
+
+        - task: CodeQL3000Finalize@0
+          displayName: Finalize CodeQL (manually-injected)
