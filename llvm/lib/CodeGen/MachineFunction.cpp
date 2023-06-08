@@ -248,6 +248,8 @@ void MachineFunction::init() {
          "Target-incompatible DataLayout attached\n");
 
   PSVManager = std::make_unique<PseudoSourceValueManager>(getTarget());
+
+  MonoThisSlot = -1;
 }
 
 void MachineFunction::initTargetMachineFunctionInfo(

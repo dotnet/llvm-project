@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ItemGroup>
+    <File Include="$(_LLVMInstallDir)\lib\libobjwriter.so" TargetPath="runtimes\$(PackageTargetRuntime)\native\" />
+    <File Include="$(_LibCxxInstallDir)\lib\libc++.so.1" TargetPath="runtimes\$(PackageTargetRuntime)\native\" />
+    <File Include="$(_LibCxxInstallDir)\lib\libc++abi.so.1" TargetPath="runtimes\$(PackageTargetRuntime)\native\" />
+  </ItemGroup>
+</Project>

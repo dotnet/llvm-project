@@ -430,11 +430,13 @@ endfunction(add_windows_version_resource_file)
 #     Optional version string (defaults to PACKAGE_VERSION)
 #   PRODUCT_NAME
 #     Optional product name string (defaults to "LLVM")
+#   PRODUCT_LEGAL_COPYRIGHT
+#     Optional product legal copyright string
 #   )
 function(set_windows_version_resource_properties name resource_file)
   cmake_parse_arguments(ARG
     ""
-    "VERSION_MAJOR;VERSION_MINOR;VERSION_PATCHLEVEL;VERSION_STRING;PRODUCT_NAME"
+    "VERSION_MAJOR;VERSION_MINOR;VERSION_PATCHLEVEL;VERSION_STRING;PRODUCT_NAME;PRODUCT_LEGAL_COPYRIGHT"
     ""
     ${ARGN})
 
@@ -474,6 +476,10 @@ function(set_windows_version_resource_properties name resource_file)
     set(ARG_PRODUCT_NAME "LLVM")
   endif()
 
+  if (NOT DEFINED ARG_PRODUCT_LEGAL_COPYRIGHT)
+    set(ARG_PRODUCT_LEGAL_COPYRIGHT ${LEGAL_COPYRIGHT})
+  endif()
+
   set_property(SOURCE ${resource_file}
                PROPERTY COMPILE_FLAGS /nologo)
   set_property(SOURCE ${resource_file}
@@ -485,7 +491,8 @@ function(set_windows_version_resource_properties name resource_file)
                "RC_FILE_VERSION=\"${ARG_VERSION_STRING}\""
                "RC_INTERNAL_NAME=\"${name}\""
                "RC_PRODUCT_NAME=\"${ARG_PRODUCT_NAME}\""
-               "RC_PRODUCT_VERSION=\"${ARG_VERSION_STRING}\"")
+               "RC_PRODUCT_VERSION=\"${ARG_VERSION_STRING}\""
+               "RC_COPYRIGHT=\"${ARG_PRODUCT_LEGAL_COPYRIGHT}\"")
 endfunction(set_windows_version_resource_properties)
 
 # llvm_add_library(name sources...
@@ -1010,10 +1017,15 @@ endmacro()
 
 macro(add_llvm_executable name)
   cmake_parse_arguments(ARG
-    "DISABLE_LLVM_LINK_LLVM_DYLIB;IGNORE_EXTERNALIZE_DEBUGINFO;NO_INSTALL_RPATH;SUPPORT_PLUGINS"
+    "DISABLE_LLVM_LINK_LLVM_DYLIB;IGNORE_EXTERNALIZE_DEBUGINFO;NO_INSTALL_RPATH;SUPPORT_PLUGINS;DEBUGINFO_INSTALL"
     "ENTITLEMENTS;BUNDLE_PATH"
     ""
     ${ARGN})
+
+  if(ARG_DEBUGINFO_INSTALL)
+    set(DEBUGINFO_INSTALL "DEBUGINFO_INSTALL")
+  endif()
+
   generate_llvm_objects(${name} ${ARG_UNPARSED_ARGUMENTS})
   add_windows_version_resource_file(ALL_FILES ${ALL_FILES})
 
@@ -1097,7 +1109,7 @@ macro(add_llvm_executable name)
   add_custom_linker_flags(${name})
 
   if(NOT ARG_IGNORE_EXTERNALIZE_DEBUGINFO)
-    llvm_externalize_debuginfo(${name})
+    llvm_externalize_debuginfo(${name} ${DEBUGINFO_INSTALL})
   endif()
   if (LLVM_PTHREAD_LIB)
     # libpthreads overrides some standard library symbols, so main
@@ -1429,7 +1441,10 @@ macro(llvm_add_tool project name)
     generate_llvm_objects(${name} ${ARGN})
     add_custom_target(${name} DEPENDS llvm-driver)
   else()
-    add_llvm_executable(${name} ${ARGN})
+    if ( (${name} IN_LIST LLVM_TOOLCHAIN_TOOLS OR NOT LLVM_INSTALL_TOOLCHAIN_ONLY) AND LLVM_BUILD_TOOLS )
+      set(DEBUGINFO_INSTALL "DEBUGINFO_INSTALL")
+    endif()
+    add_llvm_executable(${name} ${DEBUGINFO_INSTALL} ${ARGN})
 
     if ( ${name} IN_LIST LLVM_TOOLCHAIN_TOOLS OR NOT LLVM_INSTALL_TOOLCHAIN_ONLY)
       if( LLVM_BUILD_TOOLS )
@@ -1463,7 +1478,12 @@ macro(add_llvm_example name)
   if( NOT LLVM_BUILD_EXAMPLES )
     set(EXCLUDE_FROM_ALL ON)
   endif()
-  add_llvm_executable(${name} ${ARGN})
+
+  if (NOT LLVM_INSTALL_TOOLCHAIN_ONLY AND LLVM_INSTALL_UTILS AND LLVM_BUILD_UTILS)
+    set(DEBUGINFO_INSTALL "DEBUGINFO_INSTALL")
+  endif()
+
+  add_llvm_executable(${name} ${DEBUGINFO_INSTALL} ${ARGN})
   if( LLVM_BUILD_EXAMPLES )
     install(TARGETS ${name} RUNTIME DESTINATION "${LLVM_EXAMPLES_INSTALL_DIR}")
   endif()
@@ -1490,7 +1510,11 @@ macro(add_llvm_utility name)
     set(EXCLUDE_FROM_ALL ON)
   endif()
 
-  add_llvm_executable(${name} DISABLE_LLVM_LINK_LLVM_DYLIB ${ARGN})
+  if (NOT LLVM_INSTALL_TOOLCHAIN_ONLY AND LLVM_INSTALL_UTILS AND LLVM_BUILD_UTILS)
+    set(DEBUGINFO_INSTALL "DEBUGINFO_INSTALL")
+  endif()
+
+  add_llvm_executable(${name} DISABLE_LLVM_LINK_LLVM_DYLIB ${DEBUGINFO_INSTALL} ${ARGN})
   get_subproject_title(subproject_title)
   set_target_properties(${name} PROPERTIES FOLDER "${subproject_title}/Utils")
   if ( ${name} IN_LIST LLVM_TOOLCHAIN_UTILITIES OR NOT LLVM_INSTALL_TOOLCHAIN_ONLY)
@@ -2343,6 +2367,8 @@ function(llvm_externalize_debuginfo name)
     return()
   endif()
 
+  cmake_parse_arguments(ARG "DEBUGINFO_INSTALL" "" "" ${ARGN})
+
   if(NOT LLVM_EXTERNALIZE_DEBUGINFO_SKIP_STRIP)
     if(APPLE)
       if(NOT CMAKE_STRIP)
@@ -2357,6 +2383,8 @@ function(llvm_externalize_debuginfo name)
   if(APPLE)
     if(LLVM_EXTERNALIZE_DEBUGINFO_EXTENSION)
       set(file_ext ${LLVM_EXTERNALIZE_DEBUGINFO_EXTENSION})
+    elseif(LLVM_EXTERNALIZE_DEBUGINFO_FLATTEN)
+      set(file_ext dwarf)
     else()
       set(file_ext dSYM)
     endif()
@@ -2364,9 +2392,16 @@ function(llvm_externalize_debuginfo name)
     set(output_name "$<TARGET_FILE_NAME:${name}>.${file_ext}")
 
     if(LLVM_EXTERNALIZE_DEBUGINFO_OUTPUT_DIR)
-      set(output_path "-o=${LLVM_EXTERNALIZE_DEBUGINFO_OUTPUT_DIR}/${output_name}")
+      set(output_path "${LLVM_EXTERNALIZE_DEBUGINFO_OUTPUT_DIR}/${output_name}")
     else()
-      set(output_path "-o=${output_name}")
+      set(output_path "${output_name}")
+    endif()
+    set(output_flag "-o=${output_path}")
+
+    if(LLVM_EXTERNALIZE_DEBUGINFO_FLATTEN)
+      set(flatten_debuginfo "--flat")
+    else()
+      set(flatten_debuginfo "")
     endif()
 
     if(CMAKE_CXX_FLAGS MATCHES "-flto"
@@ -2380,15 +2415,50 @@ function(llvm_externalize_debuginfo name)
       set(CMAKE_DSYMUTIL xcrun dsymutil)
     endif()
     add_custom_command(TARGET ${name} POST_BUILD
-      COMMAND ${CMAKE_DSYMUTIL} ${output_path} $<TARGET_FILE:${name}>
+      WORKING_DIRECTORY ${LLVM_RUNTIME_OUTPUT_INTDIR}
+      COMMAND ${CMAKE_DSYMUTIL} ${flatten_debuginfo} ${output_flag} $<TARGET_FILE:${name}>
       ${strip_command}
       )
+    if(LLVM_EXTERNALIZE_DEBUGINFO_INSTALL AND ARG_DEBUGINFO_INSTALL)
+      get_filename_component(debuginfo_absolute_path ${output_path} REALPATH BASE_DIR $<TARGET_FILE_DIR:${name}>)
+      install(FILES ${debuginfo_absolute_path} DESTINATION bin OPTIONAL COMPONENT ${name})
+    endif()
+  elseif(WIN32)
+    if(LLVM_EXTERNALIZE_DEBUGINFO_INSTALL AND ARG_DEBUGINFO_INSTALL)
+      install(FILES $<TARGET_PDB_FILE:${name}> DESTINATION bin OPTIONAL COMPONENT ${name})
+    endif()
   else()
+
+    if(LLVM_EXTERNALIZE_DEBUGINFO_EXTENSION)
+      set(file_ext ${LLVM_EXTERNALIZE_DEBUGINFO_EXTENSION})
+    else()
+      set(file_ext debug)
+    endif()
+
+    set(output_name "$<TARGET_FILE_NAME:${name}>.${file_ext}")
+
+    if(LLVM_EXTERNALIZE_DEBUGINFO_OUTPUT_DIR)
+      set(output_path "${LLVM_EXTERNALIZE_DEBUGINFO_OUTPUT_DIR}/${output_name}")
+      # If an output dir is specified, it must be manually mkdir'd on Linux,
+      # as that directory needs to exist before we can pipe to a file in it.
+      add_custom_command(TARGET ${name} POST_BUILD
+        WORKING_DIRECTORY ${LLVM_RUNTIME_OUTPUT_INTDIR}
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${LLVM_EXTERNALIZE_DEBUGINFO_OUTPUT_DIR}
+        )
+    else()
+      set(output_path "${output_name}")
+    endif()
+
     add_custom_command(TARGET ${name} POST_BUILD
-      COMMAND ${CMAKE_OBJCOPY} --only-keep-debug $<TARGET_FILE:${name}> $<TARGET_FILE:${name}>.debug
+      WORKING_DIRECTORY ${LLVM_RUNTIME_OUTPUT_INTDIR}
+      COMMAND ${CMAKE_OBJCOPY} --only-keep-debug $<TARGET_FILE:${name}> ${output_path}
       ${strip_command} -R .gnu_debuglink
-      COMMAND ${CMAKE_OBJCOPY} --add-gnu-debuglink=$<TARGET_FILE:${name}>.debug $<TARGET_FILE:${name}>
+      COMMAND ${CMAKE_OBJCOPY} --add-gnu-debuglink=${output_path} $<TARGET_FILE:${name}>
       )
+    if(LLVM_EXTERNALIZE_DEBUGINFO_INSTALL AND ARG_DEBUGINFO_INSTALL)
+      get_filename_component(debuginfo_absolute_path ${output_path} REALPATH BASE_DIR $<TARGET_FILE_DIR:${name}>)
+      install(FILES ${debuginfo_absolute_path} DESTINATION bin OPTIONAL COMPONENT ${name})
+    endif()
   endif()
 endfunction()
 

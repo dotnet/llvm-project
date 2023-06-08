@@ -124,6 +124,7 @@ void MCStreamer::emitExplicitComments() {}
 
 void MCStreamer::generateCompactUnwindEncodings(MCAsmBackend *MAB) {
   for (auto &FI : DwarfFrameInfos)
+// in previous dotnet change    if (FI.CompactUnwindEncoding == 0) {
     FI.CompactUnwindEncoding =
         (MAB ? MAB->generateCompactUnwindEncoding(&FI, &Context) : 0);
 }
@@ -682,6 +683,14 @@ void MCStreamer::emitCFINegateRAState(SMLoc Loc) {
   CurFrame->Instructions.push_back(Instruction);
 }
 
+void MCStreamer::emitCFICompactUnwindEncoding(unsigned Encoding)
+{
+  MCDwarfFrameInfo *CurFrame = getCurrentDwarfFrameInfo();
+  if (!CurFrame)
+    return;
+  CurFrame->CompactUnwindEncoding = Encoding;
+}
+
 void MCStreamer::emitCFIReturnColumn(int64_t Register) {
   MCDwarfFrameInfo *CurFrame = getCurrentDwarfFrameInfo();
   if (!CurFrame)
@@ -1220,6 +1229,7 @@ void MCStreamer::changeSection(MCSection *Section, uint32_t) {
 }
 void MCStreamer::emitWeakReference(MCSymbol *Alias, const MCSymbol *Symbol) {}
 void MCStreamer::emitBytes(StringRef Data) {}
+void MCStreamer::emitInstructionBytes(StringRef Data) { emitBytes(Data); }
 void MCStreamer::emitBinaryData(StringRef Data) { emitBytes(Data); }
 void MCStreamer::emitValueImpl(const MCExpr *Value, unsigned Size, SMLoc Loc) {
   visitUsedExpr(*Value);
