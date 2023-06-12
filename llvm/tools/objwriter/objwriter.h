@@ -62,6 +62,8 @@ enum class RelocType {
   IMAGE_REL_SECREL = 0x104,
   IMAGE_REL_TLSGD = 0x105,
   IMAGE_REL_TPOFF = 0x106,
+  IMAGE_REL_TLVPPAGE = 0x107,
+  IMAGE_REL_TLVPPAGEOFF = 0x108,
 };
 
 enum class SymbolRefFlags
