@@ -26,6 +26,7 @@
 #include "llvm/MC/MCAsmInfo.h"
 #include "llvm/MC/MCContext.h"
 #include "llvm/MC/MCExpr.h"
+#include "llvm/MC/MCObjectStreamer.h"
 #include "llvm/MC/MCSection.h"
 #include "llvm/MC/MCStreamer.h"
 #include "llvm/MC/MCSymbol.h"
@@ -540,7 +541,7 @@ MonoException::endModule()
   // Emit the EH table
 
   // Can't use rodata as the symbols we reference are in the text segment
-  streamer.SwitchSection(tlof.getTextSection());
+  streamer.switchSection(tlof.getTextSection());
 
   MCSymbol *tableSymbol =
     Asm->OutContext.getOrCreateSymbol(Twine(MonoEHFrameSymbol));
@@ -616,7 +617,7 @@ MonoException::endModule()
   int cieCfaOffset = cfaOffset;
 
   // FDEs
-  streamer.AddBlankLine();
+  streamer.addBlankLine();
   for (std::vector<EHInfo>::iterator
 		   I = Frames.begin(), E = Frames.end(); I != E; ++I) {
 	  const EHInfo &info = *I;
@@ -646,7 +647,7 @@ MonoException::endModule()
       cfaOffset = cieCfaOffset;
       emitCFIInstructions(streamer, info.Instructions, info.BeginSym, &info.EHLabels, cfaOffset, dataAlignmentFactor);
 
-      streamer.AddBlankLine();
+      streamer.addBlankLine();
   }
 
   streamer.emitLabel(tableEndSym);
