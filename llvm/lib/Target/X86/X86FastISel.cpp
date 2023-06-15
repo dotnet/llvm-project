@@ -1179,6 +1179,9 @@ bool X86FastISel::X86SelectRet(const Instruction *I) {
     return false;
 
   CallingConv::ID CC = F.getCallingConv();
+  if (CC == CallingConv::Mono && Subtarget->isTargetWin64())
+    CC = CallingConv::Win64;
+
   if (CC != CallingConv::C &&
       CC != CallingConv::Fast &&
       CC != CallingConv::Tail &&
@@ -3238,6 +3241,9 @@ bool X86FastISel::fastLowerCall(CallLoweringInfo &CLI) {
   // Functions using thunks for indirect calls need to use SDISel.
   if (Subtarget->useIndirectThunkCalls())
     return false;
+
+  if (CC == CallingConv::Mono && Subtarget->isTargetWin64())
+    CC = CallingConv::Win64;
 
   // Handle only C and fastcc calling conventions for now.
   switch (CC) {
