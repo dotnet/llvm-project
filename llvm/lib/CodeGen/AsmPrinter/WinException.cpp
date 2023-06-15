@@ -40,6 +40,13 @@ WinException::WinException(AsmPrinter *A) : EHStreamer(A) {
   isThumb = Asm->TM.getTargetTriple().isThumb();
 }
 
+WinException::WinException(AsmPrinter *A, bool disableEmitPersonality)
+: EHStreamer(A), disableEmitPersonality(disableEmitPersonality) {
+  // MSVC's EH tables are always composed of 32-bit words.  All known 64-bit
+  // platforms use an imagerel32 relocation to refer to symbols.
+  useImageRel32 = (A->getDataLayout().getPointerSizeInBits() == 64);
+}
+
 WinException::~WinException() = default;
 
 /// endModule - Emit all exception information that should come after the
