@@ -15,8 +15,15 @@
 #include "llvm/MC/MCStreamer.h"
 #include "llvm/Support/Debug.h"
 #include "llvm/Support/ErrorHandling.h"
+#include "llvm/Support/Format.h"
+#include "llvm/Support/raw_ostream.h"
+#include "llvm/Support/CommandLine.h"
 
 using namespace llvm;
+
+static cl::opt<bool> DisableFaultMaps("disable-fault-maps",
+  cl::desc("Disables emission of fault map metadata."),
+  cl::init(false), cl::Hidden);
 
 #define DEBUG_TYPE "faultmaps"
 
@@ -43,6 +50,8 @@ void FaultMaps::recordFaultingOp(FaultKind FaultTy,
 }
 
 void FaultMaps::serializeToFaultMapSection() {
+  if (DisableFaultMaps)
+    return;
   if (FunctionInfos.empty())
     return;
 

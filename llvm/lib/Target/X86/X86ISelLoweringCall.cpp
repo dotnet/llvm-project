@@ -1251,7 +1251,9 @@ static bool canGuaranteeTCO(CallingConv::ID CC) {
 }
 
 /// Return true if we might ever do TCO for calls with this calling convention.
-static bool mayTailCallThisCC(CallingConv::ID CC) {
+static bool mayTailCallThisCC(CallingConv::ID CC, bool isTargetWin64) {
+  if (CC == CallingConv::Mono && isTargetWin64)
+    CC = CallingConv::Win64;
   switch (CC) {
   // C calling conventions:
   case CallingConv::C:
@@ -1283,7 +1285,7 @@ bool X86TargetLowering::mayBeEmittedAsTailCall(const CallInst *CI) const {
     return false;
 
   CallingConv::ID CalleeCC = CI->getCallingConv();
-  if (!mayTailCallThisCC(CalleeCC))
+  if (!mayTailCallThisCC(CalleeCC, Subtarget.isTargetWin64()))
     return false;
 
   return true;
@@ -2738,7 +2740,7 @@ bool X86TargetLowering::IsEligibleForTailCallOptimization(
   CallingConv::ID CalleeCC = CLI.CallConv;
   bool isVarArg = CLI.IsVarArg;
 
-  if (!mayTailCallThisCC(CalleeCC))
+  if (!mayTailCallThisCC(CalleeCC, Subtarget.isTargetWin64()))
     return false;
 
   // If -tailcallopt is specified, make fastcc functions tail-callable.

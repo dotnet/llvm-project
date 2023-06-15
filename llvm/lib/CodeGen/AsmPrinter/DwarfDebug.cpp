@@ -1998,6 +1998,8 @@ void DwarfDebug::collectEntityInfo(DwarfCompileUnit &TheCU,
 
 // Process beginning of an instruction.
 void DwarfDebug::beginInstruction(const MachineInstr *MI) {
+  if (!MMI->hasDebugInfo())
+	  return;
   const MachineFunction &MF = *MI->getMF();
   const auto *SP = MF.getFunction().getSubprogram();
   bool NoDebug =
