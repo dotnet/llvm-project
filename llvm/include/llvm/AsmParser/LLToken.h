@@ -184,6 +184,7 @@ enum Kind {
   kw_m68k_rtdcc,
   kw_graalcc,
   kw_riscv_vector_cc,
+  kw_monocc,
 
   // Attributes:
   kw_attributes,
