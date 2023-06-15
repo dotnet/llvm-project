@@ -7231,6 +7231,13 @@ CCAssignFn *AArch64TargetLowering::CCAssignFnForCall(CallingConv::ID CC,
     return CC_AArch64_Arm64EC_Thunk;
   case CallingConv::ARM64EC_Thunk_Native:
     return CC_AArch64_Arm64EC_Thunk_Native;
+  case CallingConv::Mono:
+    if (Subtarget->isTargetDarwin())
+	  return CC_AArch64_Mono_DarwinPCS;
+    else if (Subtarget->isTargetWindows())
+      report_fatal_error("Unsupported calling convention.");
+    else
+      return CC_AArch64_Mono_AAPCS;
   }
 }
 
