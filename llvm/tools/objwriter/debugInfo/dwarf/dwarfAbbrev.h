@@ -21,6 +21,7 @@ enum DwarfAbbrev : uint16_t
   CompileUnit = 0x1,
   BaseType,
   EnumerationType,
+  EnumerationTypeNoChildren,
   Enumerator1,
   Enumerator2,
   Enumerator4,

@@ -59,6 +59,13 @@ void Dump(MCObjectStreamer *Streamer, uint16_t DwarfVersion, unsigned TargetPoin
         dwarf::DW_AT_byte_size, dwarf::DW_FORM_data1,
         0, 0,
 
+    EnumerationTypeNoChildren,
+        dwarf::DW_TAG_enumeration_type, dwarf::DW_CHILDREN_no,
+        dwarf::DW_AT_name, dwarf::DW_FORM_strp,
+        dwarf::DW_AT_type, dwarf::DW_FORM_ref4,
+        dwarf::DW_AT_byte_size, dwarf::DW_FORM_data1,
+        0, 0,
+
     Enumerator1,
         dwarf::DW_TAG_enumerator, dwarf::DW_CHILDREN_no,
         dwarf::DW_AT_name, dwarf::DW_FORM_strp,
