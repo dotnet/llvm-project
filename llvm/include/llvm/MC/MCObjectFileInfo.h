@@ -348,7 +348,7 @@ public:
   }
 
   MCSection *getTLSExtraDataSection() const { return TLSExtraDataSection; }
-  const MCSection *getTLSDataSection() const { return TLSDataSection; }
+  MCSection *getTLSDataSection() const { return TLSDataSection; }
   MCSection *getTLSBSSSection() const { return TLSBSSSection; }
 
   MCSection *getStackMapSection() const { return StackMapSection; }
