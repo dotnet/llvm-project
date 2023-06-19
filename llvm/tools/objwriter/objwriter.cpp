@@ -223,6 +223,10 @@ MCSection *ObjectWriter::GetSection(const char *SectionName,
     Section = ObjFileInfo->getReadOnlySection();
   } else if (strcmp(SectionName, "xdata") == 0) {
     Section = ObjFileInfo->getXDataSection();
+  } else if (strcmp(SectionName, "tdata") == 0) {
+    Section = ObjFileInfo->getTLSDataSection();
+  } else if (strcmp(SectionName, "tbss") == 0) {
+    Section = ObjFileInfo->getTLSBSSSection();
   } else if (strcmp(SectionName, "bss") == 0) {
     if (OutContext->getObjectFileType() == MCContext::IsMachO) {
       Section = ObjFileInfo->getDataBSSSection();
@@ -457,6 +461,18 @@ int ObjectWriter::EmitSymbolRef(const char *SymbolName,
     break;
   case RelocType::IMAGE_REL_BASED_DIR64:
     Size = 8;
+    break;
+  case RelocType::IMAGE_REL_SECREL:
+    Kind = MCSymbolRefExpr::VK_SECREL;
+    Size = 4;
+    break;
+  case RelocType::IMAGE_REL_TLSGD:
+    Kind = MCSymbolRefExpr::VK_TLSGD;
+    Size = 4;
+    break;
+  case RelocType::IMAGE_REL_TPOFF:
+    Kind = MCSymbolRefExpr::VK_TPOFF;
+    Size = 4;
     break;
   case RelocType::IMAGE_REL_BASED_REL32:
     if (OutContext->getObjectFileType() == MCContext::IsMachO &&
