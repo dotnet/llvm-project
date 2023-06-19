@@ -284,7 +284,7 @@ void DwarfEnumTypeInfo::DumpStrings(MCObjectStreamer *Streamer) {
 
 void DwarfEnumTypeInfo::DumpTypeInfo(MCObjectStreamer *Streamer, UserDefinedDwarfTypesBuilder *TypeBuilder) {
   // Abbrev Number
-  Streamer->emitULEB128IntValue(DwarfAbbrev::EnumerationType);
+  Streamer->emitULEB128IntValue(HasChildren() ? DwarfAbbrev::EnumerationType : DwarfAbbrev::EnumerationTypeNoChildren);
 
   // DW_AT_name
   EmitSectionOffset(Streamer, StrSymbol, 4);
