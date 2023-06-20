@@ -474,6 +474,49 @@ int ObjectWriter::EmitSymbolRef(const char *SymbolName,
     Kind = MCSymbolRefExpr::VK_TPOFF;
     Size = 4;
     break;
+
+  case RelocType::IMAGE_REL_AARCH64_TLSLE_ADD_TPREL_HI12: {
+    const MCExpr* TargetExpr = GenTargetExpr(Symbol, Kind, Delta);
+    TargetExpr =
+      AArch64MCExpr::create(TargetExpr, AArch64MCExpr::VK_TPREL_HI12, *OutContext);
+    EmitRelocDirective(GetDFSize(), "R_AARCH64_TLSLE_ADD_TPREL_HI12", TargetExpr);
+    return 4;
+  }
+  case RelocType::IMAGE_REL_AARCH64_TLSLE_ADD_TPREL_LO12_NC: {
+    const MCExpr* TargetExpr = GenTargetExpr(Symbol, Kind, Delta);
+    TargetExpr =
+      AArch64MCExpr::create(TargetExpr, AArch64MCExpr::VK_TPREL_LO12_NC, *OutContext);
+    EmitRelocDirective(GetDFSize(), "R_AARCH64_TLSLE_ADD_TPREL_LO12_NC", TargetExpr);
+    return 4;
+  }
+
+  case RelocType::IMAGE_REL_AARCH64_TLSDESC_ADR_PAGE21: {
+    const MCExpr* TargetExpr = GenTargetExpr(Symbol, Kind, Delta);
+    TargetExpr =
+      AArch64MCExpr::create(TargetExpr, AArch64MCExpr::VK_TLSDESC_PAGE, *OutContext);
+    EmitRelocDirective(GetDFSize(), "R_AARCH64_TLSDESC_ADR_PAGE21", TargetExpr);
+    return 4;
+  }
+  case RelocType::IMAGE_REL_AARCH64_TLSDESC_LD64_LO12: {
+    const MCExpr* TargetExpr = GenTargetExpr(Symbol, Kind, Delta);
+    TargetExpr =
+      AArch64MCExpr::create(TargetExpr, AArch64MCExpr::VK_TLSDESC_LO12, *OutContext);
+    EmitRelocDirective(GetDFSize(), "R_AARCH64_TLSDESC_LD64_LO12", TargetExpr);
+    return 4;
+  }
+  case RelocType::IMAGE_REL_AARCH64_TLSDESC_ADD_LO12: {
+    const MCExpr* TargetExpr = GenTargetExpr(Symbol, Kind, Delta);
+    TargetExpr =
+      AArch64MCExpr::create(TargetExpr, AArch64MCExpr::VK_TLSDESC_LO12, *OutContext);
+    EmitRelocDirective(GetDFSize(), "R_AARCH64_TLSDESC_ADD_LO12", TargetExpr);
+    return 4;
+  }
+  case RelocType::IMAGE_REL_AARCH64_TLSDESC_CALL: {
+    const MCExpr* TargetExpr = GenTargetExpr(Symbol, Kind, Delta);
+    EmitRelocDirective(GetDFSize(), "R_AARCH64_TLSDESC_CALL", TargetExpr);
+    return 4;
+  }
+
   case RelocType::IMAGE_REL_BASED_REL32:
     if (OutContext->getObjectFileType() == MCContext::IsMachO &&
         OutContext->getTargetTriple().getArch() == Triple::aarch64) {
