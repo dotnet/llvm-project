@@ -59,9 +59,29 @@ enum class RelocType {
   IMAGE_REL_BASED_RELPTR32 = 0x7C,
   IMAGE_REL_BASED_ARM64_PAGEBASE_REL21 = 0x81,
   IMAGE_REL_BASED_ARM64_PAGEOFFSET_12A = 0x82,
+
+  //
+  // Relocation operators related to TLS access
+  //
+
+  // Windows x64
   IMAGE_REL_SECREL = 0x104,
+
+  // Linux x64
+  // GD model
   IMAGE_REL_TLSGD = 0x105,
+  // LE model
   IMAGE_REL_TPOFF = 0x106,
+
+  // Linux arm64
+  //    TLSDESC  (dynamic)
+  IMAGE_REL_AARCH64_TLSDESC_ADR_PAGE21 = 0x107,
+  IMAGE_REL_AARCH64_TLSDESC_LD64_LO12 = 0x108,
+  IMAGE_REL_AARCH64_TLSDESC_ADD_LO12 = 0x109,
+  IMAGE_REL_AARCH64_TLSDESC_CALL = 0x10A,
+  //    LE model 
+  IMAGE_REL_AARCH64_TLSLE_ADD_TPREL_HI12 = 0x10B,
+  IMAGE_REL_AARCH64_TLSLE_ADD_TPREL_LO12_NC = 0x10C,
 };
 
 enum class SymbolRefFlags
