@@ -33,7 +33,7 @@
     <File Include="$(_LLVMInstallDir)\bin\llvm-symbolizer" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\llvm-symbolizer.dbg" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\wasm-ld" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
-    <File Include="$(_LLVMInstallDir)\lib\clang\$(LLVMVersion.Trim())\include\**" TargetPath="tools\$(PackageTargetRuntime)\lib\clang\$(LLVMVersion.Trim())\include\%(RecursiveDir)\" />
+    <File Include="$(_LLVMInstallDir)\lib\clang\$(LLVMVersionShort)\include\**" TargetPath="tools\$(PackageTargetRuntime)\lib\clang\$(LLVMVersionShort)\include\%(RecursiveDir)\" />
     <File Include="$(_LibCxxInstallDir)\lib\libc++.so.1" TargetPath="tools\$(PackageTargetRuntime)\lib\" />
     <File Include="$(_LibCxxInstallDir)\lib\libc++abi.so.1" TargetPath="tools\$(PackageTargetRuntime)\lib\" />
   </ItemGroup>

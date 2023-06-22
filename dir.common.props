@@ -62,6 +62,7 @@
     <LLVMVersion Condition="'$(LLVMVersion)' == '' AND !Exists('$(_LLVMBuildDir)\version.txt')">1.0.0</LLVMVersion>
     <LLVMVersion Condition="'$(LLVMVersion)' == '' AND Exists('$(_LLVMBuildDir)\version.txt')">$([System.IO.File]::ReadAllText('$(_LLVMBuildDir)\version.txt'))</LLVMVersion>
     <PackageVersion Condition="'$(LLVMVersion)' != '' and '$(PackageVersion)' == ''">$(LLVMVersion)</PackageVersion>
+    <LLVMVersionShort>$(LLVMVersion.SubString(0, $(LLVMVersion.IndexOf('.'))))</LLVMVersionShort>
 
     <!-- Set the boolean below to true to generate packages with stabilized versions -->
     <StabilizePackageVersion Condition="'$(StabilizePackageVersion)' == ''">false</StabilizePackageVersion>
