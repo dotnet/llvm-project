@@ -494,19 +494,10 @@ static void EmitVarLocation(MCObjectStreamer *Streamer,
 class LexicalScope
 {
 public:
-  LexicalScope(uint64_t Start, uint64_t End, bool IsFuncScope = false) :
-               Start(Start),
-               End(End),
-               IsFuncScope(IsFuncScope) {}
-
-  LexicalScope(VarInfo *Info) :
-               Start(Info->GetStartOffset()),
-               End(Info->GetEndOffset()),
-               IsFuncScope(false) { Vars.push_back(Info); }
-
-  bool IsContains(const VarInfo *Info) const {
-    return Start <= Info->GetStartOffset() && End >= Info->GetEndOffset();
-  }
+  /// At the moment, the lexical scope reflects IL, not C#, meaning that
+  /// there is only one scope for the whole method. We could be more precise
+  /// in the future by pulling the scope information from the PDB.
+  LexicalScope() {}
 
   void AddVar(VarInfo *Info);
 
@@ -514,75 +505,19 @@ public:
       MCSection *TypeSection, MCSection *StrSection, const MCExpr *SymExpr);
 
 private:
-  uint64_t Start;
-  uint64_t End;
-  bool IsFuncScope;
   std::vector<VarInfo*> Vars;
-  std::vector<LexicalScope> InnerScopes;
 };
 
 void LexicalScope::AddVar(VarInfo *Info) {
-  if (Info->IsParam() && IsFuncScope) {
-    Vars.push_back(Info);
-    return;
-  }
-
-  if (!IsContains(Info))
-    return;
-
-  uint64_t VarStart = Info->GetStartOffset();
-  uint64_t VarEnd = Info->GetEndOffset();
-
-  // Var belongs to inner scope
-  if (VarStart != Start || VarEnd != End) {
-    // Try to add variable to one the inner scopes
-    for (auto &Scope : InnerScopes) {
-      if (Scope.IsContains(Info)) {
-        Scope.AddVar(Info);
-        return;
-      }
-    }
-    // We need to create new inner scope for this var
-    InnerScopes.emplace_back(Info);
-  } else {
-    Vars.push_back(Info);
-  }
+  Vars.push_back(Info);
 }
 
 void LexicalScope::Dump(UserDefinedDwarfTypesBuilder *TypeBuilder, MCObjectStreamer *Streamer,
       MCSection *TypeSection, MCSection *StrSection, const MCExpr *SymExpr) {
   Streamer->switchSection(TypeSection);
 
-  if (!IsFuncScope)
-  {
-      // Dump lexical block DIE
-      MCContext &context = Streamer->getContext();
-      unsigned TargetPointerSize = context.getAsmInfo()->getCodePointerSize();
-
-      // Abbrev Number
-      Streamer->emitULEB128IntValue(DwarfAbbrev::LexicalBlock);
-
-      // DW_AT_low_pc
-      const MCExpr *StartExpr = MCConstantExpr::create(Start, context);
-      const MCExpr *LowPcExpr = MCBinaryExpr::create(MCBinaryExpr::Add, SymExpr,
-          StartExpr, context);
-      Streamer->emitValue(LowPcExpr, TargetPointerSize);
-
-      // DW_AT_high_pc
-      Streamer->emitIntValue(End - Start, TargetPointerSize);
-  }
-
   for (auto *Var : Vars) {
     Var->Dump(TypeBuilder, Streamer, TypeSection, StrSection);
-  }
-
-  for (auto &Scope : InnerScopes) {
-    Scope.Dump(TypeBuilder, Streamer, TypeSection, StrSection, SymExpr);
-  }
-
-  if (!IsFuncScope) {
-    // Terminate block
-    Streamer->emitIntValue(0, 1);
   }
 }
 
@@ -857,7 +792,7 @@ void SubprogramInfo::DumpVars(UserDefinedDwarfTypesBuilder *TypeBuilder, MCObjec
   MCSymbol *Sym = context.getOrCreateSymbol(Twine(Name));
   const MCExpr *SymExpr = MCSymbolRefExpr::create(Sym, MCSymbolRefExpr::VK_None, context);
 
-  LexicalScope FuncScope(0, Size, true);
+  LexicalScope FuncScope;
 
   for (unsigned i = 0; i < VarInfos.size(); i++) {
     FuncScope.AddVar(&VarInfos[i]);
