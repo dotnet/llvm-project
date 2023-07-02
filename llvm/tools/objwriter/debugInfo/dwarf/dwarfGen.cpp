@@ -11,6 +11,8 @@
 #include "dwarfAbbrev.h"
 
 #include "llvm/MC/MCContext.h"
+#include "llvm/MC/MCSectionELF.h"
+#include "llvm/MC/MCSectionMachO.h"
 #include "llvm/MC/MCAsmInfo.h"
 #include "llvm/MC/MCObjectFileInfo.h"
 #include "llvm/Support/LEB128.h"
@@ -938,16 +940,34 @@ void DwarfGen::EmitCompileUnit() {
   // DW_AT_comp_dir
   DwarfInfo::EmitSectionOffset(Streamer, DirStrSymbol, 4);
 
-  // There need to be global DW_AT_low_pc/DW_AT_high_pc symbols to indicate the base and
-  // size of the range covered by the symbols. Currently we use a shortcut where we emit
-  // a range starting at the beginning of file and ending at the start of the debug section
-  // which is located at the end of the object file.
+  // Use the location of the __managedcode section as the low and high addresses.
+
+  auto fileType = context.getObjectFileType();
+  MCSection* managedCodeSection;
+  if (fileType == MCContext::IsELF)
+  {
+    managedCodeSection = context.getELFSection("__managedcode", ELF::SHF_ALLOC | ELF::SHF_EXECINSTR, 0);
+  }
+  else if (fileType == MCContext::IsMachO)
+  {
+    managedCodeSection = context.getMachOSection(
+      "__TEXT",
+      "__managedcode",
+      MachO::S_ATTR_PURE_INSTRUCTIONS | MachO::S_ATTR_SOME_INSTRUCTIONS,
+      SectionKind::getText());
+  }
+  else
+  {
+    assert(false && "Unsupported object file type");
+    abort();
+  }
 
   // DW_AT_low_pc
-  Streamer->emitIntValue(0, TargetPointerSize);
+  const MCExpr *SymExpr = MCSymbolRefExpr::create(managedCodeSection->getBeginSymbol(), MCSymbolRefExpr::VK_None, context);
+  Streamer->emitValue(SymExpr, TargetPointerSize);
 
   // DW_AT_high_pc
-  const MCExpr *SymExpr = MCSymbolRefExpr::create(debugSection->getBeginSymbol(), MCSymbolRefExpr::VK_None, context);
+  SymExpr = MCSymbolRefExpr::create(managedCodeSection->getEndSymbol(context), MCSymbolRefExpr::VK_None, context);
   Streamer->emitValue(SymExpr, TargetPointerSize);
 
   // DW_AT_stmt_list
