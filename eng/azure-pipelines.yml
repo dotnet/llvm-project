@@ -8,7 +8,7 @@ trigger:
 pr:
   branches:
     include:
-    - dotnet/main
+    - dotnet/main*
     - dotnet/release/*
 
 variables:
