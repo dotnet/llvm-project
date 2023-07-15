@@ -66,6 +66,7 @@
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'Windows_NT'" Include="-DCMAKE_SYSTEM_NAME=Windows" />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include="-DCMAKE_SYSTEM_NAME=Linux" />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'OSX'" Include="-DCMAKE_SYSTEM_NAME=Darwin" />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'FreeBSD'" Include="-DCMAKE_SYSTEM_NAME=FreeBSD" />
     <_LLVMBuildArgs Include="-DCMAKE_BUILD_TYPE=Release" />
     <_LLVMBuildArgs Include='-DLEGAL_COPYRIGHT="\xa9 Microsoft Corporation. All rights reserved."' />
     <_LLVMBuildArgs Include="-DLLVM_BUILD_LLVM_C_DYLIB=OFF" />
@@ -85,6 +86,7 @@
     <_LLVMBuildArgs Include='-DLLVM_ENABLE_PDB=ON' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include='-DLLVM_EXTERNALIZE_DEBUGINFO_EXTENSION=dbg' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'OSX'" Include='-DLLVM_EXTERNALIZE_DEBUGINFO_EXTENSION=dwarf -DLLVM_EXTERNALIZE_DEBUGINFO_FLATTEN=ON' />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'FreeBSD'" Include='-DLLVM_EXTERNALIZE_DEBUGINFO_EXTENSION=dbg' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT' and '$(Configuration)' == 'Release'" Include='-DLLVM_USE_CRT_DEBUG=MT' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT' and '$(Configuration)' == 'Release'" Include='-DLLVM_USE_CRT_RELEASE=MT' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT' and '$(Configuration)' == 'Debug'" Include='-DLLVM_USE_CRT_DEBUG=MTd' />

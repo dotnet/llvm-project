@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ItemGroup>
+    <File Include="$(_LLVMInstallDir)\.emsdk_version" TargetPath="tools\$(PackageTargetRuntime)\" />
+    <File Include="$(_LLVMInstallDir)\bin\clang" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\clang++" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\clang-16" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\clang-16.dbg" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\lld.dbg" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-addr2line" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-ar" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-ar.dbg" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-cxxfilt" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-cxxfilt.dbg" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-dwarfdump" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-dwarfdump.dbg" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-dwp" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-dwp.dbg" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-nm" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-nm.dbg" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-objcopy" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-objcopy.dbg" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-objdump" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-objdump.dbg" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-ranlib" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-readobj" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-readobj.dbg" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-size" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-size.dbg" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-strings" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-strings.dbg" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-strip" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-symbolizer" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-symbolizer.dbg" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\wasm-ld" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\lib\clang\$(LLVMVersionShort)\include\**" TargetPath="tools\$(PackageTargetRuntime)\lib\clang\$(LLVMVersionShort)\include\%(RecursiveDir)\" />
+  </ItemGroup>
+</Project>
