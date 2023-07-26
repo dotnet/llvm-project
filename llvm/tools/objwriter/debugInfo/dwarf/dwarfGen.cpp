@@ -10,6 +10,7 @@
 #include "dwarfGen.h"
 #include "dwarfAbbrev.h"
 
+#include "llvm/BinaryFormat/ELF.h"
 #include "llvm/MC/MCContext.h"
 #include "llvm/MC/MCSectionELF.h"
 #include "llvm/MC/MCSectionMachO.h"
