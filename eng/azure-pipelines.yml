@@ -81,12 +81,11 @@ stages:
           displayName: 'Clean up working directory'
 
         - bash: |
-            ln -s $(ROOTFS_DIR)/usr/lib/$(ROOTFS_TRIPLE)/ /usr/lib/
+            ln -s $(ROOTFS_DIR)/usr/lib/$(triple)/ /usr/lib/
             ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(ClangBinDirArg) $(ClangTargetArg)
           displayName: 'Build and package'
           env:
             ROOTFS_DIR: $(rootfs)
-            ROOTFS_TRIPLE: $(triple)
 
         - bash: |
             ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) --projects $(Build.SourcesDirectory)/llvm.proj
@@ -136,12 +135,11 @@ stages:
           displayName: 'Clean up working directory'
 
         - bash: |
-            ln -s $(ROOTFS_DIR)/usr/lib/$(ROOTFS_TRIPLE)/ /usr/lib/
+            ln -s $(ROOTFS_DIR)/usr/lib/$(triple)/ /usr/lib/
             ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:OutputRid=linux-musl-$(assetManifestPlatform) $(ClangBinDirArg) $(ClangTargetArg)
           displayName: 'Build and package'
           env:
             ROOTFS_DIR: $(rootfs)
-            ROOTFS_TRIPLE: $(triple)
 
         - bash: |
             ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) --projects $(Build.SourcesDirectory)/llvm.proj
