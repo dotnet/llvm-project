@@ -81,7 +81,7 @@ stages:
           displayName: 'Clean up working directory'
 
         - bash: |
-            ln -s $(ROOTFS_DIR)/usr/lib/$(triple)/ /usr/lib/
+            ln -s $(rootfs)/usr/lib/$(triple)/ /usr/lib/
             ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(ClangBinDirArg) $(ClangTargetArg)
           displayName: 'Build and package'
           env:
@@ -135,7 +135,7 @@ stages:
           displayName: 'Clean up working directory'
 
         - bash: |
-            ln -s $(ROOTFS_DIR)/usr/lib/$(triple)/ /usr/lib/
+            ln -s $(rootfs)/usr/lib/$(triple)/ /usr/lib/
             ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:OutputRid=linux-musl-$(assetManifestPlatform) $(ClangBinDirArg) $(ClangTargetArg)
           displayName: 'Build and package'
           env:
