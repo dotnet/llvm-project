@@ -89,8 +89,10 @@
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT' and '$(Configuration)' == 'Release'" Include='-DLLVM_USE_CRT_RELEASE=MT' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT' and '$(Configuration)' == 'Debug'" Include='-DLLVM_USE_CRT_DEBUG=MTd' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT' and '$(Configuration)' == 'Debug'" Include='-DLLVM_USE_CRT_RELEASE=MTd' />
-    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT'" Include='-DLLVM_ENABLE_ZLIB=OFF' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT'" Include='-DLLVM_NATIVE_TOOL_DIR=$(NativeTablegenDir)' />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' != 'Windows_NT'" Include='-DLLVM_ENABLE_ZLIB=FORCE_ON' />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' != 'Windows_NT' and '$(LibsRoot)' != ''" Include='-DZLIB_ROOT=$(LibsRoot)' />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT'" Include='-DLLVM_ENABLE_ZLIB=OFF' />
     <_LLVMBuildArgs Include='-DLLVM_ENABLE_PROJECTS="lld%3Bclang%3Bclang-tools-extra"' />
     <_LLVMBuildArgs Include='-DLLVM_BUILD_TOOLS:BOOL=ON' />
     <_LLVMBuildArgs Include='-DLLVM_INSTALL_UTILS:BOOL=ON' />
