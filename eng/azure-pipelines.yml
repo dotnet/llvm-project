@@ -42,6 +42,7 @@ stages:
               assetManifestPlatform: x64
               imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:cbl-mariner-2.0-cross-amd64
               rootfs: /crossrootfs/x64
+              ExtraArgs: -p:LibsRoot=/crossrootfs/x64/usr/lib/x86_64-linux-gnu
               ClangTargetArg: /p:ClangTarget=x86_64-linux-gnu
               ClangBinDirArg: /p:ClangBinDir=/usr/local/bin
               archflag: --arch x64
@@ -50,6 +51,7 @@ stages:
               assetManifestPlatform: arm64
               imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:cbl-mariner-2.0-cross-arm64
               rootfs: /crossrootfs/arm64
+              ExtraArgs: -p:LibsRoot=/crossrootfs/arm64/usr/lib/aarch64-linux-gnu
               ClangTargetArg: /p:ClangTarget=aarch64-linux-gnu
               ClangBinDirArg: /p:ClangBinDir=/usr/local/bin
               archflag: --arch arm64
@@ -58,6 +60,7 @@ stages:
               assetManifestPlatform: arm
               imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:cbl-mariner-2.0-cross-arm
               rootfs: /crossrootfs/arm
+              ExtraArgs: -p:LibsRoot=/crossrootfs/arm/usr/lib/arm-linux-gnueabihf
               ClangTargetArg: /p:ClangTarget=arm-linux-gnueabihf
               ClangBinDirArg: /p:ClangBinDir=/usr/local/bin
               archflag: --arch arm
@@ -78,7 +81,7 @@ stages:
           displayName: 'Clean up working directory'
 
         - bash: |
-            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(ClangBinDirArg) $(ClangTargetArg)
+            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(ClangBinDirArg) $(ClangTargetArg) $(ExtraArgs)
           displayName: 'Build and package'
           env:
             ROOTFS_DIR: $(rootfs)
@@ -101,6 +104,7 @@ stages:
               assetManifestPlatform: x64
               imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:cbl-mariner-2.0-cross-amd64-alpine
               rootfs: /crossrootfs/x64
+              ExtraArgs: -p:LibsRoot=/crossrootfs/x64/lib
               ClangTargetArg: /p:ClangTarget=x86_64-alpine-linux-musl
               ClangBinDirArg: /p:ClangBinDir=/usr/local/bin
               archflag: --arch x64
@@ -109,6 +113,7 @@ stages:
               assetManifestPlatform: arm64
               imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:cbl-mariner-2.0-cross-arm64-alpine
               rootfs: /crossrootfs/arm64
+              ExtraArgs: -p:LibsRoot=/crossrootfs/arm64/lib
               ClangTargetArg: /p:ClangTarget=aarch64-alpine-linux-musl
               ClangBinDirArg: /p:ClangBinDir=/usr/local/bin
               archflag: --arch arm64
@@ -129,7 +134,7 @@ stages:
           displayName: 'Clean up working directory'
 
         - bash: |
-            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:OutputRid=linux-musl-$(assetManifestPlatform) $(ClangBinDirArg) $(ClangTargetArg)
+            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:OutputRid=linux-musl-$(assetManifestPlatform) $(ClangBinDirArg) $(ClangTargetArg) $(ExtraArgs)
           displayName: 'Build and package'
           env:
             ROOTFS_DIR: $(rootfs)
