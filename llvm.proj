@@ -40,20 +40,33 @@
     cmake -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_PREFIX=$(_LLVMInstallDir) -DCMAKE_INSTALL_COMPONENT=FileCheck -P cmake_install.cmake
     </_CMakeInstallCommand>
     <_CMakeInstallCommand Condition="'$(BuildObjWriterOnly)' != 'true'">$(_SetupEnvironment) cmake -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_PREFIX=$(_LLVMInstallDir) -P cmake_install.cmake</_CMakeInstallCommand>
+    <_CrossBuild>false</_CrossBuild>
+    <_CrossBuild Condition="'$(ClangTarget)' != ''">true</_CrossBuild>
+    <_hostArch>$([System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture.ToString().ToLowerInvariant)</_hostArch>
+    <_CrossBuild Condition="'$(BuildOS)' == 'Windows_NT' and '$(TargetArchitecture)' != '$(_hostArch)'">true</_CrossBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(BuildOS)' != 'Windows_NT'">
-    <_CrossCFlags>--target=$(ClangTarget)</_CrossCFlags>
-    <_CrossCFlags Condition="'$(BuildOS)' == 'Linux'">$(_CrossCFlags) --sysroot=$(ROOTFS_DIR) --gcc-toolchain=$(ROOTFS_DIR)/usr</_CrossCFlags>
-    <_SharedLinkerFlags>$(_CrossCFlags)</_SharedLinkerFlags>
+    <_CrossCFlags Condition="'$(_CrossBuild)' == 'true'">--target=$(ClangTarget)</_CrossCFlags>
+    <_CrossCFlags Condition="'$(_CrossBuild)' == 'true' and '$(BuildOS)' == 'Linux'">$(_CrossCFlags) --sysroot=$(ROOTFS_DIR) --gcc-toolchain=$(ROOTFS_DIR)/usr</_CrossCFlags>
+    <_CFlags>$(_CrossCFlags)</_CFlags>
+    <_SharedLinkerFlags>$(_CFlags)</_SharedLinkerFlags>
     <_SharedLinkerFlags Condition="'$(BuildOS)' == 'Linux'">-Wl,--build-id -Wl,-rpath,'%5C%24ORIGIN' -fuse-ld=lld $(_SharedLinkerFlags)</_SharedLinkerFlags>
     <ClangBinDir Condition="'$(ClangBinDir)' == ''">/usr/bin</ClangBinDir>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(_CrossBuild)' == 'true'">
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64'" Include="-DLLVM_TARGET_ARCH=AARCH64" />
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm'" Include="-DLLVM_TARGET_ARCH=ARM" />
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'x64'" Include="-DLLVM_TARGET_ARCH=X86_64" />
+    <!-- Enable CMake cross-compilation support by setting CMAKE_SYSTEM_NAME manually, see https://github.com/llvm/llvm-project/issues/52819 -->
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT'" Include="-DCMAKE_SYSTEM_NAME=Windows" />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include="-DCMAKE_SYSTEM_NAME=Linux" />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'OSX'" Include="-DCMAKE_SYSTEM_NAME=Darwin" />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include='-DCROSS_TOOLCHAIN_FLAGS_LLVM_NATIVE="-DCMAKE_EXE_LINKER_FLAGS_INIT=-fuse-ld=lld;-DCMAKE_SHARED_LINKER_FLAGS_INIT=-fuse-ld=lld"' />
+  </ItemGroup>
+
+  <ItemGroup>
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'Windows_NT'" Include="-DLLVM_DEFAULT_TARGET_TRIPLE=aarch64-windows-msvc" />
     <_LLVMBuildArgs Condition="'$(ClangTarget)' != '' and '$(BuildOS)' == 'Linux'" Include="-DLLVM_DEFAULT_TARGET_TRIPLE=$(ClangTarget)" />
     <_LLVMBuildArgs Condition="'$(ClangTarget)' != '' and '$(BuildOS)' == 'Linux'" Include="-DCMAKE_OBJCOPY=$(ClangBinDir)/llvm-objcopy" />
@@ -62,8 +75,6 @@
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'x64' and '$(BuildOS)' == 'OSX'" Include="-DCMAKE_OSX_ARCHITECTURES=x86_64"/>
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'OSX'" Include="-DLLVM_DEFAULT_TARGET_TRIPLE=arm64-apple-darwin" />
     <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'OSX'" Include="-DCMAKE_OSX_ARCHITECTURES=arm64"/>
-    <!-- Enable CMake cross-compilation support by setting CMAKE_SYSTEM_NAME manually, see https://github.com/llvm/llvm-project/issues/52819 -->
-    <_LLVMBuildArgs Condition="'$(TargetArchitecture)' == 'arm64' and '$(BuildOS)' == 'Windows_NT'" Include="-DCMAKE_SYSTEM_NAME=Windows" />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include="-DCMAKE_SYSTEM_NAME=Linux" />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'OSX'" Include="-DCMAKE_SYSTEM_NAME=Darwin" />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'FreeBSD'" Include="-DCMAKE_SYSTEM_NAME=FreeBSD" />
@@ -118,9 +129,9 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(BuildOS)' != 'Windows_NT'">
-    <_LLVMBuildArgs Include='-DCMAKE_C_FLAGS="-I../llvm/include -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CrossCFlags)"' />
-    <_LLVMBuildArgs Include='-DCMAKE_CXX_FLAGS="-I../llvm/include $(_LibCxxCFlags) -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CrossCFlags) "' />
-    <_LLVMBuildArgs Include='-DCMAKE_ASM_FLAGS="-I../llvm/include -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CrossCFlags) "' />
+    <_LLVMBuildArgs Include='-DCMAKE_C_FLAGS="-I../llvm/include -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CFlags)"' />
+    <_LLVMBuildArgs Include='-DCMAKE_CXX_FLAGS="-I../llvm/include $(_LibCxxCFlags) -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CFlags) "' />
+    <_LLVMBuildArgs Include='-DCMAKE_ASM_FLAGS="-I../llvm/include -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CFlags) "' />
     <_LLVMBuildArgs Include='-DCMAKE_EXE_LINKER_FLAGS_INIT="$(_SharedLinkerFlags)"' />
     <_LLVMBuildArgs Include='-DCMAKE_SHARED_LINKER_FLAGS_INIT="$(_SharedLinkerFlags)"' />
     <_LLVMBuildArgs Include='-DCMAKE_MODULE_LINKER_FLAGS_INIT="$(_SharedLinkerFlags)"' />
@@ -139,9 +150,9 @@
       <_LibCxxBuildArgs Include="-DCMAKE_C_COMPILER=clang" />
       <_LibCxxBuildArgs Include="-DCMAKE_CXX_COMPILER=clang++" />
       <_LibCxxBuildArgs Include="-DCMAKE_ASM_COMPILER=clang" />
-      <_LibCxxBuildArgs Include='-DCMAKE_C_FLAGS="-D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CrossCFlags)"' />
-      <_LibCxxBuildArgs Include='-DCMAKE_CXX_FLAGS="-D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CrossCFlags)"' />
-      <_LibCxxBuildArgs Include='-DCMAKE_ASM_FLAGS="-D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CrossCFlags)"' />
+      <_LibCxxBuildArgs Include='-DCMAKE_C_FLAGS="-D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CFlags)"' />
+      <_LibCxxBuildArgs Include='-DCMAKE_CXX_FLAGS="-D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CFlags)"' />
+      <_LibCxxBuildArgs Include='-DCMAKE_ASM_FLAGS="-D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CFlags)"' />
       <_LibCxxBuildArgs Include='-DCMAKE_EXE_LINKER_FLAGS_INIT="-Wl,--build-id -fuse-ld=lld"' />
       <_LibCxxBuildArgs Include='-DCMAKE_SHARED_LINKER_FLAGS_INIT="-Wl,--build-id -fuse-ld=lld"' />
       <_LibCxxBuildArgs Include='-DCMAKE_MODULE_LINKER_FLAGS_INIT="-Wl,--build-id -fuse-ld=lld"' />
@@ -151,18 +162,22 @@
       <_LibCxxBuildArgs Include="-DLLVM_DEFAULT_TARGET_TRIPLE=$(ClangTarget)" />
       <_LibCxxBuildArgs Condition="$(ClangTarget.ToLowerInvariant().Contains('musl'))" Include="-DLIBCXX_HAS_MUSL_LIBC=ON" />
     </ItemGroup>
+    <PropertyGroup>
+      <_LibCxxBuildCommand Condition="'$(CMakeGenerator)' == 'Unix Makefiles'">$(_SetupEnvironment) make -j$([System.Environment]::ProcessorCount)</_LibCxxBuildCommand>
+      <_LibCxxBuildCommand Condition="'$(CMakeGenerator)' == 'Ninja'">$(_SetupEnvironment) ninja</_LibCxxBuildCommand>
+    </PropertyGroup>
     <Message Text="** Configuring bootstrap libc++ '$(_LibCxxConfigureCommand)'" Importance="High" />
     <Exec WorkingDirectory="$(_LibCxxBuildDir)"
           Command="$(_LibCxxConfigureCommand)"
           Condition="!Exists('$(_LibCxxBuildDir)/CMakeCache.txt')"
           IgnoreStandardErrorWarningFormat="true" />
-    <Message Text="** Building bootstrap libc++ '$(_BuildCommand)'" Importance="High" />
+    <Message Text="** Building bootstrap libc++ '$(_LibCxxBuildCommand)'" Importance="High" />
     <Exec WorkingDirectory="$(_LibCxxBuildDir)"
-          Command="$(_BuildCommand)"
+          Command="$(_LibCxxBuildCommand)"
           IgnoreStandardErrorWarningFormat="true" />
-    <Message Text="** Installing bootstrap libc++ '$(_CMakeInstallCommand)'" Importance="High" />
+    <Message Text="** Installing bootstrap libc++ '$(_LibCxxBuildCommand) install'" Importance="High" />
     <Exec WorkingDirectory="$(_LibCxxBuildDir)"
-          Command="$(_BuildCommand) install"
+          Command="$(_LibCxxBuildCommand) install"
           IgnoreStandardErrorWarningFormat="true" />
     <ItemGroup>
       <_LibCxxUnstripped Include="libc++.so.1.0" />
