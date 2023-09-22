@@ -155,6 +155,10 @@ bool ObjectWriter::Init(llvm::StringRef ObjectFilePath, const char* tripleName) 
 
   CFIsPerOffset.truncate(0);
 
+  if (OutContext->getObjectFileType() == MCContext::IsMachO) {
+    Streamer->emitAssemblerFlag(MCAF_SubsectionsViaSymbols);
+  }
+
   return true;
 }
 
