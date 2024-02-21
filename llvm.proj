@@ -125,7 +125,7 @@
   </ItemGroup>
 
   <PropertyGroup Condition="'$(BuildOS)' == 'Linux'">
-    <_LibCxxCFlags>-I$(_LibCxxInstallDir)/include/c++/v1 -L$(_LibCxxInstallDir)/lib -stdlib=libc++ -Wno-error=unused-command-line-argument</_LibCxxCFlags>
+    <_LibCxxCFlags>-I$(_LibCxxInstallDir)/include/c++/v1 -L$(_LibCxxInstallDir)/lib -stdlib=libc++</_LibCxxCFlags>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(BuildOS)' != 'Windows_NT'">
