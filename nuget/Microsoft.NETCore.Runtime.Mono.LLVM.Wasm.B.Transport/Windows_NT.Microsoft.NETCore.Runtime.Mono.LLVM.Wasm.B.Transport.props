@@ -50,7 +50,6 @@
     <File Include="$(_LLVMInstallDir)\bin\not.pdb" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\objcopy.exe" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\objdump.exe" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
-    <File Include="$(_LLVMInstallDir)\bin\objwriter*dll" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\opt.exe" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\opt.pdb" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\ranlib.exe" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
@@ -67,6 +66,5 @@
     <File Include="$(_LLVMInstallDir)\lib\clang\**" TargetPath="tools\$(PackageTargetRuntime)\lib\clang\%(RecursiveDir)\" />
     <File Include="$(_LLVMInstallDir)\lib\cmake\**" TargetPath="tools\$(PackageTargetRuntime)\lib\cmake\%(RecursiveDir)\" />
     <File Include="$(_LLVMInstallDir)\lib\LLVM*.lib" TargetPath="tools\$(PackageTargetRuntime)\lib\" />
-    <File Include="$(_LLVMInstallDir)\lib\objwriter*lib" TargetPath="tools\$(PackageTargetRuntime)\lib\" />
   </ItemGroup>
 </Project>

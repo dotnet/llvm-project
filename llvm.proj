@@ -28,18 +28,17 @@
     <_CMakeConfigureCommand>$(_SetupEnvironment) cmake $(_LLVMSourceDir) -G "$(CMakeGenerator)" @(_LLVMBuildArgs->'%(Identity)',' ')</_CMakeConfigureCommand>
     <_LibCxxConfigureCommand>$(_SetupEnvironment) cmake $(_LibCxxSourceDir) -G "$(CMakeGenerator)" @(_LibCxxBuildArgs->'%(Identity)',' ')</_LibCxxConfigureCommand>
     <_BuildSubset Condition="'$(BuildLLVMTableGenOnly)' == 'true'">llvm-tblgen clang-tblgen llvm-config clang-tidy-confusable-chars-gen clang-pseudo-gen</_BuildSubset>
-    <_BuildSubset Condition="'$(BuildObjWriterOnly)' == 'true'">objwriter llvm-mca llvm-dwarfdump FileCheck</_BuildSubset>
+    <_BuildSubset Condition="'$(BuildJitToolsOnly)' == 'true'">llvm-mca llvm-dwarfdump FileCheck</_BuildSubset>
     <_BuildCommand Condition="'$(CMakeGenerator)' == 'Unix Makefiles'">$(_SetupEnvironment) make $(_BuildSubset) -j$([System.Environment]::ProcessorCount)</_BuildCommand>
     <_BuildCommand Condition="'$(CMakeGenerator)' == 'Ninja'">$(_SetupEnvironment) ninja $(_BuildSubset)</_BuildCommand>
-    <_CMakeInstallCommand Condition="'$(BuildObjWriterOnly)' == 'true'">
+    <_CMakeInstallCommand Condition="'$(BuildJitToolsOnly)' == 'true'">
     $(_SetupEnvironment) 
 
-    cmake -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_PREFIX=$(_LLVMInstallDir) -DCMAKE_INSTALL_COMPONENT=objwriter -P cmake_install.cmake
     cmake -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_PREFIX=$(_LLVMInstallDir) -DCMAKE_INSTALL_COMPONENT=llvm-mca -P cmake_install.cmake
     cmake -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_PREFIX=$(_LLVMInstallDir) -DCMAKE_INSTALL_COMPONENT=llvm-dwarfdump -P cmake_install.cmake
     cmake -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_PREFIX=$(_LLVMInstallDir) -DCMAKE_INSTALL_COMPONENT=FileCheck -P cmake_install.cmake
     </_CMakeInstallCommand>
-    <_CMakeInstallCommand Condition="'$(BuildObjWriterOnly)' != 'true'">$(_SetupEnvironment) cmake -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_PREFIX=$(_LLVMInstallDir) -P cmake_install.cmake</_CMakeInstallCommand>
+    <_CMakeInstallCommand Condition="'$(BuildJitToolsOnly)' != 'true'">$(_SetupEnvironment) cmake -DCMAKE_INSTALL_DO_STRIP=1 -DCMAKE_INSTALL_PREFIX=$(_LLVMInstallDir) -P cmake_install.cmake</_CMakeInstallCommand>
     <_CrossBuild>false</_CrossBuild>
     <_CrossBuild Condition="'$(ClangTarget)' != ''">true</_CrossBuild>
     <_hostArch>$([System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture.ToString().ToLowerInvariant)</_hostArch>
@@ -87,7 +86,7 @@
     <_LLVMBuildArgs Include='-DLLVM_BUILD_TESTS=OFF' />
     <_LLVMBuildArgs Include='-DLLVM_BUILD_EXAMPLES=OFF' />
     <_LLVMBuildArgs Include='-DLLVM_INCLUDE_EXAMPLES=OFF' />
-    <_LLVMBuildArgs Include='-DLLVM_TOOLS_TO_BUILD="llc%3Bllvm-addr2line%3Bllvm-ar%3Bllvm-as%3Bllvm-config%3Bllvm-cxxfilt%3Bllvm-dis%3Bllvm-dwarfdump%3Bllvm-dwp%3Bllvm-mc%3Bllvm-mca%3Bllvm-nm%3Bllvm-objcopy%3Bllvm-objdump%3Bllvm-ranlib%3Bllvm-readobj%3Bllvm-size%3Bllvm-strings%3Bllvm-strip%3Bllvm-symbolizer%3Bobjwriter%3Bopt%3BFileCheck"' />
+    <_LLVMBuildArgs Include='-DLLVM_TOOLS_TO_BUILD="llc%3Bllvm-addr2line%3Bllvm-ar%3Bllvm-as%3Bllvm-config%3Bllvm-cxxfilt%3Bllvm-dis%3Bllvm-dwarfdump%3Bllvm-dwp%3Bllvm-mc%3Bllvm-mca%3Bllvm-nm%3Bllvm-objcopy%3Bllvm-objdump%3Bllvm-ranlib%3Bllvm-readobj%3Bllvm-size%3Bllvm-strings%3Bllvm-strip%3Bllvm-symbolizer%3Bopt%3BFileCheck"' />
     <_LLVMBuildArgs Include='-DLLVM_INSTALL_BINUTILS_SYMLINKS=TRUE' />
     <_LLVMBuildArgs Include='-DLLVM_ENABLE_LIBXML2=OFF' />
     <_LLVMBuildArgs Include='-DLLVM_ENABLE_TERMINFO=OFF' />

@@ -4,7 +4,7 @@
   <Import Project="Sdk.props" Sdk="Microsoft.DotNet.Arcade.Sdk" />
 
   <PropertyGroup>
-    <!-- we're not building all of llvm for now in source build, just objwriter -->
-    <BuildObjWriterOnly Condition="'$(BuildObjWriterOnly)' == '' and '$(DotNetBuildFromSource)' == 'true'">true</BuildObjWriterOnly>
+    <!-- we're not building all of llvm for now in source build, just jittols -->
+    <BuildJitToolsOnly Condition="'$(BuildJitToolsOnly)' == '' and '$(DotNetBuildFromSource)' == 'true'">true</BuildJitToolsOnly>
   </PropertyGroup>
 </Project>

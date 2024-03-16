@@ -65,7 +65,6 @@
     <File Include="$(_LLVMInstallDir)\lib\clang\**" TargetPath="tools\$(PackageTargetRuntime)\lib\clang\%(RecursiveDir)\" />
     <File Include="$(_LLVMInstallDir)\lib\cmake\**" TargetPath="tools\$(PackageTargetRuntime)\lib\cmake\%(RecursiveDir)\" />
     <File Include="$(_LLVMInstallDir)\lib\libLLVM*.a" TargetPath="tools\$(PackageTargetRuntime)\lib\" />
-    <File Include="$(_LLVMInstallDir)\lib\libobjwriter*so*" TargetPath="tools\$(PackageTargetRuntime)\lib\" />
     <File Include="$(_LibCxxInstallDir)\lib\libc++.so.1" TargetPath="tools\$(PackageTargetRuntime)\lib\" />
     <File Include="$(_LibCxxInstallDir)\lib\libc++abi.so.1" TargetPath="tools\$(PackageTargetRuntime)\lib\" />
   </ItemGroup>
