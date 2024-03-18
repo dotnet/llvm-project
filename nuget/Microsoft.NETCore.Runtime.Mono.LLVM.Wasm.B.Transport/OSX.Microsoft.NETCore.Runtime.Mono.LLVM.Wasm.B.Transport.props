@@ -65,6 +65,5 @@
     <File Include="$(_LLVMInstallDir)\lib\clang\**" TargetPath="tools\$(PackageTargetRuntime)\lib\clang\%(RecursiveDir)\" />
     <File Include="$(_LLVMInstallDir)\lib\cmake\**" TargetPath="tools\$(PackageTargetRuntime)\lib\cmake\%(RecursiveDir)\" />
     <File Include="$(_LLVMInstallDir)\lib\libLLVM*.a" TargetPath="tools\$(PackageTargetRuntime)\lib\" />
-    <File Include="$(_LLVMInstallDir)\lib\libobjwriter*dylib" TargetPath="tools\$(PackageTargetRuntime)\lib\" />
   </ItemGroup>
 </Project>

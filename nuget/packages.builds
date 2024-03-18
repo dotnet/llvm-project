@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.Build.Traversal">
-  <ItemGroup Condition="'$(BuildObjWriterOnly)' != 'true'">
+  <ItemGroup Condition="'$(BuildJitToolsOnly)' != 'true'">
     <ProjectReference Condition="'$(Configuration)' == 'Release'" Include="Microsoft.NETCore.Runtime.Mono.LLVM.Sdk\Microsoft.NETCore.Runtime.Mono.LLVM.Sdk.builds" />
     <ProjectReference Condition="'$(Configuration)' == 'Release'" Include="Microsoft.NETCore.Runtime.Mono.LLVM.Tools\Microsoft.NETCore.Runtime.Mono.LLVM.Tools.builds" />
     <ProjectReference Condition="'$(Configuration)' == 'Release'" Include="Microsoft.NETCore.Runtime.Mono.LLVM.Wasm.A.Transport\Microsoft.NETCore.Runtime.Mono.LLVM.Wasm.A.Transport.builds" />
@@ -10,7 +10,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Condition="'$(Configuration)' == 'Release'" Include="Microsoft.NETCore.Runtime.ObjWriter\Microsoft.NETCore.Runtime.ObjWriter.builds" />
     <ProjectReference Condition="'$(Configuration)' == 'Release'" Include="Microsoft.NETCore.Runtime.JIT.Tools\Microsoft.NETCore.Runtime.JIT.Tools.builds" />
   </ItemGroup>
 
