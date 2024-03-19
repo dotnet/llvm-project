@@ -4,7 +4,7 @@
   <Import Project="Sdk.props" Sdk="Microsoft.DotNet.Arcade.Sdk" />
 
   <PropertyGroup>
-    <!-- we're not building all of llvm for now in source build, just jittols -->
+    <!-- we're not building all of llvm for now in source build, just jittools -->
     <BuildJitToolsOnly Condition="'$(BuildJitToolsOnly)' == '' and '$(DotNetBuildFromSource)' == 'true'">true</BuildJitToolsOnly>
   </PropertyGroup>
 </Project>
