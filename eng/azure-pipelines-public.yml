@@ -1,0 +1,257 @@
+trigger:
+  batch: true
+  branches:
+    include:
+    - dotnet/main*
+    - dotnet/release/*
+
+pr:
+  branches:
+    include:
+    - dotnet/main*
+    - dotnet/release/*
+
+variables:
+- template: /eng/common-variables.yml
+- template: /eng/common/templates/variables/pool-providers.yml
+# disable CodeQL here, we have a separate pipeline for it
+- name: Codeql.Enabled
+  value: false
+
+stages:
+- stage: build
+  displayName: Build
+  jobs:
+  - template: /eng/common/templates/jobs/jobs.yml
+    parameters:
+      enablePublishBuildArtifacts: true
+      enablePublishBuildAssets: true
+      enablePublishUsingPipelines: true
+      enableSourceBuild: true
+      sourceBuildParameters:
+        platforms:
+        - name: 'AlmaLinux_8_Portable'
+          container: 'mcr.microsoft.com/dotnet-buildtools/prereqs:almalinux-8-source-build'
+          jobProperties:
+            timeoutInMinutes: 600
+      jobs:
+
+      ############ LINUX BUILD ############
+      - job: Build_Linux
+        displayName: Linux
+        timeoutInMinutes: 600
+        variables:
+        - _BuildConfig: Release
+        strategy:
+          matrix:
+            x64:
+              assetManifestOS: linux
+              assetManifestPlatform: x64
+              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:cbl-mariner-2.0-cross-amd64
+              rootfs: /crossrootfs/x64
+              ExtraArgs: -p:LibsRoot=/crossrootfs/x64/usr/lib/x86_64-linux-gnu
+              ClangTargetArg: /p:ClangTarget=x86_64-linux-gnu
+              ClangBinDirArg: /p:ClangBinDir=/usr/local/bin
+              archflag: --arch x64
+            arm64:
+              assetManifestOS: linux
+              assetManifestPlatform: arm64
+              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:cbl-mariner-2.0-cross-arm64
+              rootfs: /crossrootfs/arm64
+              ExtraArgs: -p:LibsRoot=/crossrootfs/arm64/usr/lib/aarch64-linux-gnu
+              ClangTargetArg: /p:ClangTarget=aarch64-linux-gnu
+              ClangBinDirArg: /p:ClangBinDir=/usr/local/bin
+              archflag: --arch arm64
+            arm:
+              assetManifestOS: linux
+              assetManifestPlatform: arm
+              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:cbl-mariner-2.0-cross-arm
+              rootfs: /crossrootfs/arm
+              ExtraArgs: -p:LibsRoot=/crossrootfs/arm/usr/lib/arm-linux-gnueabihf
+              ClangTargetArg: /p:ClangTarget=arm-linux-gnueabihf
+              ClangBinDirArg: /p:ClangBinDir=/usr/local/bin
+              archflag: --arch arm
+        pool:
+          ${{ if eq(variables['System.TeamProject'], 'public') }}:
+            name: $(DncEngPublicBuildPool)
+            demands: ImageOverride -equals build.ubuntu.2204.amd64.open
+          ${{ if eq(variables['System.TeamProject'], 'internal') }}:
+            name: $(DncEngInternalBuildPool)
+            demands: ImageOverride -equals build.ubuntu.2204.amd64
+        container:
+          image: $(imagename)
+        steps:
+        - bash: |
+            set -ex
+            git clean -ffdx
+            git reset --hard HEAD
+          displayName: 'Clean up working directory'
+
+        - bash: |
+            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(ClangBinDirArg) $(ClangTargetArg) $(ExtraArgs)
+          displayName: 'Build and package'
+          env:
+            ROOTFS_DIR: $(rootfs)
+
+        - bash: |
+            ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) --projects $(Build.SourcesDirectory)/llvm.proj
+          displayName: Publish packages
+          condition: and(succeeded(), ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest'))
+
+      ############ LINUX MUSL BUILD ############
+      - job: Build_Linux_musl
+        displayName: Linux_musl
+        timeoutInMinutes: 600
+        variables:
+        - _BuildConfig: Release
+        strategy:
+          matrix:
+            x64:
+              assetManifestOS: linux-musl
+              assetManifestPlatform: x64
+              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:cbl-mariner-2.0-cross-amd64-alpine
+              rootfs: /crossrootfs/x64
+              ExtraArgs: -p:LibsRoot=/crossrootfs/x64/lib
+              ClangTargetArg: /p:ClangTarget=x86_64-alpine-linux-musl
+              ClangBinDirArg: /p:ClangBinDir=/usr/local/bin
+              archflag: --arch x64
+            arm64:
+              assetManifestOS: linux-musl
+              assetManifestPlatform: arm64
+              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:cbl-mariner-2.0-cross-arm64-alpine
+              rootfs: /crossrootfs/arm64
+              ExtraArgs: -p:LibsRoot=/crossrootfs/arm64/lib
+              ClangTargetArg: /p:ClangTarget=aarch64-alpine-linux-musl
+              ClangBinDirArg: /p:ClangBinDir=/usr/local/bin
+              archflag: --arch arm64
+        pool:
+          ${{ if eq(variables['System.TeamProject'], 'public') }}:
+            name: $(DncEngPublicBuildPool)
+            demands: ImageOverride -equals build.ubuntu.2204.amd64.open
+          ${{ if eq(variables['System.TeamProject'], 'internal') }}:
+            name: $(DncEngInternalBuildPool)
+            demands: ImageOverride -equals build.ubuntu.2204.amd64
+        container:
+          image: $(imagename)
+        steps:
+        - bash: |
+            set -ex
+            git clean -ffdx
+            git reset --hard HEAD
+          displayName: 'Clean up working directory'
+
+        - bash: |
+            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:OutputRid=linux-musl-$(assetManifestPlatform) $(ClangBinDirArg) $(ClangTargetArg) $(ExtraArgs)
+          displayName: 'Build and package'
+          env:
+            ROOTFS_DIR: $(rootfs)
+
+        - bash: |
+            ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) --projects $(Build.SourcesDirectory)/llvm.proj
+          displayName: Publish packages
+          condition: and(succeeded(), ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest'))
+
+      ############ MACOS BUILD ############
+      - job: Build_macOS
+        displayName: macOS
+        timeoutInMinutes: 600
+        variables:
+        - _BuildConfig: Release
+        strategy:
+          matrix:
+            x64:
+              assetManifestOS: osx
+              assetManifestPlatform: x64
+              clangTargetArg: /p:ClangTarget=x86_64-apple-darwin
+              archflag: --arch x64
+            arm64:
+              assetManifestOS: osx
+              assetManifestPlatform: arm64
+              clangTargetArg: /p:ClangTarget=aarch64-apple-darwin
+              archflag: --arch arm64
+        pool:
+          vmImage: macos-11
+        steps:
+        - bash: |
+            set -ex
+            git clean -ffdx
+            git reset --hard HEAD
+          displayName: 'Clean up working directory'
+
+        - bash: |
+            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(ClangTargetArg) $(_InternalBuildArgs)
+          displayName: 'Build and package'
+
+        - bash: |
+            ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) --projects $(Build.SourcesDirectory)/llvm.proj
+          displayName: Publish packages
+          condition: and(succeeded(), ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest'))
+
+      ############ WINDOWS BUILD ############
+      - job: Build_Windows
+        displayName: Windows
+        timeoutInMinutes: 600
+        strategy:
+          matrix:
+            # Release
+            x64_release:
+              _BuildConfig: Release
+              assetManifestOS: win
+              assetManifestPlatform: x64
+              LLVMTableGenArg: /p:NativeTablegenDir=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin
+              archflag: -arch x64
+            arm64_release:
+              _BuildConfig: Release
+              assetManifestOS: win
+              assetManifestPlatform: arm64
+              LLVMTableGenArg: /p:NativeTablegenDir=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin
+              archflag: -arch arm64
+            # Debug
+            x64_debug:
+              _BuildConfig: Debug
+              assetManifestOS: win
+              assetManifestPlatform: x64
+              LLVMTableGenArg: /p:NativeTablegenDir=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin
+              archflag: -arch x64
+            arm64_debug:
+              _BuildConfig: Debug
+              assetManifestOS: win
+              assetManifestPlatform: arm64
+              LLVMTableGenArg: /p:NativeTablegenDir=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin
+              archflag: -arch arm64
+        pool:
+          ${{ if eq(variables['System.TeamProject'], 'public') }}:
+            name: $(DncEngPublicBuildPool)
+            demands: ImageOverride -equals windows.vs2022.amd64.open
+          ${{ if eq(variables['System.TeamProject'], 'internal') }}:
+            name: $(DncEngInternalBuildPool)
+            demands: ImageOverride -equals windows.vs2022.amd64
+        steps:
+        - checkout: self
+          clean: true
+          fetchDepth: 2
+
+        - script: |
+            git clean -ffdx
+            git reset --hard HEAD
+          displayName: 'Clean up working directory'
+
+        - powershell: eng\build.ps1 -ci -restore -build -arch x64 -configuration $(_BuildConfig) $(_InternalBuildArgs) /p:BuildLLVMTableGenOnly=true
+          displayName: 'Build host llvm-tblgen for cross-compiling'
+
+        - powershell: eng\build.ps1 -ci -restore -build -pack $(archflag) -configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg)
+          displayName: 'Build and package'
+
+        - powershell: eng\common\build.ps1 -ci -restore -publish -configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(_BuildConfig)-$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) -projects $(Build.SourcesDirectory)\llvm.proj
+          displayName: Publish packages
+          condition: and(succeeded(), ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest'))
+
+############ POST BUILD ARCADE LOGIC ############
+- ${{ if and(ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest')) }}:
+  - template: /eng/common/templates/post-build/post-build.yml
+    parameters:
+      publishingInfraVersion: 3
+      enableSourceLinkValidation: false
+      enableSigningValidation: false
+      enableSymbolValidation: false
+      enableNugetValidation: true
