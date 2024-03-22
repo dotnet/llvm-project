@@ -1,0 +1,156 @@
+trigger:
+  batch: true
+  branches:
+    include:
+    - dotnet/main
+    - dotnet/release/*
+
+pr:
+  branches:
+    include:
+    - dotnet/main
+    - dotnet/release/*
+
+variables:
+- template: /eng/common-variables.yml
+
+stages:
+- stage: build
+  displayName: Build
+  jobs:
+  - template: /eng/common/templates/jobs/jobs.yml
+    parameters:
+      enablePublishBuildArtifacts: true
+      enablePublishBuildAssets: true
+      enablePublishUsingPipelines: true
+      variables:
+        - _BuildConfig: Release
+      jobs:
+
+      ############ LINUX BUILD ############
+      - job: Build_Linux
+        displayName: Linux
+        timeoutInMinutes: 180
+        strategy:
+          matrix:
+            x64:
+              assetManifestOS: linux
+              assetManifestPlatform: x64
+              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:centos-7-bfcd90a-20200121150017
+              rootfs: 
+              archflag: --arch x64
+              LLVMTableGenArg: 
+              ClangTableGenArg: 
+            arm64:
+              assetManifestOS: linux
+              assetManifestPlatform: arm64
+              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-16.04-cross-arm64-cfdd435-20200121150126
+              rootfs: /crossrootfs/arm64
+              archflag: --arch arm64
+              LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/llvm-tblgen
+              ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/clang-tblgen
+            arm:
+              assetManifestOS: linux
+              assetManifestPlatform: arm
+              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-16.04-cross-09ec757-20200320131433
+              rootfs: /crossrootfs/arm
+              archflag: --arch arm
+              LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/llvm-tblgen
+              ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/clang-tblgen
+        pool:
+          vmImage: ubuntu-20.04
+        container:
+          image: $(imagename)
+        steps:
+        - bash: |
+            set -ex
+            git clean -ffdx
+            git reset --hard HEAD
+          displayName: 'Clean up working directory'
+
+        - bash: |
+            ./build.sh --ci --restore --build --arch x64 -configuration $(_BuildConfig) $(_InternalBuildArgs) /p:BuildLLVMTableGenOnly=true
+          displayName: 'Build host llvm-tblgen for cross-compiling'
+          condition: and(succeeded(), ne(variables['assetManifestPlatform'], 'x64'))
+
+        - bash: |
+            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg)
+          displayName: 'Build and package'
+          env:
+            ROOTFS_DIR: $(rootfs)
+
+      ############ MACOS BUILD ############
+      - job: Build_macOS
+        displayName: macOS
+        timeoutInMinutes: 180
+        strategy:
+          matrix:
+            x64:
+              assetManifestOS: osx
+              assetManifestPlatform: x64
+              archflag: --arch x64
+              LLVMTableGenArg: 
+              ClangTableGenArg: 
+            arm64:
+              assetManifestOS: osx
+              assetManifestPlatform: arm64
+              archflag: --arch arm64
+              LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/llvm-tblgen
+              ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/clang-tblgen
+        pool:
+          vmImage: macos-11
+        steps:
+        - bash: |
+            set -ex
+            git clean -ffdx
+            git reset --hard HEAD
+          displayName: 'Clean up working directory'
+
+        - bash: |
+            ./build.sh --ci --restore --build --arch x64 -configuration $(_BuildConfig) $(_InternalBuildArgs) /p:BuildLLVMTableGenOnly=true
+          displayName: 'Build host llvm-tblgen for cross-compiling'
+          condition: and(succeeded(), ne(variables['assetManifestPlatform'], 'x64'))
+
+        - bash: |
+            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg)
+          displayName: 'Build and package'
+
+      ############ WINDOWS BUILD ############
+      - job: Build_Windows
+        displayName: Windows
+        timeoutInMinutes: 180
+        strategy:
+          matrix:
+            x64:
+              assetManifestOS: win
+              assetManifestPlatform: x64
+              archflag: -arch x64
+              LLVMTableGenArg:
+              ClangTableGenArg:
+            arm64:
+              assetManifestOS: win
+              assetManifestPlatform: arm64
+              archflag: -arch arm64
+              LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\llvm-tblgen.exe
+              ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\clang-tblgen.exe
+            arm:
+              assetManifestOS: win
+              assetManifestPlatform: arm
+              archflag: -arch arm
+              LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\llvm-tblgen.exe
+              ClangTableGenArg: /p:ClangTableGenPath=$(Build.SourcesDirectory)\artifacts\obj\BuildRoot-x64\bin\clang-tblgen.exe
+        pool:
+          name: NetCore-Svc-Public
+          demands: ImageOverride -equals windows.vs2022.amd64.open
+        steps:
+        - script: |
+            git clean -ffdx
+            git reset --hard HEAD
+          displayName: 'Clean up working directory'
+
+        - powershell: eng\build.ps1 -ci -restore -build -arch x64 -configuration $(_BuildConfig) $(_InternalBuildArgs) /p:BuildLLVMTableGenOnly=true
+          displayName: 'Build host llvm-tblgen for cross-compiling'
+          condition: and(succeeded(), ne(variables['assetManifestPlatform'], 'x64'))
+
+        - powershell: eng\build.ps1 -ci -restore -build -pack $(archflag) -configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg) $(ClangTableGenArg)
+          displayName: 'Build and package'
