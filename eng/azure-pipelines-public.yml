@@ -89,11 +89,6 @@ stages:
           env:
             ROOTFS_DIR: $(rootfs)
 
-        - bash: |
-            ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) --projects $(Build.SourcesDirectory)/llvm.proj
-          displayName: Publish packages
-          condition: and(succeeded(), ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest'))
-
       ############ LINUX MUSL BUILD ############
       - job: Build_Linux_musl
         displayName: Linux_musl
@@ -169,11 +164,6 @@ stages:
             ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(ClangTargetArg) $(_InternalBuildArgs)
           displayName: 'Build and package'
 
-        - bash: |
-            ./eng/common/build.sh --ci --restore --publish --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) --projects $(Build.SourcesDirectory)/llvm.proj
-          displayName: Publish packages
-          condition: and(succeeded(), ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest'))
-
       ############ WINDOWS BUILD ############
       - job: Build_Windows
         displayName: Windows
@@ -224,7 +214,3 @@ stages:
 
         - powershell: eng\build.ps1 -ci -restore -build -pack $(archflag) -configuration $(_BuildConfig) $(_InternalBuildArgs) $(LLVMTableGenArg)
           displayName: 'Build and package'
-
-        - powershell: eng\common\build.ps1 -ci -restore -publish -configuration $(_BuildConfig) $(_InternalBuildArgs) /p:AssetManifestOS=$(_BuildConfig)-$(assetManifestOS) /p:PlatformName=$(assetManifestPlatform) -projects $(Build.SourcesDirectory)\llvm.proj
-          displayName: Publish packages
-          condition: and(succeeded(), ne(variables['System.TeamProject'], 'public'), ne(variables['Build.Reason'], 'PullRequest'))
