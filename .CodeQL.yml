@@ -1,0 +1,9 @@
+path_classifiers:
+  library:
+    # Nearly all folders in this repo are library code that we do not run static analysis
+    # over. We'll exclude folders that we wholly own. We instead rely on CG and similar
+    # registration mechanisms to report issues to us.
+    - "**/*"
+    - exclude:
+      - "eng"
+      - "nuget"
