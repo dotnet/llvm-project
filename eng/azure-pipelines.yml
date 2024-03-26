@@ -154,7 +154,7 @@ extends:
               displayName: 'Clean up working directory'
 
             - bash: |
-                ./build.sh --ci --restore --build --pack --arch x64 --configuration $(_BuildConfig) $(_InternalBuildArgs)
+                ./build.sh --ci --restore --build --pack --arch x64 --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:OutputRid=linux-musl-x64
               displayName: 'Build and package'
 
             - bash: |
@@ -183,7 +183,7 @@ extends:
               displayName: 'Build host llvm-tblgen for cross-compiling'
 
             - bash: |
-                ./build.sh --ci --restore --build --pack --arch arm64 --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/llvm-tblgen
+                ./build.sh --ci --restore --build --pack --arch arm64 --configuration $(_BuildConfig) $(_InternalBuildArgs) /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/llvm-tblgen /p:OutputRid=linux-musl-arm64
               displayName: 'Build and package'
               env:
                 ROOTFS_DIR: /crossrootfs/arm64
