@@ -157,7 +157,7 @@ extends:
               - _BuildConfig: Release
               pool:
                 name: Azure Pipelines
-                vmImage: macos-11
+                image: macos-11
                 os: macOS
               steps:
               - bash: |
