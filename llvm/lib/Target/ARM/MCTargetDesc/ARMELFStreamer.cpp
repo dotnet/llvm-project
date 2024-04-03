@@ -83,7 +83,6 @@ class ARMTargetAsmStreamer : public ARMTargetStreamer {
   void emitPad(int64_t Offset) override;
   void emitRegSave(const SmallVectorImpl<unsigned> &RegList,
                    bool isVector) override;
-  void emitLsda(const MCSymbol* Symbol) override;
   void emitUnwindRaw(int64_t Offset,
                      const SmallVectorImpl<uint8_t> &Opcodes) override;
 
@@ -380,8 +379,6 @@ void ARMTargetAsmStreamer::emitARMWinCFICustom(unsigned Opcode) {
   OS << "\n";
 }
 
-void ARMTargetAsmStreamer::emitLsda(const MCSymbol* Symbol) {}
-
 class ARMTargetELFStreamer : public ARMTargetStreamer {
 private:
   StringRef CurrentVendor;
@@ -407,7 +404,6 @@ private:
   void emitPad(int64_t Offset) override;
   void emitRegSave(const SmallVectorImpl<unsigned> &RegList,
                    bool isVector) override;
-  void emitLsda(const MCSymbol *Symbol) override;
   void emitUnwindRaw(int64_t Offset,
                      const SmallVectorImpl<uint8_t> &Opcodes) override;
 
@@ -475,7 +471,6 @@ public:
   void emitMovSP(unsigned Reg, int64_t Offset = 0);
   void emitPad(int64_t Offset);
   void emitRegSave(const SmallVectorImpl<unsigned> &RegList, bool isVector);
-  void emitLsda(const MCSymbol* Symbol);
   void emitUnwindRaw(int64_t Offset, const SmallVectorImpl<uint8_t> &Opcodes);
   void emitFill(const MCExpr &NumBytes, uint64_t FillValue,
                 SMLoc Loc) override {
@@ -552,18 +547,6 @@ public:
   /// necessary.
   void emitBytes(StringRef Data) override {
     emitDataMappingSymbol();
-    MCELFStreamer::emitBytes(Data);
-  }
-
-  /// This function is the one used to emit instruction data into the ELF
-  /// streamer. We override it to add the appropriate mapping symbol if
-  /// necessary.
-  void emitInstructionBytes(StringRef Data) override {
-    if (IsThumb)
-      EmitThumbMappingSymbol();
-    else
-      EmitARMMappingSymbol();
-
     MCELFStreamer::emitBytes(Data);
   }
 
@@ -744,7 +727,6 @@ private:
   bool CantUnwind;
   SmallVector<uint8_t, 64> Opcodes;
   UnwindOpcodeAssembler UnwindOpAsm;
-  const MCSymbol *Lsda;
 };
 
 } // end anonymous namespace
@@ -785,10 +767,6 @@ void ARMTargetELFStreamer::emitPad(int64_t Offset) {
 void ARMTargetELFStreamer::emitRegSave(const SmallVectorImpl<unsigned> &RegList,
                                        bool isVector) {
   getStreamer().emitRegSave(RegList, isVector);
-}
-
-void ARMTargetELFStreamer::emitLsda(const MCSymbol *Symbol) {
-  getStreamer().emitLsda(Symbol);
 }
 
 void ARMTargetELFStreamer::emitUnwindRaw(int64_t Offset,
@@ -1208,7 +1186,6 @@ void ARMELFStreamer::EHReset() {
   PendingOffset = 0;
   UsedFP = false;
   CantUnwind = false;
-  Lsda = nullptr;
 
   Opcodes.clear();
   UnwindOpAsm.Reset();
@@ -1311,8 +1288,6 @@ void ARMELFStreamer::FlushUnwindOpcodes(bool NoHandlerData) {
   }
 
   // Finalize the unwind opcode sequence
-  if (Lsda != nullptr && Opcodes.size() <= 4u)
-    PersonalityIndex = ARM::EHABI::AEABI_UNWIND_CPP_PR1;
   UnwindOpAsm.Finalize(PersonalityIndex, Opcodes);
 
   // For compact model 0, we have to emit the unwind opcodes in the .ARM.exidx
@@ -1357,13 +1332,7 @@ void ARMELFStreamer::FlushUnwindOpcodes(bool NoHandlerData) {
   //
   // In case that the .handlerdata directive is not specified by the
   // programmer, we should emit zero to terminate the handler data.
-  if (Lsda != nullptr) {
-    const MCSymbolRefExpr *LsdaRef =
-      MCSymbolRefExpr::create(Lsda,
-                              MCSymbolRefExpr::VK_None,
-                              getContext());
-    emitValue(LsdaRef, 4);
-  } else if (NoHandlerData && !Personality)
+  if (NoHandlerData && !Personality)
     emitInt32(0);
 }
 
@@ -1475,10 +1444,6 @@ void ARMELFStreamer::emitRegSave(const SmallVectorImpl<unsigned> &RegList,
       UnwindOpAsm.EmitRegSave(0);
     }
   }
-}
-
-void ARMELFStreamer::emitLsda(const MCSymbol *Symbol) {
-  Lsda = Symbol;
 }
 
 void ARMELFStreamer::emitUnwindRaw(int64_t Offset,

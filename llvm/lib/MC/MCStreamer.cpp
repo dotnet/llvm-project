@@ -1229,7 +1229,6 @@ void MCStreamer::changeSection(MCSection *Section, uint32_t) {
 }
 void MCStreamer::emitWeakReference(MCSymbol *Alias, const MCSymbol *Symbol) {}
 void MCStreamer::emitBytes(StringRef Data) {}
-void MCStreamer::emitInstructionBytes(StringRef Data) { emitBytes(Data); }
 void MCStreamer::emitBinaryData(StringRef Data) { emitBytes(Data); }
 void MCStreamer::emitValueImpl(const MCExpr *Value, unsigned Size, SMLoc Loc) {
   visitUsedExpr(*Value);

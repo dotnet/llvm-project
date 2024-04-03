@@ -138,7 +138,6 @@ static unsigned getFixupKindNumBytes(unsigned Kind) {
   case AArch64::fixup_aarch64_pcrel_call26:
   case FK_Data_4:
   case FK_SecRel_4:
-  case FK_PCRel_4:
     return 4;
 
   case FK_Data_8:
@@ -349,20 +348,14 @@ static uint64_t adjustFixupValue(const MCFixup &Fixup, const MCValue &Target,
   case FK_Data_8:
   case FK_SecRel_2:
   case FK_SecRel_4:
-  case FK_PCRel_4:
     return Value;
   }
 }
 
 std::optional<MCFixupKind>
 AArch64AsmBackend::getFixupKind(StringRef Name) const {
-  if (!TheTriple.isOSBinFormatELF()) {
-    return StringSwitch<std::optional<MCFixupKind>>(Name)
-      .Case("R_AARCH64_CALL26", (MCFixupKind)AArch64::fixup_aarch64_pcrel_call26)
-      .Case("R_AARCH64_ADR_PREL_PG_HI21", (MCFixupKind)AArch64::fixup_aarch64_pcrel_adrp_imm21)
-      .Case("R_AARCH64_ADD_ABS_LO12_NC", (MCFixupKind)AArch64::fixup_aarch64_add_imm12)
-      .Default(MCAsmBackend::getFixupKind(Name));
-  }
+  if (!TheTriple.isOSBinFormatELF())
+    return std::nullopt;
 
   unsigned Type = llvm::StringSwitch<unsigned>(Name)
 #define ELF_RELOC(X, Y)  .Case(#X, Y)
