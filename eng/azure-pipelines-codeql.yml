@@ -32,7 +32,7 @@ stages:
       ############ LINUX BUILD ############
       - job: Build_Linux
         displayName: Linux
-        timeoutInMinutes: 600
+        timeoutInMinutes: 720
         variables:
         - _BuildConfig: Release
         strategy:
@@ -77,7 +77,7 @@ stages:
       ############ WINDOWS BUILD ############
       - job: Build_Windows
         displayName: Windows
-        timeoutInMinutes: 600
+        timeoutInMinutes: 720
         strategy:
           matrix:
             # Release
