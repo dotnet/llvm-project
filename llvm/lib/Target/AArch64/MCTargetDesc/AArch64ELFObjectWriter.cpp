@@ -135,7 +135,6 @@ unsigned AArch64ELFObjectWriter::getRelocType(MCContext &Ctx,
       return ELF::R_AARCH64_NONE;
     case FK_Data_2:
       return R_CLS(PREL16);
-    case FK_PCRel_4:
     case FK_Data_4: {
       return Target.getAccessVariant() == MCSymbolRefExpr::VK_PLT
                  ? R_CLS(PLT32)
