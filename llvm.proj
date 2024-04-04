@@ -82,6 +82,7 @@
     <_LLVMBuildArgs Include="-DLLVM_BUILD_LLVM_C_DYLIB=OFF" />
     <_LLVMBuildArgs Include="-DLLVM_ENABLE_DIA_SDK=OFF" />
     <_LLVMBuildArgs Include="-DLLVM_INCLUDE_TESTS=OFF" />
+    <_LLVMBuildArgs Include="-DLLVM_INCLUDE_BENCHMARKS=OFF" />
     <_LLVMBuildArgs Include='-DLLVM_TARGETS_TO_BUILD="X86%3BAArch64%3BARM%3BWebAssembly"' />
     <_LLVMBuildArgs Include='-DLLVM_BUILD_TESTS=OFF' />
     <_LLVMBuildArgs Include='-DLLVM_BUILD_EXAMPLES=OFF' />
