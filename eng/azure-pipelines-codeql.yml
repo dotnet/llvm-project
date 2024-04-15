@@ -6,8 +6,7 @@ schedules:
     displayName: Weekly Monday CodeQL/Semmle run
     branches:
       include:
-      - dotnet/main*
-      - dotnet/release/*
+      - dotnet/main-16.x
     always: true
 
 variables:
