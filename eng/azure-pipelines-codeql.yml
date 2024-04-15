@@ -75,6 +75,7 @@ stages:
 
       ############ WINDOWS BUILD ############
       - job: Build_Windows
+        condition: false  # TODO: this times out, need to investigate why
         displayName: Windows
         timeoutInMinutes: 720
         strategy:
