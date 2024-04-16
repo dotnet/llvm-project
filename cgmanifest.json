@@ -1,0 +1,16 @@
+{
+    "$schema": "https://json.schemastore.org/component-detection-manifest.json",
+    "version": 1,
+    "registrations": [
+        {
+            "component": {
+                "type": "git",
+                "git": {
+                    "repositoryUrl": "https://github.com/llvm/llvm-project",
+                    "commitHash": "3f43d803382d57e3fc010ca19833077d1023e9c9"
+                }
+            },
+            "developmentDependency": false
+        }
+    ]
+}
