@@ -178,15 +178,17 @@ macro(add_tablegen target project)
   set(${target}_OLD_LLVM_LINK_COMPONENTS ${LLVM_LINK_COMPONENTS})
   set(LLVM_LINK_COMPONENTS ${LLVM_LINK_COMPONENTS} TableGen)
 
-  # CMake doesn't let compilation units depend on their dependent libraries on some generators.
-  if(NOT CMAKE_GENERATOR MATCHES "Ninja" AND NOT XCODE)
-    # FIXME: It leaks to user, callee of add_tablegen.
-    set(LLVM_ENABLE_OBJLIB ON)
-  endif()
+  # # CMake doesn't let compilation units depend on their dependent libraries on some generators.
+  # if(NOT CMAKE_GENERATOR MATCHES "Ninja" AND NOT XCODE)
+  #   # FIXME: It leaks to user, callee of add_tablegen.
+  #   set(LLVM_ENABLE_OBJLIB ON)
+  # endif()
 
-  if ((${project} STREQUAL LLVM OR ${project} STREQUAL MLIR) AND NOT LLVM_INSTALL_TOOLCHAIN_ONLY AND LLVM_BUILD_UTILS)
-    set(DEBUGINFO_INSTALL "DEBUGINFO_INSTALL")
-  endif()
+  # if ((${project} STREQUAL LLVM OR ${project} STREQUAL MLIR) AND NOT LLVM_INSTALL_TOOLCHAIN_ONLY AND LLVM_BUILD_UTILS)
+  #   set(DEBUGINFO_INSTALL "DEBUGINFO_INSTALL")
+  # endif()
+
+  # add_llvm_executable(${target} DISABLE_LLVM_LINK_LLVM_DYLIB ${DEBUGINFO_INSTALL} 
 
   add_llvm_executable(${target} DISABLE_LLVM_LINK_LLVM_DYLIB ${DEBUGINFO_INSTALL} 
     ${ADD_TABLEGEN_UNPARSED_ARGUMENTS})
