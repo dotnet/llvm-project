@@ -117,7 +117,6 @@
     <_LLVMBuildArgs Include="-DLLVM_INCLUDE_UTILS:BOOL=ON" />
     <_LLVMBuildArgs Include='-DCLANG_INCLUDE_TESTS=OFF' />
     <_LLVMBuildArgs Include='-DCLANG_ENABLE_ARCMT=OFF' />
-    <_LLVMBuildArgs Include='-DLLVM_ENABLE_LIBCXX=ON' />
     <_LLVMBuildArgs Include='-DCLANG_ENABLE_STATIC_ANALYZER=OFF' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include='-DCMAKE_POSITION_INDEPENDENT_CODE=ON' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include='-DCROSS_TOOLCHAIN_FLAGS_LLVM_NATIVE="-DCMAKE_C_COMPILER=clang%3B-DCMAKE_CXX_COMPILER=clang++%3B-DCMAKE_ASM_COMPILER=clang%3B-DCMAKE_EXE_LINKER_FLAGS_INIT=-fuse-ld=lld%3B-DCMAKE_SHARED_LINKER_FLAGS_INIT=-fuse-ld=lld"' />
@@ -130,16 +129,17 @@
   </ItemGroup>
 
   <PropertyGroup Condition="'$(BuildOS)' == 'Linux'">
-    <_LibCxxCFlags>-I$(_LibCxxInstallDir)/include/c++/v1 -L$(_LibCxxInstallDir)/lib -stdlib=libc++</_LibCxxCFlags>
+    <_LibCxxCFlags>-I$(_LibCxxInstallDir)/include/c++/v1 -nostdlib++</_LibCxxCFlags>
+    <_LibCxxLinkerFlags>-L$(_LibCxxInstallDir)/lib -nostdlib++ -lc++ -lc++abi</_LibCxxLinkerFlags>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(BuildOS)' != 'Windows_NT'">
     <_LLVMBuildArgs Include='-DCMAKE_C_FLAGS="-I../llvm/include -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CFlags)"' />
     <_LLVMBuildArgs Include='-DCMAKE_CXX_FLAGS="-I../llvm/include $(_LibCxxCFlags) -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CFlags) "' />
     <_LLVMBuildArgs Include='-DCMAKE_ASM_FLAGS="-I../llvm/include -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CFlags) "' />
-    <_LLVMBuildArgs Include='-DCMAKE_EXE_LINKER_FLAGS_INIT="$(_SharedLinkerFlags)"' />
-    <_LLVMBuildArgs Include='-DCMAKE_SHARED_LINKER_FLAGS_INIT="$(_SharedLinkerFlags)"' />
-    <_LLVMBuildArgs Include='-DCMAKE_MODULE_LINKER_FLAGS_INIT="$(_SharedLinkerFlags)"' />
+    <_LLVMBuildArgs Include='-DCMAKE_EXE_LINKER_FLAGS_INIT="$(_SharedLinkerFlags) $(_LibCxxLinkerFlags)"' />
+    <_LLVMBuildArgs Include='-DCMAKE_SHARED_LINKER_FLAGS_INIT="$(_SharedLinkerFlags) $(_LibCxxLinkerFlags)"' />
+    <_LLVMBuildArgs Include='-DCMAKE_MODULE_LINKER_FLAGS_INIT="$(_SharedLinkerFlags) $(_LibCxxLinkerFlags)"' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'OSX' and '$(TargetArchitecture)' == 'arm64'" Include='-DCMAKE_OSX_DEPLOYMENT_TARGET=11.0' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'OSX' and '$(TargetArchitecture)' == 'x64'" Include='-DCMAKE_OSX_DEPLOYMENT_TARGET=10.13' />
   </ItemGroup>
