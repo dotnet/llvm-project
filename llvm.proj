@@ -129,7 +129,7 @@
   </ItemGroup>
 
   <PropertyGroup Condition="'$(BuildOS)' == 'Linux'">
-    <_LibCxxCFlags>-I$(_LibCxxInstallDir)/include/c++/v1 -nostdlib++</_LibCxxCFlags>
+    <_LibCxxCFlags>-I$(_LibCxxInstallDir)/include/c++/v1 -nostdinc++ -nostdlib++</_LibCxxCFlags>
     <_LibCxxLinkerFlags>-L$(_LibCxxInstallDir)/lib -nostdlib++ -lc++ -lc++abi</_LibCxxLinkerFlags>
   </PropertyGroup>
 
