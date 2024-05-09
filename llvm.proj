@@ -252,7 +252,7 @@
     <!-- Files previously marked for removal, which we want exceptions for (i.e. to keep after all) -->
     <ItemGroup>
       <FilesToDelete Remove="$(_LLVMInstallDir)/bin/clang-apply-replacements*" />
-      <FilesToDelete Remove="$(_LLVMInstallDir)/bin/clang-16*" />
+      <FilesToDelete Remove="$(_LLVMInstallDir)/bin/clang-19*" />
       <FilesToDelete Remove="$(_LLVMInstallDir)/bin/clang-cl*" />
       <FilesToDelete Remove="$(_LLVMInstallDir)/bin/clang-cpp*" />
       <FilesToDelete Remove="$(_LLVMInstallDir)/bin/clang-format*" />
