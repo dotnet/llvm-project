@@ -236,7 +236,7 @@ emitCFIInstructions(MCStreamer &streamer,
       MCSymbol *ThisSym = Label;
       if (ThisSym != BaseLabel) {
         OS->AddComment ("cfa_advance");
-        OS->emitDwarfAdvanceFrameAddr(BaseLabel, ThisSym);
+        OS->emitDwarfAdvanceFrameAddr(BaseLabel, ThisSym, Instr.getLoc());
         BaseLabel = ThisSym;
       }
     }
