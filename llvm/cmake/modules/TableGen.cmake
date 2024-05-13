@@ -184,9 +184,9 @@ macro(add_tablegen target project)
   #   set(LLVM_ENABLE_OBJLIB ON)
   # endif()
 
-  # if ((${project} STREQUAL LLVM OR ${project} STREQUAL MLIR) AND NOT LLVM_INSTALL_TOOLCHAIN_ONLY AND LLVM_BUILD_UTILS)
-  #   set(DEBUGINFO_INSTALL "DEBUGINFO_INSTALL")
-  # endif()
+  if ((${project} STREQUAL LLVM OR ${project} STREQUAL MLIR) AND NOT LLVM_INSTALL_TOOLCHAIN_ONLY AND LLVM_BUILD_UTILS)
+    set(DEBUGINFO_INSTALL "DEBUGINFO_INSTALL")
+  endif()
 
   # add_llvm_executable(${target} DISABLE_LLVM_LINK_LLVM_DYLIB ${DEBUGINFO_INSTALL} 
 
