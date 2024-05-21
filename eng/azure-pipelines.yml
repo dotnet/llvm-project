@@ -83,6 +83,10 @@ extends:
   template: v1/1ES.Official.PipelineTemplate.yml@1ESPipelineTemplates
   parameters:
     sdl:
+      codeql:
+        compiled:
+          enabled: false
+          justificationForDisabling: CodeQL times out on Windows even after 10 hours timeout
       sourceAnalysisPool:
         name: $(DncEngInternalBuildPool)
         image: 1es-windows-2022
