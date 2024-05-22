@@ -13,5 +13,11 @@
     <File Include="$(_LLVMInstallDir)\bin\clang-format.dwarf" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\clang-tidy" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\clang-tidy.dwarf" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\ld.lld" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\ld64.lld" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\lld" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\lld.dwarf" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\lld-link" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\wasm-ld" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
   </ItemGroup>
 </Project>
