@@ -6,13 +6,8 @@
     <File Include="$(_LLVMInstallDir)\bin\count" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\count.dwarf" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\git-clang-format" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
-    <File Include="$(_LLVMInstallDir)\bin\ld.lld" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
-    <File Include="$(_LLVMInstallDir)\bin\ld64.lld" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\llc" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\llc.dwarf" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
-    <File Include="$(_LLVMInstallDir)\bin\lld" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
-    <File Include="$(_LLVMInstallDir)\bin\lld.dwarf" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
-    <File Include="$(_LLVMInstallDir)\bin\lld-link" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\llvm-ar" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\llvm-ar.dwarf" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\llvm-as" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
@@ -57,7 +52,6 @@
     <File Include="$(_LLVMInstallDir)\bin\size" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\strings" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\strip" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
-    <File Include="$(_LLVMInstallDir)\bin\wasm-ld" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\yaml-bench" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\yaml-bench.dwarf" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
     <File Include="$(_LLVMInstallDir)\bin\FileCheck" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
