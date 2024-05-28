@@ -36,5 +36,6 @@
     <File Include="$(_LLVMInstallDir)\lib\clang\$(LLVMVersionShort)\include\**" TargetPath="tools\$(PackageTargetRuntime)\lib\clang\$(LLVMVersionShort)\include\%(RecursiveDir)\" />
     <File Include="$(_LibCxxInstallDir)\lib\libc++.so.1" TargetPath="tools\$(PackageTargetRuntime)\lib\" />
     <File Include="$(_LibCxxInstallDir)\lib\libc++abi.so.1" TargetPath="tools\$(PackageTargetRuntime)\lib\" />
+    <File Include="$(_LibCxxInstallDir)\lib\libunwind.so.1" TargetPath="tools\$(PackageTargetRuntime)\lib\" />
   </ItemGroup>
 </Project>
