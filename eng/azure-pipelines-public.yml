@@ -93,7 +93,7 @@ stages:
               archflag: --arch arm64
               LLVMTableGenArg: /p:LLVMTableGenPath=$(Build.SourcesDirectory)/artifacts/obj/BuildRoot-x64/bin/llvm-tblgen
         pool:
-          vmImage: macos-11
+          vmImage: macos-12
         steps:
         - bash: |
             set -ex
