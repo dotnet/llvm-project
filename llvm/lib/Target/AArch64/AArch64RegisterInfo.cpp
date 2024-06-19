@@ -647,6 +647,13 @@ bool AArch64RegisterInfo::isArgumentRegister(const MachineFunction &MF,
     if (STI.isTargetWindows())
       return HasReg(CC_AArch64_Win64PCS_ArgRegs, Reg);
     return HasReg(CC_AArch64_AAPCS_ArgRegs, Reg);
+  case CallingConv::Mono:
+    if (STI.isTargetDarwin())
+      return HasReg(CC_AArch64_Mono_DarwinPCS_ArgRegs, Reg);
+    else if (STI.isTargetWindows())
+      report_fatal_error("Unsupported calling convention.");
+    else
+      return HasReg(CC_AArch64_Mono_AAPCS_ArgRegs, Reg);
   }
 }
 
