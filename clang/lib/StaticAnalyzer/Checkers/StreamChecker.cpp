@@ -10,6 +10,11 @@
 //
 //===----------------------------------------------------------------------===//
 
+// work around MSVC bug: https://developercommunity.visualstudio.com/t/C1001-triggered-by-StreamCheckercpp-of/10667148
+#ifdef _MSC_VER
+#pragma optimize ("", off)
+#endif
+
 #include "clang/StaticAnalyzer/Checkers/BuiltinCheckerRegistration.h"
 #include "clang/StaticAnalyzer/Core/BugReporter/BugType.h"
 #include "clang/StaticAnalyzer/Core/Checker.h"
