@@ -10,6 +10,11 @@
 //
 //===----------------------------------------------------------------------===//
 
+// work around MSVC bug: https://developercommunity.visualstudio.com/t/C1001-triggered-by-StreamCheckercpp-of/10667148
+#if defined(_MSC_VER) && (_MSC_VER < 1941)
+#pragma optimize("", off)
+#endif
+
 #include "NoOwnershipChangeVisitor.h"
 #include "clang/ASTMatchers/ASTMatchFinder.h"
 #include "clang/ASTMatchers/ASTMatchers.h"
