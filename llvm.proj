@@ -92,7 +92,6 @@
     <_LLVMBuildArgs Include='-DLLVM_BUILD_TESTS=OFF' />
     <_LLVMBuildArgs Include='-DLLVM_BUILD_EXAMPLES=OFF' />
     <_LLVMBuildArgs Include='-DLLVM_INCLUDE_EXAMPLES=OFF' />
-    <_LLVMBuildArgs Include='-DLLVM_TOOLS_TO_BUILD="llc%3Bllvm-addr2line%3Bllvm-ar%3Bllvm-as%3Bllvm-config%3Bllvm-cxxfilt%3Bllvm-dis%3Bllvm-dwarfdump%3Bllvm-dwp%3Bllvm-mc%3Bllvm-mca%3Bllvm-nm%3Bllvm-objcopy%3Bllvm-objdump%3Bllvm-ranlib%3Bllvm-readobj%3Bllvm-size%3Bllvm-strings%3Bllvm-strip%3Bllvm-symbolizer%3Bopt%3BFileCheck"' />
     <_LLVMBuildArgs Include='-DLLVM_INSTALL_BINUTILS_SYMLINKS=TRUE' />
     <_LLVMBuildArgs Include='-DLLVM_ENABLE_LIBXML2=OFF' />
     <_LLVMBuildArgs Include='-DLLVM_ENABLE_TERMINFO=OFF' />
