@@ -83,7 +83,6 @@
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'OSX'" Include="-DCMAKE_SYSTEM_NAME=Darwin" />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'FreeBSD'" Include="-DCMAKE_SYSTEM_NAME=FreeBSD" />
     <_LLVMBuildArgs Include="-DCMAKE_BUILD_TYPE=Release" />
-    <_LLVMBuildArgs Include='-DLEGAL_COPYRIGHT="\xa9 Microsoft Corporation. All rights reserved."' />
     <_LLVMBuildArgs Include="-DLLVM_BUILD_LLVM_C_DYLIB=OFF" />
     <_LLVMBuildArgs Include="-DLLVM_ENABLE_DIA_SDK=OFF" />
     <_LLVMBuildArgs Include="-DLLVM_INCLUDE_TESTS=OFF" />
@@ -98,8 +97,9 @@
     <_LLVMBuildArgs Include='-DLLVM_ENABLE_ZSTD=OFF' />
     <_LLVMBuildArgs Include='-DLLVM_EXTERNALIZE_DEBUGINFO=ON' />
     <_LLVMBuildArgs Include='-DLLVM_EXTERNALIZE_DEBUGINFO_INSTALL=ON' />
-    <_LLVMBuildArgs Include='-DLLVM_ENABLE_PDB=ON' />
     <_LLVMBuildArgs Include='-DCOMPILER_RT_USE_LLVM_UNWINDER=OFF' />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT'" Include='-DLLVM_ENABLE_PDB=ON' />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT'" Include='-DLEGAL_COPYRIGHT="\xa9 Microsoft Corporation. All rights reserved."' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include='-DLLVM_EXTERNALIZE_DEBUGINFO_EXTENSION=dbg' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'OSX'" Include='-DLLVM_EXTERNALIZE_DEBUGINFO_EXTENSION=dwarf -DLLVM_EXTERNALIZE_DEBUGINFO_FLATTEN=ON' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'FreeBSD'" Include='-DLLVM_EXTERNALIZE_DEBUGINFO_EXTENSION=dbg' />
