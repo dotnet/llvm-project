@@ -103,10 +103,8 @@
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include='-DLLVM_EXTERNALIZE_DEBUGINFO_EXTENSION=dbg' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'OSX'" Include='-DLLVM_EXTERNALIZE_DEBUGINFO_EXTENSION=dwarf -DLLVM_EXTERNALIZE_DEBUGINFO_FLATTEN=ON' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'FreeBSD'" Include='-DLLVM_EXTERNALIZE_DEBUGINFO_EXTENSION=dbg' />
-    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT' and '$(Configuration)' == 'Release'" Include='-DLLVM_USE_CRT_DEBUG=MT' />
-    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT' and '$(Configuration)' == 'Release'" Include='-DLLVM_USE_CRT_RELEASE=MT' />
-    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT' and '$(Configuration)' == 'Debug'" Include='-DLLVM_USE_CRT_DEBUG=MTd' />
-    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT' and '$(Configuration)' == 'Debug'" Include='-DLLVM_USE_CRT_RELEASE=MTd' />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT' and '$(Configuration)' == 'Release'" Include='-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded' />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT' and '$(Configuration)' == 'Debug'" Include='-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDebug' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT'" Include='-DLLVM_NATIVE_TOOL_DIR=$(NativeTablegenDir)' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' != 'Windows_NT'" Include='-DLLVM_ENABLE_ZLIB=FORCE_ON' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' != 'Windows_NT' and '$(LibsRoot)' != ''" Include='-DZLIB_ROOT=$(LibsRoot)' />
