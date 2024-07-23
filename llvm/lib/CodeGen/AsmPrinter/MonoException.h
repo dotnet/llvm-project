@@ -28,7 +28,6 @@ public:
 
   void endFunction(const MachineFunction *) override;
 
-  void beginInstruction(const MachineInstr *MI) override;
 private:
 
   struct MonoCallSiteEntry {
