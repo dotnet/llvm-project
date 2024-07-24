@@ -17,6 +17,8 @@ namespace llvm {
 
 class TargetRegisterInfo;
 
+// TODO: we need to use DebugHandlerBase and addDebugHandler, so that beginInstruction is called
+// context https://github.com/llvm/llvm-project/pull/96785
 class MonoException : public EHStreamer {
 public:
   MonoException(AsmPrinter *A, bool disableGNUEH);
