@@ -1,0 +1,9 @@
+{
+    "tool": "Credential Scanner",
+    "suppressions": [
+        {
+            "_justification": "Upstream code and these are supposed to be public passwords.",
+            "file": "flang/docs/GettingInvolved.md"
+        }
+    ]
+}
