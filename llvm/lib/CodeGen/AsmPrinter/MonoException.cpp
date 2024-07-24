@@ -652,3 +652,27 @@ MonoException::endModule()
   streamer.emitLabel(tableEndSym);
   Asm->emitAlignment(llvm::Align(8));
 }
+
+MonoExceptionDebugHandler::MonoExceptionDebugHandler(AsmPrinter *A, MonoException *ME)
+  : DebugHandlerBase(A), me(ME)
+{
+}
+
+void
+MonoExceptionDebugHandler::beginInstruction(const MachineInstr *MI)
+{
+       if (MI->getOpcode() == TargetOpcode::CFI_INSTRUCTION) {
+               unsigned CFIIndex = MI->getOperand(0).getCFIIndex();
+
+               //outs () << "D: " << CFIIndex << " " << EHLabels.size() << "\n";
+
+               /* Emit a label and save the label-cfi index association */
+               if (CFIIndex != me->EHLabels.size())
+                       assert (0);
+
+               MCSymbol *Label = Asm->OutContext.createTempSymbol();
+               Asm->OutStreamer->emitLabel(Label);
+
+               me->EHLabels.push_back(Label);
+       }
+}
