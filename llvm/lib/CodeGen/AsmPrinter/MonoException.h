@@ -12,13 +12,12 @@
 
 #include "EHStreamer.h"
 #include "llvm/CodeGen/AsmPrinter.h"
+#include "llvm/CodeGen/DebugHandlerBase.h"
 
 namespace llvm {
 
 class TargetRegisterInfo;
 
-// TODO: we need to use DebugHandlerBase and addDebugHandler, so that beginInstruction is called
-// context https://github.com/llvm/llvm-project/pull/96785
 class MonoException : public EHStreamer {
 public:
   MonoException(AsmPrinter *A, bool disableGNUEH);
@@ -29,6 +28,8 @@ public:
   void beginFunction(const MachineFunction *MF) override;
 
   void endFunction(const MachineFunction *) override;
+
+  std::vector<MCSymbol*> EHLabels;
 
 private:
 
@@ -71,12 +72,28 @@ private:
   void EmitFnStart();
   void EmitFnEnd();
 
-  std::vector<MCSymbol*> EHLabels;
   std::vector<EHInfo> Frames;
   StringMap<int> FuncIndexes;
   const TargetRegisterInfo *RI;
   bool DisableGNUEH;
 };
+
+class MonoExceptionDebugHandler : public DebugHandlerBase {
+
+  public:
+
+    MonoExceptionDebugHandler(AsmPrinter *A, MonoException* ME);
+
+    void beginInstruction(const MachineInstr *MI) override;
+
+    void beginFunctionImpl(const MachineFunction *MF) override {}
+    void endFunctionImpl(const MachineFunction *MF) override {}
+    void endModule() override {}
+
+    private:
+      MonoException* me;
+};
+
 } // End of namespace llvm
 
 #endif
