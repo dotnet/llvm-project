@@ -85,9 +85,11 @@ class MonoExceptionDebugHandler : public DebugHandlerBase {
     MonoExceptionDebugHandler(AsmPrinter *A, MonoException* ME);
 
     void beginInstruction(const MachineInstr *MI) override;
+    void endInstruction() override {}
 
     void beginFunctionImpl(const MachineFunction *MF) override {}
     void endFunctionImpl(const MachineFunction *MF) override {}
+    void beginModule(Module *M) override {}
     void endModule() override {}
 
     private:
