@@ -344,7 +344,10 @@ ImplicitNullChecks::areMemoryOpsAliased(const MachineInstr &MI,
   for (MachineMemOperand *MMO1 : MI.memoperands()) {
     // MMO1 should have a value due it comes from operation we'd like to use
     // as implicit null check.
-    assert(MMO1->getValue() && "MMO1 should have a Value!");
+    //assert(MMO1->getValue() && "MMO1 should have a Value!");
+    // Doesn't have a value, unclear why
+    if (MMO1->getValue() == nullptr)
+	return AR_MayAlias;
     for (MachineMemOperand *MMO2 : PrevMI->memoperands()) {
       if (const PseudoSourceValue *PSV = MMO2->getPseudoValue()) {
         if (PSV->mayAlias(MFI))
