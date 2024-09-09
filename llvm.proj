@@ -82,7 +82,8 @@
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include="-DCMAKE_SYSTEM_NAME=Linux" />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'OSX'" Include="-DCMAKE_SYSTEM_NAME=Darwin" />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'FreeBSD'" Include="-DCMAKE_SYSTEM_NAME=FreeBSD" />
-    <_LLVMBuildArgs Include="-DCMAKE_BUILD_TYPE=$(Configuration)" />
+    <_LLVMBuildArgs Include="-DCMAKE_BUILD_TYPE=$(Configuration)" Condition="'$(BuildOS)' != 'Windows_NT'" />
+    <_LLVMBuildArgs Include="-DCMAKE_BUILD_TYPE=Release" Condition="'$(BuildOS)' == 'Windows_NT'" />
     <_LLVMBuildArgs Include="-DLLVM_BUILD_LLVM_C_DYLIB=OFF" />
     <_LLVMBuildArgs Include="-DLLVM_ENABLE_DIA_SDK=OFF" />
     <_LLVMBuildArgs Include="-DLLVM_INCLUDE_TESTS=OFF" />
