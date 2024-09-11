@@ -82,7 +82,8 @@
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include="-DCMAKE_SYSTEM_NAME=Linux" />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'OSX'" Include="-DCMAKE_SYSTEM_NAME=Darwin" />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'FreeBSD'" Include="-DCMAKE_SYSTEM_NAME=FreeBSD" />
-    <_LLVMBuildArgs Include="-DCMAKE_BUILD_TYPE=Release" />
+    <_LLVMBuildArgs Include="-DCMAKE_BUILD_TYPE=$(Configuration)" Condition="'$(BuildOS)' != 'Windows_NT'" />
+    <_LLVMBuildArgs Include="-DCMAKE_BUILD_TYPE=Release" Condition="'$(BuildOS)' == 'Windows_NT'" />
     <_LLVMBuildArgs Include="-DLLVM_BUILD_LLVM_C_DYLIB=OFF" />
     <_LLVMBuildArgs Include="-DLLVM_ENABLE_DIA_SDK=OFF" />
     <_LLVMBuildArgs Include="-DLLVM_INCLUDE_TESTS=OFF" />
@@ -130,11 +131,14 @@
     <_LibCxxCFlags>-I$(_LibCxxInstallDir)/include/c++/v1 -nostdinc++ -nostdlib++</_LibCxxCFlags>
     <_LibCxxLinkerFlags>-L$(_LibCxxInstallDir)/lib -nostdlib++ -lc++ -lc++abi</_LibCxxLinkerFlags>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <_CMakeExtraCFlags>-DNDEBUG</_CMakeExtraCFlags>
+  </PropertyGroup>
 
   <ItemGroup Condition="'$(BuildOS)' != 'Windows_NT'">
-    <_LLVMBuildArgs Include='-DCMAKE_C_FLAGS="-I../llvm/include -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CFlags)"' />
-    <_LLVMBuildArgs Include='-DCMAKE_CXX_FLAGS="-I../llvm/include $(_LibCxxCFlags) -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CFlags) "' />
-    <_LLVMBuildArgs Include='-DCMAKE_ASM_FLAGS="-I../llvm/include -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CFlags) "' />
+    <_LLVMBuildArgs Include='-DCMAKE_C_FLAGS="-I../llvm/include -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CMakeExtraCFlags) -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CFlags)"' />
+    <_LLVMBuildArgs Include='-DCMAKE_CXX_FLAGS="-I../llvm/include $(_LibCxxCFlags) -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CMakeExtraCFlags) -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CFlags) "' />
+    <_LLVMBuildArgs Include='-DCMAKE_ASM_FLAGS="-I../llvm/include -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CMakeExtraCFlags) -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CFlags) "' />
     <_LLVMBuildArgs Include='-DCMAKE_EXE_LINKER_FLAGS_INIT="$(_SharedLinkerFlags) $(_LibCxxLinkerFlags)"' />
     <_LLVMBuildArgs Include='-DCMAKE_SHARED_LINKER_FLAGS_INIT="$(_SharedLinkerFlags) $(_LibCxxLinkerFlags)"' />
     <_LLVMBuildArgs Include='-DCMAKE_MODULE_LINKER_FLAGS_INIT="$(_SharedLinkerFlags) $(_LibCxxLinkerFlags)"' />
@@ -158,9 +162,9 @@
       <_LibCxxBuildArgs Include="-DCMAKE_C_COMPILER=clang" />
       <_LibCxxBuildArgs Include="-DCMAKE_CXX_COMPILER=clang++" />
       <_LibCxxBuildArgs Include="-DCMAKE_ASM_COMPILER=clang" />
-      <_LibCxxBuildArgs Include='-DCMAKE_C_FLAGS="-D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CFlags)"' />
-      <_LibCxxBuildArgs Include='-DCMAKE_CXX_FLAGS="-D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CFlags)"' />
-      <_LibCxxBuildArgs Include='-DCMAKE_ASM_FLAGS="-D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -DNDEBUG -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CFlags)"' />
+      <_LibCxxBuildArgs Include='-DCMAKE_C_FLAGS="-D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CMakeExtraCFlags) -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CFlags)"' />
+      <_LibCxxBuildArgs Include='-DCMAKE_CXX_FLAGS="-D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CMakeExtraCFlags) -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CFlags)"' />
+      <_LibCxxBuildArgs Include='-DCMAKE_ASM_FLAGS="-D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CMakeExtraCFlags) -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CFlags)"' />
       <_LibCxxBuildArgs Include='-DCMAKE_EXE_LINKER_FLAGS_INIT="-Wl,--build-id -fuse-ld=lld"' />
       <_LibCxxBuildArgs Include='-DCMAKE_SHARED_LINKER_FLAGS_INIT="-Wl,--build-id -fuse-ld=lld"' />
       <_LibCxxBuildArgs Include='-DCMAKE_MODULE_LINKER_FLAGS_INIT="-Wl,--build-id -fuse-ld=lld"' />
