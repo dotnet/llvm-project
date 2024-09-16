@@ -1,14 +1,6 @@
 trigger:
   none
 
-schedules:
-  - cron: 0 12 * * 1
-    displayName: Weekly Monday CodeQL/Semmle run
-    branches:
-      include:
-      - dotnet/main-16.x
-    always: true
-
 variables:
   - template: /eng/common-variables.yml
   - template: /eng/common/templates/variables/pool-providers.yml
