@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.Build.Traversal">
   <ItemGroup Condition="'$(BuildJitToolsOnly)' != 'true'">
+    <ProjectReference Condition="'$(Configuration)' == 'Release'" Include="Microsoft.NETCore.Runtime.Mono.LLVM.Libclang\Microsoft.NETCore.Runtime.Mono.LLVM.Libclang.builds" />
     <ProjectReference Condition="'$(Configuration)' == 'Release'" Include="Microsoft.NETCore.Runtime.Mono.LLVM.Sdk\Microsoft.NETCore.Runtime.Mono.LLVM.Sdk.builds" />
     <ProjectReference Condition="'$(Configuration)' == 'Release'" Include="Microsoft.NETCore.Runtime.Mono.LLVM.Tools\Microsoft.NETCore.Runtime.Mono.LLVM.Tools.builds" />
     <ProjectReference Condition="'$(Configuration)' == 'Release'" Include="Microsoft.NETCore.Runtime.Mono.LLVM.Wasm.A.Transport\Microsoft.NETCore.Runtime.Mono.LLVM.Wasm.A.Transport.builds" />

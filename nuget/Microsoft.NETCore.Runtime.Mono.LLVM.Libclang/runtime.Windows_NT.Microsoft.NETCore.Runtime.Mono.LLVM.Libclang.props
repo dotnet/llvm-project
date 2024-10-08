@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ItemGroup>
+    <File Include="$(ProjectDir)\clang\bindings\python\clang\**" TargetPath="tools\python-bindings" />
+    <File Include="$(_LLVMInstallDir)\bin\libclang.dll" TargetPath="tools\libclang.dll" />
+  </ItemGroup>
+</Project>

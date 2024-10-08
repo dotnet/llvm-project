@@ -10,6 +10,11 @@
         "CommonTypes": [ ]
     },
     {
+        "Name": "Microsoft.NETCore.Runtime.Mono.LLVM.Libclang",
+        "Description": "The libclang library and Python bindings.",
+        "CommonTypes": [ ]
+    },
+    {
         "Name": "Microsoft.NETCore.Runtime.Mono.LLVM.Sdk",
         "Description": "The .NET Core fork of the LLVM project, used to compile the Mono .NET Core runtime in LLVM JIT mode. Internal implementation package not meant for direct consumption.  Please do not reference directly.",
         "CommonTypes": [ ]
