@@ -62,10 +62,14 @@ stages:
             git clean -ffdx
             git reset --hard HEAD
           displayName: 'Clean up working directory'
-        
+
         - bash: |
             tdnf install -y which
           displayName: 'Install CodeQL dependencies'
+
+        - bash: |
+            tdnf install -y zlib-devel
+          displayName: 'Install build dependencies'
 
         - task: CodeQL3000Init@0
           displayName: Initialize CodeQL (manually-injected)

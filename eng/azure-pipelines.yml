@@ -141,6 +141,10 @@ extends:
                 displayName: 'Clean up working directory'
 
               - bash: |
+                  tdnf install -y zlib-devel
+                displayName: 'Install build dependencies'
+
+              - bash: |
                   ./build.sh --ci --restore --build --pack --arch ${{ buildjob.arch }} --configuration $(_BuildConfig) $(_InternalBuildArgs) ${{ buildjob.ClangBinDirArg }} ${{ buildjob.ClangTargetArg }} ${{ buildjob.ExtraArgs }}
                 displayName: 'Build and package'
                 env:
