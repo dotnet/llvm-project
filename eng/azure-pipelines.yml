@@ -141,7 +141,7 @@ extends:
                 displayName: 'Clean up working directory'
 
               - bash: |
-                  sudo tdnf install -y zlib-devel
+                  su -c "tdnf install -y zlib-devel"
                 displayName: 'Install build dependencies'
 
               - bash: |

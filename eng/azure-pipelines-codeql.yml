@@ -64,11 +64,11 @@ stages:
           displayName: 'Clean up working directory'
 
         - bash: |
-            sudo tdnf install -y which
+            su -c "tdnf install -y which"
           displayName: 'Install CodeQL dependencies'
 
         - bash: |
-            sudo tdnf install -y zlib-devel
+            su -c "tdnf install -y zlib-devel"
           displayName: 'Install build dependencies'
 
         - task: CodeQL3000Init@0
