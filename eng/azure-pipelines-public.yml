@@ -77,7 +77,7 @@ stages:
           displayName: 'Clean up working directory'
 
         - bash: |
-            tdnf install -y zlib-devel
+            sudo tdnf install -y zlib-devel
           displayName: 'Install build dependencies'
 
         - bash: |
@@ -125,7 +125,7 @@ stages:
           displayName: 'Clean up working directory'
 
         - bash: |
-            tdnf install -y zlib-devel
+            sudo tdnf install -y zlib-devel
           displayName: 'Install build dependencies'
 
         - bash: |
