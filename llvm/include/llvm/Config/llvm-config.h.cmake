@@ -152,4 +152,7 @@
 /* Define to 1 to enable LLVM OnDisk Content Addressable Storage */
 #cmakedefine01 LLVM_ENABLE_ONDISK_CAS
 
+/* Mono api version */
+#cmakedefine MONO_API_VERSION ${MONO_API_VERSION}
+
 #endif
