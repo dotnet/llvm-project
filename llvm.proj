@@ -123,9 +123,9 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(BuildOS)' != 'Windows_NT'">
-    <_LLVMBuildArgs Include="-DCMAKE_C_COMPILER=clang" />
-    <_LLVMBuildArgs Include="-DCMAKE_CXX_COMPILER=clang++" />
-    <_LLVMBuildArgs Include="-DCMAKE_ASM_COMPILER=clang" />
+    <_LLVMBuildArgs Include="-DCMAKE_C_COMPILER=clang-20" />
+    <_LLVMBuildArgs Include="-DCMAKE_CXX_COMPILER=clang++-20" />
+    <_LLVMBuildArgs Include="-DCMAKE_ASM_COMPILER=clang-20" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(BuildOS)' == 'Linux'">
@@ -162,9 +162,9 @@
   <Target Name="_LibCxxBootstrap" Condition="'$(BuildOS)' == 'Linux'" BeforeTargets="_LLVMBuild">
     <ItemGroup>
       <_LibCxxBuildArgs Include='-DLLVM_ENABLE_RUNTIMES="libcxx%3Blibcxxabi%3Blibunwind"' />
-      <_LibCxxBuildArgs Include="-DCMAKE_C_COMPILER=clang" />
-      <_LibCxxBuildArgs Include="-DCMAKE_CXX_COMPILER=clang++" />
-      <_LibCxxBuildArgs Include="-DCMAKE_ASM_COMPILER=clang" />
+      <_LibCxxBuildArgs Include="-DCMAKE_C_COMPILER=clang-20" />
+      <_LibCxxBuildArgs Include="-DCMAKE_CXX_COMPILER=clang++-20" />
+      <_LibCxxBuildArgs Include="-DCMAKE_ASM_COMPILER=clang-20" />
       <_LibCxxBuildArgs Include='-DCMAKE_C_FLAGS="-D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CMakeExtraCFlags) -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CFlags)"' />
       <_LibCxxBuildArgs Include='-DCMAKE_CXX_FLAGS="-D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CMakeExtraCFlags) -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CFlags)"' />
       <_LibCxxBuildArgs Include='-DCMAKE_ASM_FLAGS="-D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CMakeExtraCFlags) -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CFlags)"' />
@@ -176,6 +176,8 @@
       <_LibCxxBuildArgs Include="-DCMAKE_CXX_COMPILER_TARGET=$(ClangTarget)" />
       <_LibCxxBuildArgs Include="-DLLVM_DEFAULT_TARGET_TRIPLE=$(ClangTarget)" />
       <_LibCxxBuildArgs Include="-DLIBCXXABI_USE_LLVM_UNWINDER=OFF" />
+      <_LibCxxBuildArgs Include="-DLIBCXX_INCLUDE_TESTS=OFF" />
+      <_LibCxxBuildArgs Include="-DLIBCXXABI_INCLUDE_TESTS=OFF" />
       <_LibCxxBuildArgs Condition="$(ClangTarget.ToLowerInvariant().Contains('musl'))" Include="-DLIBCXX_HAS_MUSL_LIBC=ON" />
     </ItemGroup>
     <PropertyGroup>
