@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
+  <metadata>
+    <id>Microsoft.Signed.Wix</id>
+    <version>3.14.1-11027.2914512</version>
+    <title>WiX: Windows Installer XML Toolset</title>
+    <authors>Microsoft</authors>
+    <owners>Microsoft</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MS-RL</license>
+    <licenseUrl>https://licenses.nuget.org/MS-RL</licenseUrl>
+    <icon>wix-white-bg.png</icon>
+    <readme>README.md</readme>
+    <projectUrl>http://wixtoolset.org/</projectUrl>
+    <description>This package simply bundles the official binaries as a nuget, with all binaries under tools. An MSBuild
+.props file automatically resolves a .wixproj targets and paths to that location.
+This allows build scripts to just install this package (potentially using -ExcludeVersion) and use it to build MSIs without requiring additional software on a build server.
+
+WiX binaries such as custom action and bootstrapper DLLs have been signed with the Microsoft 3rd Party App SHA2 certificate.</description>
+    <summary>The most powerful set of tools available to create your Windows installation experience.</summary>
+    <copyright>© Microsoft Corporation. All rights reserved.</copyright>
+    <tags>FireGiant WiX</tags>
+  </metadata>
+</package>

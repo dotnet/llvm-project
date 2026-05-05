@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>Microsoft.VisualStudioEng.MicroBuild.Core</id>
+    <version>1.0.0</version>
+    <authors>Microsoft</authors>
+    <owners>Microsoft</owners>
+    <developmentDependency>true</developmentDependency>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <licenseUrl>http://microsoft.mit-license.org/</licenseUrl>
+    <projectUrl>https://aka.ms/microbuild.package</projectUrl>
+    <iconUrl>https://github.com/MicrosoftDocs/Microbuild.Core/blob/master/extension-icon.png?raw=true</iconUrl>
+    <description>MicroBuild bootstrapper package which wires up build targets that load and execute other MicroBuild plugins during the build</description>
+    <releaseNotes>Update SwixBuild plugin to have a Microsoft.VisualStudioEng prefix for security.</releaseNotes>
+    <copyright>© Microsoft Corporation. All rights reserved.</copyright>
+    <language>en-US</language>
+    <tags>MicroBuild</tags>
+  </metadata>
+</package>

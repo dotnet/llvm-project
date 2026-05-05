@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>Microsoft.DotNet.MacOsPkg.Cli</id>
+    <version>11.0.0-beta.26204.1</version>
+    <authors>Microsoft</authors>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
+    <icon>Icon.png</icon>
+    <projectUrl>https://github.com/dotnet/arcade</projectUrl>
+    <description>The MacOsPkg CLI tool is used for unpacking, packing, and validating MacOS .pkg files and nested .app bundles.</description>
+    <copyright>© Microsoft Corporation. All rights reserved.</copyright>
+    <tags>Arcade Build Tool MacOS Pkg</tags>
+    <serviceable>true</serviceable>
+    <packageTypes>
+      <packageType name="DotnetTool" />
+    </packageTypes>
+    <repository type="git" url="https://github.com/dotnet/arcade" commit="1f7eece09d5c6fc2a1319d04f6ae4b7d18455e2d" />
+  </metadata>
+</package>

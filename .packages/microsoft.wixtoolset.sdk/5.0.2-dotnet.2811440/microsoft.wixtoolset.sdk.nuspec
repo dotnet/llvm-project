@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>Microsoft.WixToolset.Sdk</id>
+    <version>5.0.2-dotnet.2811440</version>
+    <title>WiX Toolset MSBuild integration</title>
+    <authors>Microsoft, WiX Toolset Team</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MS-RL</license>
+    <licenseUrl>https://licenses.nuget.org/MS-RL</licenseUrl>
+    <icon>wix.png</icon>
+    <projectUrl>https://wixtoolset.org/</projectUrl>
+    <description>WiX Toolset MSBuild integration</description>
+    <copyright>Copyright (c) .NET Foundation and contributors. All rights reserved.</copyright>
+    <packageTypes>
+      <packageType name="MSBuildSdk" />
+    </packageTypes>
+    <repository type="git" url="https://dev.azure.com/dnceng/internal/_git/dotnet-wix" commit="dc67792d077edc24f5b197d5bd13a71e921b9396" />
+  </metadata>
+</package>

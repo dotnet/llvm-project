@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) .NET Foundation and contributors. All rights reserved. Licensed under the Microsoft Reciprocal License. See LICENSE.TXT file in the project root for full license information. -->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <WixPropsImported>true</WixPropsImported>
+    <WixToolsetMajorVersion>5</WixToolsetMajorVersion>
+    <WixToolsetMinorVersion>0</WixToolsetMinorVersion>
+    <WixToolsetPatchVersion>2</WixToolsetPatchVersion>
+    <WixToolsetMajorMinorVersion>5.0</WixToolsetMajorMinorVersion>
+    <WixToolsetVersion>5.0.2-dotnet.2811440</WixToolsetVersion>
+    <WixToolsetExtensionPackageFolder>wixext5</WixToolsetExtensionPackageFolder>
+  </PropertyGroup>
+  <ImportGroup>
+    <Import Project="$(MSBuildUserExtensionsPath)\WixToolset\$(WixToolsetMajorMinorVersion)\Imports\WixToolset.props\ImportBefore\*" Condition="'$(ImportUserLocationsByWildcardBeforeWixToolsetProps)' != 'false' and Exists('$(MSBuildUserExtensionsPath)\WixToolset\$(WixToolsetMajorMinorVersion)\Imports\WixToolset.props\ImportBefore')" />
+    <Import Project="$(MSBuildExtensionsPath)\WixToolset\$(WixToolsetMajorMinorVersion)\Imports\WixToolset.props\ImportBefore\*" Condition="'$(ImportByWildcardBeforeWixToolsetProps)' != 'false' and Exists('$(MSBuildExtensionsPath)\WixToolset\$(WixToolsetMajorMinorVersion)\Imports\WixToolset.props\ImportBefore')" />
+  </ImportGroup>
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="WixToolset.Signing.props" Condition=" '$(WixSigningPropsImported)' != 'true' " />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AddAdditionalExplicitAssemblyReferences>false</AddAdditionalExplicitAssemblyReferences>
+    <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
+  </PropertyGroup>
+  <!-- NuGet properties -->
+  <PropertyGroup>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <ProjectAssetsFile Condition="'$(ProjectAssetsFile)' == ''">$(MSBuildProjectExtensionsPath)/project.assets.json</ProjectAssetsFile>
+    <ProjectAssetsFile>$([MSBuild]::NormalizePath($(MSBuildProjectDirectory), $(ProjectAssetsFile)))</ProjectAssetsFile>
+    <ResolveNuGetPackages>false</ResolveNuGetPackages>
+    <UseTargetPlatformAsNuGetTargetMoniker>false</UseTargetPlatformAsNuGetTargetMoniker>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>native</TargetFramework>
+    <TargetFrameworkVersion>v0.0</TargetFrameworkVersion>
+    <TargetFrameworkMoniker>native,Version=v0.0</TargetFrameworkMoniker>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+  </PropertyGroup>
+  <ImportGroup>
+    <Import Project="$(MSBuildUserExtensionsPath)\WixToolset\$(WixToolsetMajorMinorVersion)\Imports\WixToolset.props\ImportAfter\*" Condition="'$(ImportUserLocationsByWildcardAfterWixToolsetProps)' != 'false' and Exists('$(MSBuildUserExtensionsPath)\WixToolset\$(WixToolsetMajorMinorVersion)\Imports\WixToolset.props\ImportAfter')" />
+    <Import Project="$(MSBuildExtensionsPath)\WixToolset\$(WixToolsetMajorMinorVersion)\Imports\WixToolset.props\ImportAfter\*" Condition="'$(ImportByWildcardAfterWixToolsetProps)' != 'false' and Exists('$(MSBuildExtensionsPath)\WixToolset\$(WixToolsetMajorMinorVersion)\Imports\WixToolset.props\ImportAfter')" />
+  </ImportGroup>
+</Project>
