@@ -1,0 +1,11 @@
+description: Branch classification configuration for repository
+resource: repository
+configuration:
+  branchClassificationSettings:
+    defaultClassification: nonproduction
+    ruleset:
+      - name: prod-branches
+        branchNames:
+          - dotnet/main-23.x_2
+          - dotnet/release/*
+        classification: production

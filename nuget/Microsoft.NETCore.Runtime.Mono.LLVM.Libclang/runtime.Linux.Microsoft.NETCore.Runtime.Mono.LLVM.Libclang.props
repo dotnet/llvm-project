@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ItemGroup>
+    <File Include="$(ProjectDir)\clang\bindings\python\clang\**" TargetPath="tools\bindings\python\clang" />
+    <File Include="$(_LLVMInstallDir)\lib\libclang.so" TargetPath="tools\libclang.so" />
+    <File Include="$(_LibCxxInstallDir)\lib\libc++.so.1" TargetPath="tools" />
+    <File Include="$(_LibCxxInstallDir)\lib\libc++abi.so.1" TargetPath="tools" />
+    <File Include="$(_LLVMInstallDir)\lib\clang\$(LLVMVersionShort)\include\**" TargetPath="tools\include\%(RecursiveDir)" />
+  </ItemGroup>
+</Project>

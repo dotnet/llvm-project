@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ItemGroup>
+    <File Include="$(ProjectDir)\clang\bindings\python\clang\**" TargetPath="bindings\python\clang\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-config" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-config.dbg" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-dis" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-dis.dbg" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-tblgen" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-tblgen.dbg" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\lib\**" Exclude="$(_LLVMInstallDir)\lib\libclang*.a;$(_LLVMInstallDir)\lib\cmake\lld\**" TargetPath="tools\$(PackageTargetRuntime)\lib\%(RecursiveDir)\" />
+    <File Include="$(_LLVMInstallDir)\include\**" Exclude="$(_LLVMInstallDir)\include\clang-tidy\**;$(_LLVMInstallDir)\include\lld\**" TargetPath="tools\$(PackageTargetRuntime)\include\%(RecursiveDir)\" />
+    <File Include="$(_LibCxxInstallDir)\lib\*" Exclude="$(_LibCxxInstallDir)\lib\libc++.so.1;$(_LibCxxInstallDir)\lib\libc++abi.so.1" TargetPath="tools\$(PackageTargetRuntime)\lib\" />
+    <File Include="$(_LibCxxInstallDir)\include\**" TargetPath="tools\$(PackageTargetRuntime)\include\%(RecursiveDir)\" />
+  </ItemGroup>
+</Project>

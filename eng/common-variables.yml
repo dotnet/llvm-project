@@ -1,0 +1,26 @@
+
+variables:
+  # Cannot use key:value syntax in root defined variables
+  - name: _TeamName
+    value: DotNetCore
+  - name: _DotNetArtifactsCategory
+    value: .NETCore
+  - name: _DotNetValidationArtifactsCategory
+    value: .NETCore
+  - name: HelixApiAccessToken
+    value: ''
+  - name: _InternalBuildArgs
+    value: ''
+
+  - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+    - name: _SignType
+      value: real
+    # Publish-Build-Assets provides: MaestroAccessToken, BotAccount-dotnet-maestro-bot-PAT
+    # DotNet-HelixApi-Access provides: HelixApiAccessToken
+    - group: Publish-Build-Assets
+    - group: DotNet-VSTS-Bot
+    - group: DotNet-HelixApi-Access
+    - name: _InternalBuildArgs
+      value: /p:DotNetSignType=$(_SignType) /p:TeamName=$(_TeamName)
+        /p:DotNetArtifactsCategory=$(_DotNetArtifactsCategory)
+        /p:OfficialBuildId=$(BUILD.BUILDNUMBER)

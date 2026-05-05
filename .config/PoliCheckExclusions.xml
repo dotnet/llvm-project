@@ -1,0 +1,5 @@
+<PoliCheckExclusions>
+  <!-- https://eng.ms/docs/experiences-devices/customer-success-engineering/global/language-as-a-service/validationservices/policheck-for-microsoft/policheckclient/features/features#false-positive-management -->
+  <!-- exclude upstream sources -->
+  <Exclusion Type="FolderPathFull">bolt|clang|clang-tools-extra|compiler-rt|cross-project-tests|flang|libc|libcxx|lld|lldb|llvm|mlir|openmp|polly</Exclusion>
+</PoliCheckExclusions>

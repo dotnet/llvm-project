@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ItemGroup>
+    <File Include="$(_LLVMInstallDir)\bin\llc.exe" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llc.pdb" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-as.exe" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-as.pdb" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\opt.exe" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\opt.pdb" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+  </ItemGroup>
+</Project>

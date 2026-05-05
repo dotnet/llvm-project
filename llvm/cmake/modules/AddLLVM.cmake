@@ -1246,7 +1246,7 @@ macro(add_llvm_executable name)
   add_custom_linker_flags(${name})
 
   if(NOT ARG_IGNORE_EXTERNALIZE_DEBUGINFO)
-    llvm_externalize_debuginfo(${name})
+    llvm_externalize_debuginfo(${name} DEBUGINFO_INSTALL)
   endif()
   if (LLVM_PTHREAD_LIB)
     # libpthreads overrides some standard library symbols, so main
@@ -2568,6 +2568,8 @@ function(llvm_externalize_debuginfo name)
     return()
   endif()
 
+  cmake_parse_arguments(ARG "DEBUGINFO_INSTALL" "" "" ${ARGN})
+
   if(NOT LLVM_EXTERNALIZE_DEBUGINFO_SKIP_STRIP)
     if(APPLE)
       if(NOT CMAKE_STRIP)
@@ -2608,12 +2610,44 @@ function(llvm_externalize_debuginfo name)
       COMMAND ${CMAKE_DSYMUTIL} ${output_path} $<TARGET_FILE:${name}>
       ${strip_command}
       )
+    if(LLVM_EXTERNALIZE_DEBUGINFO_INSTALL AND ARG_DEBUGINFO_INSTALL)
+      get_filename_component(debuginfo_absolute_path ${output_path} REALPATH BASE_DIR $<TARGET_FILE_DIR:${name}>)
+      install(FILES ${debuginfo_absolute_path} DESTINATION bin OPTIONAL COMPONENT ${name})
+    endif()
+  elseif(WIN32)
+    if(LLVM_EXTERNALIZE_DEBUGINFO_INSTALL AND ARG_DEBUGINFO_INSTALL)
+      install(FILES $<TARGET_PDB_FILE:${name}> DESTINATION bin OPTIONAL COMPONENT ${name})
+    endif()
   else()
+
+    if(LLVM_EXTERNALIZE_DEBUGINFO_EXTENSION)
+      set(file_ext ${LLVM_EXTERNALIZE_DEBUGINFO_EXTENSION})
+    else()
+      set(file_ext debug)
+    endif()
+
+    set(output_name "$<TARGET_FILE_NAME:${name}>.${file_ext}")
+
+    if(LLVM_EXTERNALIZE_DEBUGINFO_OUTPUT_DIR)
+      set(output_path "${LLVM_EXTERNALIZE_DEBUGINFO_OUTPUT_DIR}/${output_name}")
+      add_custom_command(TARGET ${name} POST_BUILD
+        WORKING_DIRECTORY ${LLVM_RUNTIME_OUTPUT_INTDIR}
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${LLVM_EXTERNALIZE_DEBUGINFO_OUTPUT_DIR}
+        )
+    else()
+      set(output_path "${output_name}")
+    endif()
+
     add_custom_command(TARGET ${name} POST_BUILD
-      COMMAND ${CMAKE_OBJCOPY} --only-keep-debug $<TARGET_FILE:${name}> $<TARGET_FILE:${name}>.debug
+      WORKING_DIRECTORY ${LLVM_RUNTIME_OUTPUT_INTDIR}
+      COMMAND ${CMAKE_OBJCOPY} --only-keep-debug $<TARGET_FILE:${name}> ${output_path}
       ${strip_command} -R .gnu_debuglink
-      COMMAND ${CMAKE_OBJCOPY} --add-gnu-debuglink=$<TARGET_FILE:${name}>.debug $<TARGET_FILE:${name}>
+      COMMAND ${CMAKE_OBJCOPY} --add-gnu-debuglink=${output_path} $<TARGET_FILE:${name}>
       )
+    if(LLVM_EXTERNALIZE_DEBUGINFO_INSTALL AND ARG_DEBUGINFO_INSTALL)
+      get_filename_component(debuginfo_absolute_path ${output_path} REALPATH BASE_DIR $<TARGET_FILE_DIR:${name}>)
+      install(FILES ${debuginfo_absolute_path} DESTINATION bin OPTIONAL COMPONENT ${name})
+    endif()
   endif()
 endfunction()
 

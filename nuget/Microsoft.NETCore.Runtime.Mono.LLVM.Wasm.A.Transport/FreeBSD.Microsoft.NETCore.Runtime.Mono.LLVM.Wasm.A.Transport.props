@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ItemGroup>
+    <File Include="$(_LLVMInstallDir)\bin\clang" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\clang++" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\clang-$(LLVMVersionShort)" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\clang-$(LLVMVersionShort).dbg" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\clang-apply-replacements" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\clang-apply-replacements.dbg" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\clang-cl" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\clang-cpp" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\clang-format" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\clang-format.dbg" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\clang-tidy" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\clang-tidy.dbg" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\ld.lld" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\ld64.lld" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\lld" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\lld.dbg" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\lld-link" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\wasm-ld" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+  </ItemGroup>
+</Project>

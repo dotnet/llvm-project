@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ItemGroup>
+    <File Include="$(_LLVMInstallDir)\bin\llc" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llc.dbg" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-as" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\llvm-as.dbg" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\opt" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LLVMInstallDir)\bin\opt.dbg" TargetPath="tools\$(PackageTargetRuntime)\bin\" />
+    <File Include="$(_LibCxxInstallDir)\lib\libc++.so.1" TargetPath="tools\$(PackageTargetRuntime)\lib\" />
+    <File Include="$(_LibCxxInstallDir)\lib\libc++abi.so.1" TargetPath="tools\$(PackageTargetRuntime)\lib\" />
+  </ItemGroup>
+</Project>
