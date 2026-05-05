@@ -2253,6 +2253,7 @@ void LLParser::parseOptionalDLLStorageClass(unsigned &Res) {
 ///   ::= 'graalcc'
 ///   ::= 'riscv_vector_cc'
 ///   ::= 'riscv_vls_cc'
+///   ::= 'monocc'
 ///   ::= 'cc' UINT
 ///
 bool LLParser::parseOptionalCallingConv(unsigned &CC) {
@@ -2372,6 +2373,7 @@ bool LLParser::parseOptionalCallingConv(unsigned &CC) {
   case lltok::kw_cheriot_librarycallcc:
     CC = CallingConv::CHERIoT_LibraryCall;
     break;
+  case lltok::kw_monocc:         CC = CallingConv::Mono; break;
   case lltok::kw_cc: {
       Lex.Lex();
       return parseUInt32(CC);

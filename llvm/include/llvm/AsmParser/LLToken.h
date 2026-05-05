@@ -191,6 +191,7 @@ enum Kind {
   kw_cheriot_compartmentcallcc,
   kw_cheriot_compartmentcalleecc,
   kw_cheriot_librarycallcc,
+  kw_monocc,
 
   // Attributes:
   kw_attributes,

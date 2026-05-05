@@ -391,4 +391,26 @@ def CSR_FIQ_FP : CalleeSavedRegs<(add CSR_FIQ, CSR_FP_Interrupt_Regs)>;
 def CSR_FIQ_FP_NEON : CalleeSavedRegs<(add CSR_FIQ_FP, 
                                        CSR_FP_NEON_Interrupt_Regs)>;
 
+//===----------------------------------------------------------------------===//
+// ARM Mono calling conventions
+//===----------------------------------------------------------------------===//
+
+let Entry = 1 in
+def CC_ARM_Mono_APCS : CallingConv<[
+  // Mono marks the parameter it wants to pass in this non-abi register with
+  // the 'inreg' attribute.
+  CCIfInReg<CCAssignToReg<[R8]>>,
+
+  CCDelegateTo<CC_ARM_APCS>
+]>;
+
+let Entry = 1 in
+def CC_ARM_Mono_AAPCS : CallingConv<[
+  // Mono marks the parameter it wants to pass in this non-abi register with
+  // the 'inreg' attribute.
+  CCIfInReg<CCAssignToReg<[R8]>>,
+
+  CCDelegateTo<CC_ARM_AAPCS>
+]>;
+
 
