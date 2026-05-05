@@ -27,7 +27,7 @@
     </_SetupEnvironment>
     <_CMakeConfigureCommand>$(_SetupEnvironment) cmake $(_LLVMSourceDir) -G "$(CMakeGenerator)" @(_LLVMBuildArgs->'%(Identity)',' ')</_CMakeConfigureCommand>
     <_LibCxxConfigureCommand>$(_SetupEnvironment) cmake $(_LibCxxSourceDir) -G "$(CMakeGenerator)" @(_LibCxxBuildArgs->'%(Identity)',' ')</_LibCxxConfigureCommand>
-    <_BuildSubset Condition="'$(BuildLLVMTableGenOnly)' == 'true'">llvm-tblgen clang-tblgen llvm-config clang-tidy-confusable-chars-gen clang-pseudo-gen</_BuildSubset>
+    <_BuildSubset Condition="'$(BuildLLVMTableGenOnly)' == 'true'">llvm-tblgen clang-tblgen llvm-config clang-tidy-confusable-chars-gen</_BuildSubset>
     <_BuildSubset Condition="'$(BuildJitToolsOnly)' == 'true'">llvm-mca llvm-dwarfdump FileCheck</_BuildSubset>
     <_BuildCommand Condition="'$(CMakeGenerator)' == 'Unix Makefiles'">$(_SetupEnvironment) make $(_BuildSubset) -j$([System.Environment]::ProcessorCount)</_BuildCommand>
     <_BuildCommand Condition="'$(CMakeGenerator)' == 'Ninja'">$(_SetupEnvironment) ninja $(_BuildSubset)</_BuildCommand>
@@ -123,9 +123,9 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(BuildOS)' != 'Windows_NT'">
-    <_LLVMBuildArgs Include="-DCMAKE_C_COMPILER=clang-20" />
-    <_LLVMBuildArgs Include="-DCMAKE_CXX_COMPILER=clang++-20" />
-    <_LLVMBuildArgs Include="-DCMAKE_ASM_COMPILER=clang-20" />
+    <_LLVMBuildArgs Include="-DCMAKE_C_COMPILER=clang" />
+    <_LLVMBuildArgs Include="-DCMAKE_CXX_COMPILER=clang++" />
+    <_LLVMBuildArgs Include="-DCMAKE_ASM_COMPILER=clang" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(BuildOS)' == 'Linux'">
@@ -162,9 +162,9 @@
   <Target Name="_LibCxxBootstrap" Condition="'$(BuildOS)' == 'Linux'" BeforeTargets="_LLVMBuild">
     <ItemGroup>
       <_LibCxxBuildArgs Include='-DLLVM_ENABLE_RUNTIMES="libcxx%3Blibcxxabi%3Blibunwind"' />
-      <_LibCxxBuildArgs Include="-DCMAKE_C_COMPILER=clang-20" />
-      <_LibCxxBuildArgs Include="-DCMAKE_CXX_COMPILER=clang++-20" />
-      <_LibCxxBuildArgs Include="-DCMAKE_ASM_COMPILER=clang-20" />
+      <_LibCxxBuildArgs Include="-DCMAKE_C_COMPILER=clang" />
+      <_LibCxxBuildArgs Include="-DCMAKE_CXX_COMPILER=clang++" />
+      <_LibCxxBuildArgs Include="-DCMAKE_ASM_COMPILER=clang" />
       <_LibCxxBuildArgs Include='-DCMAKE_C_FLAGS="-D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CMakeExtraCFlags) -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CFlags)"' />
       <_LibCxxBuildArgs Include='-DCMAKE_CXX_FLAGS="-D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CMakeExtraCFlags) -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CFlags)"' />
       <_LibCxxBuildArgs Include='-DCMAKE_ASM_FLAGS="-D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CMakeExtraCFlags) -D__NO_CTYPE_INLINE -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(_CFlags)"' />
