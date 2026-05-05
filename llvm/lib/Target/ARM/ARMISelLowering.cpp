@@ -1767,7 +1767,7 @@ CCAssignFn *ARMTargetLowering::CCAssignFnForNode(CallingConv::ID CC,
     if (Return) {
       return CCAssignFnForNode(CallingConv::C, true, isVarArg);
     } else {
-      if (Subtarget->isAAPCS_ABI())
+      if (getTM().isAAPCS_ABI())
         return CC_ARM_Mono_AAPCS;
       else
         return CC_ARM_Mono_APCS;

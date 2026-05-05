@@ -81,10 +81,10 @@ bool RetCC_AArch64_WebKit_JS(unsigned ValNo, MVT ValVT, MVT LocVT,
                              ISD::ArgFlagsTy ArgFlags, CCState &State);
 bool CC_AArch64_Mono_DarwinPCS(unsigned ValNo, MVT ValVT, MVT LocVT,
                           CCValAssign::LocInfo LocInfo,
-                          ISD::ArgFlagsTy ArgFlags, CCState &State);
+                          ISD::ArgFlagsTy ArgFlags, Type *OrigTy, CCState &State);
 bool CC_AArch64_Mono_AAPCS(unsigned ValNo, MVT ValVT, MVT LocVT,
                       CCValAssign::LocInfo LocInfo, ISD::ArgFlagsTy ArgFlags,
-                      CCState &State);
+                      Type *OrigTy, CCState &State);
 } // namespace llvm
 
 #endif

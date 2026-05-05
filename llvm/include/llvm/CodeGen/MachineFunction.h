@@ -748,6 +748,11 @@ public:
 
   PseudoSourceValueManager &getPSVManager() const { return *PSVManager; }
 
+  /// Mono: stack slot for "this" pointer, used by MonoException EH tables.
+  int MonoThisSlot = -1;
+  int getMonoThisSlot() const { return MonoThisSlot; }
+  void setMonoThisSlot(int Slot) { MonoThisSlot = Slot; }
+
   /// Return the DataLayout attached to the Module associated to this MF.
   const DataLayout &getDataLayout() const;
 
