@@ -101,6 +101,7 @@
     <_LLVMBuildArgs Include='-DLLVM_EXTERNALIZE_DEBUGINFO_INSTALL=ON' />
     <_LLVMBuildArgs Include='-DCOMPILER_RT_USE_LLVM_UNWINDER=OFF' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT'" Include='-DLLVM_ENABLE_PDB=ON' />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT'" Include='-DLLVM_PARALLEL_LINK_JOBS=2' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT'" Include='-DLEGAL_COPYRIGHT="\xa9 Microsoft Corporation. All rights reserved."' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux'" Include='-DLLVM_EXTERNALIZE_DEBUGINFO_EXTENSION=dbg' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'OSX'" Include='-DLLVM_EXTERNALIZE_DEBUGINFO_EXTENSION=dwarf -DLLVM_EXTERNALIZE_DEBUGINFO_FLATTEN=ON' />
