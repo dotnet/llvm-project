@@ -2591,9 +2591,17 @@ function(llvm_externalize_debuginfo name)
     set(output_name "$<TARGET_FILE_NAME:${name}>.${file_ext}")
 
     if(LLVM_EXTERNALIZE_DEBUGINFO_OUTPUT_DIR)
-      set(output_path "-o=${LLVM_EXTERNALIZE_DEBUGINFO_OUTPUT_DIR}/${output_name}")
+      set(output_path "${LLVM_EXTERNALIZE_DEBUGINFO_OUTPUT_DIR}/${output_name}")
     else()
-      set(output_path "-o=${output_name}")
+      set(output_path "${output_name}")
+    endif()
+
+    set(output_flag "-o=${output_path}")
+
+    if(LLVM_EXTERNALIZE_DEBUGINFO_FLATTEN)
+      set(flatten_flag "--flat")
+    else()
+      set(flatten_flag "")
     endif()
 
     if(CMAKE_CXX_FLAGS MATCHES "-flto"
@@ -2606,13 +2614,9 @@ function(llvm_externalize_debuginfo name)
     if(NOT CMAKE_DSYMUTIL)
       set(CMAKE_DSYMUTIL xcrun dsymutil)
     endif()
-    if(LLVM_EXTERNALIZE_DEBUGINFO_FLATTEN)
-      set(flatten_flag "--flat")
-    else()
-      set(flatten_flag "")
-    endif()
     add_custom_command(TARGET ${name} POST_BUILD
-      COMMAND ${CMAKE_DSYMUTIL} ${flatten_flag} ${output_path} $<TARGET_FILE:${name}>
+      WORKING_DIRECTORY ${LLVM_RUNTIME_OUTPUT_INTDIR}
+      COMMAND ${CMAKE_DSYMUTIL} ${flatten_flag} ${output_flag} $<TARGET_FILE:${name}>
       ${strip_command}
       )
     if(LLVM_EXTERNALIZE_DEBUGINFO_INSTALL AND ARG_DEBUGINFO_INSTALL)
