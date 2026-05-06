@@ -2606,8 +2606,13 @@ function(llvm_externalize_debuginfo name)
     if(NOT CMAKE_DSYMUTIL)
       set(CMAKE_DSYMUTIL xcrun dsymutil)
     endif()
+    if(LLVM_EXTERNALIZE_DEBUGINFO_FLATTEN)
+      set(flatten_flag "--flat")
+    else()
+      set(flatten_flag "")
+    endif()
     add_custom_command(TARGET ${name} POST_BUILD
-      COMMAND ${CMAKE_DSYMUTIL} ${output_path} $<TARGET_FILE:${name}>
+      COMMAND ${CMAKE_DSYMUTIL} ${flatten_flag} ${output_path} $<TARGET_FILE:${name}>
       ${strip_command}
       )
     if(LLVM_EXTERNALIZE_DEBUGINFO_INSTALL AND ARG_DEBUGINFO_INSTALL)
