@@ -1123,14 +1123,11 @@ __gxx_personality_seh0(PEXCEPTION_RECORD ms_exc, void *this_frame,
 static _Unwind_Reason_Code continue_unwind(_Unwind_Exception* unwind_exception,
                                            _Unwind_Context* context)
 {
-  switch (__gnu_unwind_frame(unwind_exception, context)) {
-  case _URC_OK:
-    return _URC_CONTINUE_UNWIND;
-  case _URC_END_OF_STACK:
-    return _URC_END_OF_STACK;
-  default:
-    return _URC_FAILURE;
-  }
+  // dotnet: __gnu_unwind_frame is not available in the azurelinux cross-compilation sysroot.
+  // The LLVM tools built for ARM32 do not rely on C++ exception propagation.
+  (void)unwind_exception;
+  (void)context;
+  __builtin_trap();
 }
 
 // ARM register names
