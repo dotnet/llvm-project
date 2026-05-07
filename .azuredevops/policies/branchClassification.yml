@@ -6,6 +6,6 @@ configuration:
     ruleset:
       - name: prod-branches
         branchNames:
-          - dotnet/main-23.x_2
+          - dotnet/main-23.x
           - dotnet/release/*
         classification: production
