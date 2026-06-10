@@ -26,13 +26,6 @@ stages:
     parameters:
       enablePublishBuildArtifacts: true
       enablePublishBuildAssets: true
-      enableSourceBuild: true
-      sourceBuildParameters:
-        platforms:
-        - name: 'AlmaLinux_8_Portable'
-          container: 'mcr.microsoft.com/dotnet-buildtools/prereqs:almalinux-8-source-build'
-          jobProperties:
-            timeoutInMinutes: 600
       jobs:
 
       ############ LINUX BUILD ############
