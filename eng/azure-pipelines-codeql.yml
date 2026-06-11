@@ -6,7 +6,7 @@ schedules:
     displayName: Periodic CodeQL run
     branches:
       include:
-      - dotnet/main-23.x_2
+      - dotnet/main
     always: true
 
 variables:
