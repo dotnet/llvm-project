@@ -109,13 +109,6 @@ extends:
           enablePublishBuildArtifacts: true
           enablePublishBuildAssets: true
           enablePublishUsingPipelines: true
-          enableSourceBuild: true
-          sourceBuildParameters:
-            platforms:
-            - name: 'AlmaLinux_8_Portable'
-              container: almalinux8sourcebuild
-              jobProperties:
-                timeoutInMinutes: 600
           jobs:
 
           ############ LINUX BUILD ############
