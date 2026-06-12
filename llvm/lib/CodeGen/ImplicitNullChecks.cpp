@@ -344,13 +344,15 @@ ImplicitNullChecks::areMemoryOpsAliased(const MachineInstr &MI,
     //assert(MMO1->getValue() && "MMO1 should have a Value!");
     // Doesn't have a value, unclear why
     if (MMO1->getValue() == nullptr)
-	return AR_MayAlias;
+      return AR_MayAlias;
     for (MachineMemOperand *MMO2 : PrevMI->memoperands()) {
       if (const PseudoSourceValue *PSV = MMO2->getPseudoValue()) {
         if (PSV->mayAlias(MFI))
           return AR_MayAlias;
         continue;
       }
+      if (MMO2->getValue() == nullptr)
+        return AR_MayAlias;
       if (!AA->isNoAlias(
               MemoryLocation::getAfter(MMO1->getValue(), MMO1->getAAInfo()),
               MemoryLocation::getAfter(MMO2->getValue(), MMO2->getAAInfo())))
