@@ -452,6 +452,12 @@ bool ARMBaseRegisterInfo::hasBasePointer(const MachineFunction &MF) const {
   const ARMFunctionInfo *AFI = MF.getInfo<ARMFunctionInfo>();
   const ARMFrameLowering *TFI = getFrameLowering(MF);
 
+  // For Windows SEH, the runtime does not preserve SP or R11 for EH funclets.
+  // Fortunately, R4-R10 are always preserved.
+  // Therefore, we force these functions to set up a base pointer.
+  if (MF.hasEHFunclets())
+    return true;
+
   // If we have stack realignment and VLAs, we have no pointer to use to
   // access the stack. If we have stack realignment, and a large call frame,
   // we have no place to allocate the emergency spill slot.
@@ -523,6 +529,16 @@ ARMBaseRegisterInfo::getFrameRegister(const MachineFunction &MF) const {
   if (TFI->hasFP(MF))
     return STI.getFramePointerReg();
   return ARM::SP;
+}
+
+unsigned
+ARMBaseRegisterInfo::getLocalAddressRegister(const MachineFunction &MF) const {
+  const auto &MFI = MF.getFrameInfo();
+  if (!MF.hasEHFunclets() && !MFI.hasVarSizedObjects())
+    return ARM::SP;
+  else if (MF.hasEHFunclets() || hasStackRealignment(MF))
+    return getBaseRegister();
+  return getFrameRegister(MF);
 }
 
 /// emitLoadConstPool - Emits a load from constpool to materialize the
@@ -837,6 +853,13 @@ ARMBaseRegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator II,
   Register FrameReg;
 
   int Offset = TFI->ResolveFrameIndexReference(MF, FrameIndex, FrameReg, SPAdj);
+
+  if (MI.getOpcode() == TargetOpcode::LOCAL_ESCAPE) {
+    MachineOperand &FI = MI.getOperand(FIOperandNum);
+    StackOffset Offset = TFI->getNonLocalFrameIndexReference(MF, FrameIndex);
+    FI.ChangeToImmediate(Offset.getFixed());
+    return false;
+  }
 
   // PEI::scavengeFrameVirtualRegs() cannot accurately track SPAdj because the
   // call frame setup/destroy instructions have already been eliminated.  That

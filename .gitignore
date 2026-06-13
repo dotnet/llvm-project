@@ -51,6 +51,20 @@ autoconf/autom4te.cache
 /CMakeSettings.json
 # CLion project configuration
 /.idea
+/cmake-build*
+# Coding assistants' stuff
+.agents/
+/CLAUDE.md
+/instructions.md
+.claude/
+/GEMINI.md
+.gemini/
+AGENTS.md
+.codex/
+# Cursor specific files
+.cursor
+.cursorignore
+.cursorindexingignore
 
 #==============================================================================#
 # Directories to ignore (do not add trailing '/'s, they skip symlinks).
