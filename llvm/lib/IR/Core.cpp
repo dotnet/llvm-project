@@ -1567,7 +1567,13 @@ unsigned LLVMGetDebugLocColumn(LLVMValueRef Val) {
 
 LLVMValueRef LLVMConstInt(LLVMTypeRef IntTy, unsigned long long N,
                           LLVMBool SignExtend) {
-  return wrap(ConstantInt::get(unwrap<IntegerType>(IntTy), N, SignExtend != 0));
+  // The LLVM-C API has historically truncated N implicitly to IntTy's width.
+  // Pass ImplicitTrunc=true to preserve that contract; otherwise out-of-range
+  // values (e.g. -1 sign-extended to 0xFFFFFFFFFFFFFFFF being passed for an
+  // i32) trigger an assertion in debug builds and produce a ConstantInt with
+  // unused bits left set in release builds, breaking subsequent folding.
+  return wrap(ConstantInt::get(unwrap<IntegerType>(IntTy), N, SignExtend != 0,
+                               /*ImplicitTrunc=*/true));
 }
 
 LLVMValueRef LLVMConstIntOfArbitraryPrecision(LLVMTypeRef IntTy,
