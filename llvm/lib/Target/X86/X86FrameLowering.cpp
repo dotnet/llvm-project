@@ -2205,6 +2205,21 @@ void X86FrameLowering::emitPrologue(MachineFunction &MF,
       }
     }
 
+    if (NeedsDwarfCFI && !IsFunclet) {
+      // Define the current CFA to use the EBP/RBP register.
+      unsigned DwarfFramePtr = TRI->getDwarfRegNum(FramePtr, true);
+      BuildCFI(MBB, MBBI, DL,
+               MCCFIInstruction::createDefCfaRegister(nullptr, DwarfFramePtr));
+
+      if (SEHFrameOffset) {
+        // Framepointer has been adjusted with an offset, make sure
+        // it is reflected in CFA offset.
+        BuildCFI(
+            MBB, MBBI, DL,
+            MCCFIInstruction::createAdjustCfaOffset(nullptr, -SEHFrameOffset));
+      }
+    }
+
     auto EmitSEHSetFrame = [&]() {
       BuildMI(MBB, MBBI, DL, TII.get(X86::SEH_SetFrame))
           .addImm(FramePtr)
@@ -2222,37 +2237,8 @@ void X86FrameLowering::emitPrologue(MachineFunction &MF,
       BuildMI(MBB, MBBI, DL, TII.get(X86::MOV64rr), FramePtr)
           .addReg(SPOrEstablisher);
 
-<<<<<<< HEAD
-    // If this is not a funclet, emit the CFI describing our frame pointer.
-    if (NeedsWinCFI && !IsFunclet) {
-      assert(!NeedsWinFPO && "this setframe incompatible with FPO data");
-      HasWinCFI = true;
-      BuildMI(MBB, MBBI, DL, TII.get(X86::SEH_SetFrame))
-          .addImm(FramePtr)
-          .addImm(SEHFrameOffset)
-          .setMIFlag(MachineInstr::FrameSetup);
-      if (isAsynchronousEHPersonality(Personality))
-        MF.getWinEHFuncInfo()->SEHSetFrameOffset = SEHFrameOffset;
-    }
-
-    if (NeedsDwarfCFI && !IsFunclet) {
-      // Define the current CFA to use the EBP/RBP register.
-      unsigned DwarfFramePtr = TRI->getDwarfRegNum(FramePtr, true);
-      BuildCFI(MBB, MBBI, DL,
-               MCCFIInstruction::createDefCfaRegister(nullptr, DwarfFramePtr));
-
-      if (SEHFrameOffset) {
-        // Framepointer has been adjusted with an offset, make sure
-        // it is reflected in CFA offset.
-        BuildCFI(
-            MBB, MBBI, DL,
-            MCCFIInstruction::createAdjustCfaOffset(nullptr, -SEHFrameOffset));
-      }
-    }
-=======
     if (!IsFunclet)
       EmitSEHAfter(EmitSEHSetFrame);
->>>>>>> upstream/main
   } else if (IsFunclet && STI.is32Bit()) {
     // Reset EBP / ESI to something good for funclets.
     MBBI = restoreWin32EHStackPointers(MBB, MBBI, DL);
