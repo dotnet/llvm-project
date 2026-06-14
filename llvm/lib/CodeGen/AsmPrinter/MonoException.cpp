@@ -609,7 +609,7 @@ MonoException::endModule()
   int cfaOffset = 0;
 
   // Initial CIE program
-  emitCFIInstructions(streamer, streamer.getContext().getAsmInfo()->getInitialFrameState(), NULL, NULL, cfaOffset, stackGrowth);
+  emitCFIInstructions(streamer, streamer.getContext().getAsmInfo().getInitialFrameState(), NULL, NULL, cfaOffset, stackGrowth);
   streamer.AddComment("End of CIE program");
   streamer.emitIntValue(dwarf::DW_CFA_nop, 1);
 
