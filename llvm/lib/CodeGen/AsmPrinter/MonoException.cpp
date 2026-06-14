@@ -370,14 +370,14 @@ MonoException::PrepareMonoLSDA(EHInfo *info)
 void
 MonoException::EmitFnStart(void)
 {
-  if (DisableGNUEH && Asm->MAI->getExceptionHandlingType() == ExceptionHandling::ARM)
+  if (DisableGNUEH && Asm->MAI.getExceptionHandlingType() == ExceptionHandling::ARM)
     static_cast<ARMTargetStreamer*>(Asm->OutStreamer->getTargetStreamer())->emitFnStart();
 }
 
 void
 MonoException::EmitFnEnd(void)
 {
-  if (DisableGNUEH && Asm->MAI->getExceptionHandlingType() == ExceptionHandling::ARM)
+  if (DisableGNUEH && Asm->MAI.getExceptionHandlingType() == ExceptionHandling::ARM)
     static_cast<ARMTargetStreamer*>(Asm->OutStreamer->getTargetStreamer())->emitFnEnd();
 }
 
@@ -550,7 +550,7 @@ MonoException::endModule()
   Asm->emitAlignment(llvm::Align(16));
   streamer.emitLabel(tableSymbol);
   streamer.emitSymbolAttribute(tableSymbol, MCSA_ELF_TypeObject);
-  if (Asm->MAI->hasDotTypeDotSizeDirective()) {
+  if (Asm->MAI.hasDotTypeDotSizeDirective()) {
     const MCExpr *SizeExp = MCBinaryExpr::createSub(
         MCSymbolRefExpr::create(tableEndSym, Asm->OutContext),
         MCSymbolRefExpr::create(tableSymbol, Asm->OutContext), Asm->OutContext);
