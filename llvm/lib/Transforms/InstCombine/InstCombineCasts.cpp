@@ -2205,6 +2205,53 @@ Instruction *InstCombinerImpl::visitFPTrunc(FPTruncInst &FPT) {
   if (Instruction *I = commonCastTransforms(FPT))
     return I;
 
+  // Some targets/toolchains can mishandle NaN payloads when narrowing to half
+  // and produce infinities for NaN inputs. Preserve NaN behavior by guarding
+  // half truncation with an explicit isnan select.
+  if (FPT.getType()->getScalarType()->isHalfTy() && !FPT.hasNoNaNs()) {
+    auto IsProtectedHalfTrunc = [&]() {
+      if (!FPT.hasOneUse())
+        return false;
+
+      auto *Sel = dyn_cast<SelectInst>(*FPT.user_begin());
+      if (!Sel)
+        return false;
+
+      CmpPredicate Pred;
+      Value *CmpL, *CmpR;
+      // InstCombine canonicalizes 'fcmp uno %src, %src' to
+      // 'fcmp uno %src, 0.0', so accept either form for the isnan check.
+      if (!match(Sel->getCondition(),
+                 m_FCmp(Pred, m_Value(CmpL), m_Value(CmpR))) ||
+          Pred != CmpInst::FCMP_UNO || CmpL != FPT.getOperand(0) ||
+          (CmpR != FPT.getOperand(0) && !match(CmpR, m_AnyZeroFP())))
+        return false;
+
+      // Use m_NaN so vector splats of NaN are also recognized.
+      auto IsNaNConst = [](Value *V) { return match(V, m_NaN()); };
+
+      return (Sel->getTrueValue() == &FPT && IsNaNConst(Sel->getFalseValue())) ||
+             (Sel->getFalseValue() == &FPT && IsNaNConst(Sel->getTrueValue()));
+    };
+
+    if (!IsProtectedHalfTrunc()) {
+      Value *Src = FPT.getOperand(0);
+      Value *IsNaN = Builder.CreateFCmpUNO(Src, Src, "isnan");
+
+      Type *DstTy = FPT.getType();
+      Type *EltTy = DstTy->getScalarType();
+      Constant *QNaNScalar = ConstantFP::getQNaN(EltTy);
+      Constant *QNaN = isa<VectorType>(DstTy)
+                           ? ConstantVector::getSplat(
+                                 cast<VectorType>(DstTy)->getElementCount(),
+                                 QNaNScalar)
+                           : QNaNScalar;
+
+      Value *Trunc = Builder.CreateFPTruncFMF(Src, DstTy, &FPT);
+      return SelectInst::Create(IsNaN, QNaN, Trunc);
+    }
+  }
+
   // If we have fptrunc(OpI (fpextend x), (fpextend y)), we would like to
   // simplify this expression to avoid one or more of the trunc/extend
   // operations if we can do so without changing the numerical results.
