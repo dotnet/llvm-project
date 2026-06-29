@@ -24,35 +24,35 @@ parameters:
   default:
   - arch: x64
     assetManifestOS: linux
-    imagename: mariner2crossamd64
+    imagename: azurelinux3crossamd64
     rootfs: /crossrootfs/x64
     ExtraArgs: -p:LibsRoot=/crossrootfs/x64/usr/lib/x86_64-linux-gnu
     ClangTargetArg: /p:ClangTarget=x86_64-linux-gnu
     ClangBinDirArg: /p:ClangBinDir=/usr/local/bin
   - arch: arm64
     assetManifestOS: linux
-    imagename: mariner2crossarm64
+    imagename: azurelinux3crossarm64
     rootfs: /crossrootfs/arm64
     ExtraArgs: -p:LibsRoot=/crossrootfs/arm64/usr/lib/aarch64-linux-gnu
     ClangTargetArg: /p:ClangTarget=aarch64-linux-gnu
     ClangBinDirArg: /p:ClangBinDir=/usr/local/bin
   - arch: arm
     assetManifestOS: linux
-    imagename: mariner2crossarm
+    imagename: azurelinux3crossarm
     rootfs: /crossrootfs/arm
     ExtraArgs: -p:LibsRoot=/crossrootfs/arm/usr/lib/arm-linux-gnueabihf
     ClangTargetArg: /p:ClangTarget=arm-linux-gnueabihf
     ClangBinDirArg: /p:ClangBinDir=/usr/local/bin
   - arch: x64
     assetManifestOS: linux-musl
-    imagename: mariner2crossamd64alpine
+    imagename: azurelinux3crossamd64musl
     rootfs: /crossrootfs/x64
     ExtraArgs: -p:LibsRoot=/crossrootfs/x64/lib -p:OutputRid=linux-musl-x64
     ClangTargetArg: /p:ClangTarget=x86_64-alpine-linux-musl
     ClangBinDirArg: /p:ClangBinDir=/usr/local/bin
   - arch: arm64
     assetManifestOS: linux-musl
-    imagename: mariner2crossarm64alpine
+    imagename: azurelinux3crossarm64musl
     rootfs: /crossrootfs/arm64
     ExtraArgs: -p:LibsRoot=/crossrootfs/arm64/lib -p:OutputRid=linux-musl-arm64
     ClangTargetArg: /p:ClangTarget=aarch64-alpine-linux-musl
@@ -94,16 +94,16 @@ extends:
       credscan:
         suppressionsFile: $(Build.SourcesDirectory)/.config/CredScanSuppressions.json
     containers:
-      mariner2crossamd64:
-        image: mcr.microsoft.com/dotnet-buildtools/prereqs:cbl-mariner-2.0-cross-amd64
-      mariner2crossarm64:
-        image: mcr.microsoft.com/dotnet-buildtools/prereqs:cbl-mariner-2.0-cross-arm64
-      mariner2crossarm:
-        image: mcr.microsoft.com/dotnet-buildtools/prereqs:cbl-mariner-2.0-cross-arm
-      mariner2crossamd64alpine:
-        image: mcr.microsoft.com/dotnet-buildtools/prereqs:cbl-mariner-2.0-cross-amd64-alpine
-      mariner2crossarm64alpine:
-        image: mcr.microsoft.com/dotnet-buildtools/prereqs:cbl-mariner-2.0-cross-arm64-alpine
+      azurelinux3crossamd64:
+        image: mcr.microsoft.com/dotnet-buildtools/prereqs:azurelinux-3.0-net10.0-cross-amd64
+      azurelinux3crossarm64:
+        image: mcr.microsoft.com/dotnet-buildtools/prereqs:azurelinux-3.0-net10.0-cross-arm64
+      azurelinux3crossarm:
+        image: mcr.microsoft.com/dotnet-buildtools/prereqs:azurelinux-3.0-net10.0-cross-arm
+      azurelinux3crossamd64musl:
+        image: mcr.microsoft.com/dotnet-buildtools/prereqs:azurelinux-3.0-net10.0-cross-amd64-musl
+      azurelinux3crossarm64musl:
+        image: mcr.microsoft.com/dotnet-buildtools/prereqs:azurelinux-3.0-net10.0-cross-arm64-musl
     stages:
     - stage: build
       displayName: Build

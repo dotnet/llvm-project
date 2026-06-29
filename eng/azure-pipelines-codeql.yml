@@ -41,7 +41,7 @@ stages:
             x64:
               assetManifestOS: linux
               assetManifestPlatform: x64
-              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:cbl-mariner-2.0-cross-amd64
+              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:azurelinux-3.0-net10.0-cross-amd64
               rootfs: /crossrootfs/x64
               ExtraArgs: -p:LibsRoot=/crossrootfs/x64/usr/lib/x86_64-linux-gnu
               ClangTargetArg: /p:ClangTarget=x86_64-linux-gnu

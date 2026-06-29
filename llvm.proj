@@ -109,6 +109,7 @@
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT'" Include='-DLLVM_NATIVE_TOOL_DIR=$(NativeTablegenDir)' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' != 'Windows_NT'" Include='-DLLVM_ENABLE_ZLIB=FORCE_ON' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' != 'Windows_NT' and '$(LibsRoot)' != ''" Include='-DZLIB_ROOT=$(LibsRoot)' />
+    <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Linux' and '$(ROOTFS_DIR)' != ''" Include='-DZLIB_INCLUDE_DIR=$(ROOTFS_DIR)/usr/include' />
     <_LLVMBuildArgs Condition="'$(BuildOS)' == 'Windows_NT'" Include='-DLLVM_ENABLE_ZLIB=OFF' />
     <_LLVMBuildArgs Include='-DLLVM_ENABLE_PROJECTS="lld%3Bclang%3Bclang-tools-extra"' />
     <_LLVMBuildArgs Include='-DLLVM_BUILD_TOOLS:BOOL=ON' />
