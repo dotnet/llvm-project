@@ -122,6 +122,13 @@ bool DwarfExpression::addMachineReg(const TargetRegisterInfo &TRI,
     return true;
   }
 
+  // The frame register is referenced through DW_OP_fbreg relative to
+  // DW_AT_frame_base, so it needs no DWARF register number of its own.
+  if (isFrameRegister(TRI, MachineReg)) {
+    DwarfRegs.push_back(Register::createRegister(-1, nullptr));
+    return true;
+  }
+
   // Walk up the super-register chain until we find a valid number.
   // For example, EAX on x86_64 is a 32-bit fragment of RAX with offset 0.
   for (MCPhysReg SR : TRI.superregs(MachineReg)) {
@@ -234,6 +241,28 @@ void DwarfExpression::addUnsignedConstant(const APInt &Value) {
     addOpPiece(std::min(Size - Offset, 64u), Offset);
     Offset += 64;
   }
+}
+
+void DwarfExpression::addImplicitValue(const APInt &Value,
+                                       const AsmPrinter &AP) {
+  assert(isImplicitLocation() || isUnknownLocation());
+  assert(DwarfVersion >= 4);
+
+  APInt API = Value;
+  unsigned NumBytes = API.getBitWidth() / 8;
+  assert(API.getBitWidth() == NumBytes * 8 &&
+         "implicit value must be byte-sized");
+
+  emitOp(dwarf::DW_OP_implicit_value);
+  emitUnsigned(NumBytes);
+
+  // The loop below is emitting the value starting at the least significant
+  // byte, so byte-swap first for big-endian targets.
+  if (AP.getDataLayout().isBigEndian())
+    API = API.byteSwap();
+
+  for (unsigned I = 0; I < NumBytes; ++I)
+    emitData1(API.extractBits(8, I * 8).getZExtValue());
 }
 
 void DwarfExpression::addConstantFP(const APFloat &APF, const AsmPrinter &AP) {
