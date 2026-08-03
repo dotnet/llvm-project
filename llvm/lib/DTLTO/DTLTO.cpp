@@ -90,7 +90,7 @@ LLVM_ABI Error lto::DTLTO::run(AddStreamFn AddStream, FileCache CacheParam) {
 
   if (Error Err = prepareDtltoJobs())
     return Err;
-  if (Error Err = serializeLTOInputs())
+  if (Error Err = extractLTOInputs())
     return Err;
   if (Error Err = performCodegen())
     return Err;
@@ -154,6 +154,10 @@ Error lto::DTLTO::prepareDtltoJob(StringRef ModulePath, unsigned Task) {
   if (Error Err = checkCacheHit(J))
     return Err;
   if (!J.Cached) {
+    InputModuleIDsToExtract.insert(J.ModuleID);
+    for (StringRef ImportPath : J.ImportsFilesList)
+      InputModuleIDsToExtract.insert(ImportPath);
+
     TimeTraceScope JobScope("Emit individual index for DTLTO",
                             J.SummaryIndexPath);
     if (Error Err = save(SummaryIndexFiles[Task], J.SummaryIndexPath))
@@ -191,6 +195,8 @@ void lto::DTLTO::buildCommonRemoteCompilerOptions() {
     Ops.push_back("-ffunction-sections");
   if (C.Options.DataSections)
     Ops.push_back("-fdata-sections");
+  if (C.PTO.LoopInterchange)
+    Ops.push_back("-floop-interchange");
 
   if (C.RelocModel == Reloc::PIC_)
     // Clang doesn't have -fpic for all triples.
@@ -224,6 +230,8 @@ void lto::DTLTO::buildCommonRemoteCompilerOptions() {
 Error lto::DTLTO::prepareDtltoJobs() {
   auto &ModuleMap =
       ThinLTO.ModulesToCompile ? *ThinLTO.ModulesToCompile : ThinLTO.ModuleMap;
+
+  InputModuleIDsToExtract.clear();
 
   if (ModuleMap.empty())
     return Error::success();
