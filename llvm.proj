@@ -180,6 +180,9 @@
       <_LibCxxBuildArgs Include="-DLIBCXXABI_USE_LLVM_UNWINDER=OFF" />
       <_LibCxxBuildArgs Include="-DLIBCXX_INCLUDE_TESTS=OFF" />
       <_LibCxxBuildArgs Include="-DLIBCXXABI_INCLUDE_TESTS=OFF" />
+      <!-- The standalone runtimes build defaults LLVM_INCLUDE_DOCS to ON, but this fork
+           does not carry the docs directories that LIBCXX/LIBUNWIND_INCLUDE_DOCS pull in. -->
+      <_LibCxxBuildArgs Include="-DLLVM_INCLUDE_DOCS=OFF" />
       <_LibCxxBuildArgs Condition="$(ClangTarget.ToLowerInvariant().Contains('musl'))" Include="-DLIBCXX_HAS_MUSL_LIBC=ON" />
     </ItemGroup>
     <PropertyGroup>
