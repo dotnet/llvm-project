@@ -91,7 +91,7 @@ stages:
         variables:
         - _BuildConfig: Release
         - name: Codeql.Language
-          value: cpp,javascript,python
+          value: cpp
         - name: Codeql.ADO.Build.Repository.Provider
           value: override
         - name: Codeql.ADO.Build.Repository.Uri
