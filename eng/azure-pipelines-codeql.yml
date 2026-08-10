@@ -15,7 +15,7 @@ variables:
   - name: Codeql.Enabled
     value: True
   - name: Codeql.Language
-    value: cpp,python
+    value: cpp,python,javascript
   - name: Codeql.Cadence
     value: 0
   - name: Codeql.TSAEnabled
@@ -83,66 +83,6 @@ stages:
 
         - task: CodeQL3000Finalize@0
           displayName: Finalize CodeQL (manually-injected)
-
-      ############ GITHUB-ATTRIBUTED LINUX BUILD ############
-      - job: Build_Linux_GitHub
-        displayName: GitHub Linux
-        timeoutInMinutes: 720
-        variables:
-        - _BuildConfig: Release
-        - name: Codeql.Language
-          value: cpp
-        - name: Codeql.ADO.Build.Repository.Provider
-          value: override
-        - name: Codeql.ADO.Build.Repository.Uri
-          value: https://github.com/dotnet/llvm-project
-        strategy:
-          matrix:
-            x64:
-              assetManifestOS: linux
-              assetManifestPlatform: x64
-              imagename: mcr.microsoft.com/dotnet-buildtools/prereqs:azurelinux-3.0-net11.0-cross-amd64
-              rootfs: /crossrootfs/x64
-              ExtraArgs: -p:LibsRoot=/crossrootfs/x64/usr/lib/x86_64-linux-gnu
-              ClangTargetArg: /p:ClangTarget=x86_64-linux-gnu
-              ClangBinDirArg: /p:ClangBinDir=/usr/local/bin
-              archflag: --arch x64
-        pool:
-            name: NetCore1ESPool-Internal-XL
-            demands: ImageOverride -equals build.azurelinux.3.amd64
-        container:
-          image: $(imagename)
-        steps:
-        - bash: |
-            set -ex
-            git clean -ffdx
-            git reset --hard HEAD
-          displayName: 'Clean up working directory'
-
-        - bash: |
-            mkdir which-shim
-            echo '#!/bin/sh' > which-shim/which
-            echo 'command -v "$@"' >> which-shim/which
-            chmod +x which-shim/which
-            echo "##vso[task.prependpath]$PWD/which-shim"
-          displayName: 'Add a which shim for CodeQL'
-
-        - task: CodeQL3000Init@0
-          displayName: Initialize GitHub CodeQL (manually-injected)
-
-        - bash: |
-            echo 'print("Hello world")' > hello.py
-            python3 hello.py
-          displayName: 'Run python helloworld'
-
-        - bash: |
-            ./build.sh --ci --restore --build --pack $(archflag) --configuration $(_BuildConfig) $(_InternalBuildArgs) $(ClangBinDirArg) $(ClangTargetArg) $(ExtraArgs) /p:BuildJitToolsOnly=true
-          displayName: 'Build and package'
-          env:
-            ROOTFS_DIR: $(rootfs)
-
-        - task: CodeQL3000Finalize@0
-          displayName: Finalize GitHub CodeQL (manually-injected)
 
       ############ WINDOWS BUILD ############
       - job: Build_Windows
