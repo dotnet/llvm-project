@@ -10431,8 +10431,12 @@ static bool isTargetShuffleEquivalent(MVT VT, ArrayRef<int> Mask,
     }
     return false;
   }
-  return (ZeroV1.isZero() || DAG.MaskedVectorIsZero(V1, ZeroV1)) &&
-         (ZeroV2.isZero() || DAG.MaskedVectorIsZero(V2, ZeroV2));
+  return (ZeroV1.isZero() ||
+          (DAG.MaskedVectorIsZero(V1, ZeroV1) &&
+           DAG.isGuaranteedNotToBeUndefOrPoison(V1, ZeroV1))) &&
+         (ZeroV2.isZero() ||
+          (DAG.MaskedVectorIsZero(V2, ZeroV2) &&
+           DAG.isGuaranteedNotToBeUndefOrPoison(V2, ZeroV2)));
 }
 
 // Check if the shuffle mask is suitable for the AVX vpunpcklwd or vpunpckhwd
@@ -20347,7 +20351,9 @@ static SDValue lowerFPToIntToFP(SDValue CastToFP, const SDLoc &DL,
                                 const X86Subtarget &Subtarget) {
   SDValue CastToInt = CastToFP.getOperand(0);
   MVT VT = CastToFP.getSimpleValueType();
-  if ((CastToInt.getOpcode() != ISD::FP_TO_SINT &&
+  if ((CastToFP.getOpcode() != ISD::SINT_TO_FP &&
+       CastToFP.getOpcode() != ISD::UINT_TO_FP) ||
+      (CastToInt.getOpcode() != ISD::FP_TO_SINT &&
        CastToInt.getOpcode() != ISD::FP_TO_UINT) ||
       VT.isVector())
     return SDValue();
@@ -20367,7 +20373,8 @@ static SDValue lowerFPToIntToFP(SDValue CastToFP, const SDLoc &DL,
   unsigned SrcSize = SrcVT.getSizeInBits();
   unsigned IntSize = IntVT.getSizeInBits();
   unsigned VTSize = VT.getSizeInBits();
-  bool IsUnsigned = CastToInt.getOpcode() == ISD::FP_TO_UINT;
+  bool FromUnsigned = CastToFP.getOpcode() == ISD::UINT_TO_FP;
+  bool ToUnsigned = CastToInt.getOpcode() == ISD::FP_TO_UINT;
   unsigned ToIntOpcode =
       SrcSize != IntSize ? X86ISD::CVTTP2SI : (unsigned)ISD::FP_TO_SINT;
   unsigned ToFPOpcode =
@@ -20376,14 +20383,16 @@ static SDValue lowerFPToIntToFP(SDValue CastToFP, const SDLoc &DL,
 
   if (Subtarget.hasVLX() && Subtarget.hasDQI()) {
     // AVX512DQ+VLX
-    if (IsUnsigned) {
+    if (ToUnsigned) {
       ToIntOpcode =
           SrcSize != IntSize ? X86ISD::CVTTP2UI : (unsigned)ISD::FP_TO_UINT;
+    }
+    if (FromUnsigned) {
       ToFPOpcode =
           IntSize != VTSize ? X86ISD::CVTUI2P : (unsigned)ISD::UINT_TO_FP;
     }
   } else {
-    if (IsUnsigned || IntVT == MVT::i64) {
+    if (FromUnsigned || ToUnsigned || IntVT == MVT::i64) {
       // SSE2 can only perform f64/f32 <-> i32 signed.
       if (!Subtarget.useAVX512Regs() || !Subtarget.hasDQI())
         return SDValue();
@@ -20391,7 +20400,7 @@ static SDValue lowerFPToIntToFP(SDValue CastToFP, const SDLoc &DL,
       // Need to extend width for AVX512DQ without AVX512VL.
       Width = 512;
       ToIntOpcode = CastToInt.getOpcode();
-      ToFPOpcode = IsUnsigned ? ISD::UINT_TO_FP : ISD::SINT_TO_FP;
+      ToFPOpcode = FromUnsigned ? ISD::UINT_TO_FP : ISD::SINT_TO_FP;
     }
   }
 
@@ -22658,10 +22667,14 @@ X86TargetLowering::LowerFP_TO_INT_SAT(SDValue Op, SelectionDAG &DAG) const {
   // result type of the fptoi instructions, INDVAL coincides with integer
   // minimum, so we don't need to explicitly check it.
   if (!IsSigned || SatWidth != TmpVT.getScalarSizeInBits()) {
-    // If Src ULT MinFloat, select MinInt. In particular, this also selects
-    // MinInt if Src is NaN.
-    Select = DAG.getSelectCC(
-      dl, Src, MinFloatNode, MinIntNode, Select, ISD::CondCode::SETULT);
+    // If Src is less than MinFloat, select MinInt. An unordered comparison
+    // also selects MinInt for NaN, which is correct except when signed and
+    // promoted to a wider TmpVT: there MinInt != 0, but the earlier
+    // truncation already mapped NaN to the correct 0, so use an ordered
+    // comparison to leave it alone.
+    ISD::CondCode MinCC = (IsSigned && DstVT != TmpVT) ? ISD::CondCode::SETOLT
+                                                       : ISD::CondCode::SETULT;
+    Select = DAG.getSelectCC(dl, Src, MinFloatNode, MinIntNode, Select, MinCC);
   }
 
   // If Src OGT MaxFloat, select MaxInt.
