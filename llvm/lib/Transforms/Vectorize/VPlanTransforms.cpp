@@ -5418,8 +5418,10 @@ void VPlanTransforms::sinkPredicatedStores(VPlan &Plan,
              "all members in group must agree on IsSingleScalar");
       VPValue *Mask = Group[I]->getMask();
       VPValue *Value = Group[I]->getOperand(0);
-      SelectedValue = Builder.createSelect(Mask, Value, SelectedValue,
-                                           Group[I]->getDebugLoc());
+      SelectedValue = Builder.createSelect(
+          Mask, Value, SelectedValue, Group[I]->getDebugLoc(), "",
+          VPIRFlags::getDefaultFlags(Instruction::Select,
+                                     Value->getScalarType()));
     }
 
     // Find the store with minimum alignment to use.
@@ -6547,7 +6549,8 @@ void VPlanTransforms::optimizeFindIVReductions(VPlan &Plan,
       // PhiR is the last operand and include the header mask if needed.
       DebugLoc DL = FindLastSelect->getDefiningRecipe()->getDebugLoc();
       VPBuilder LoopBuilder(FindLastSelect->getDefiningRecipe());
-      if (FindLastSelect->getDefiningRecipe()->getOperand(1) == PhiR)
+      if (match(FindLastSelect,
+                m_SelectLike(m_VPValue(Cond), m_Specific(PhiR), m_VPValue())))
         SelectCond = LoopBuilder.createNot(SelectCond);
 
       // When tail folding, mask the condition with the header mask to prevent
@@ -7781,7 +7784,7 @@ void VPlanTransforms::convertToStridedAccesses(VPlan &Plan,
       Type *IndexTy = Plan.getDataLayout().getIndexType(Ptr->getScalarType());
       assert(IndexTy == StrideInBytes->getScalarType() &&
              "Stride type from SCEV must match the index type");
-      VPValue *CanIV = Builder.createScalarSExtOrTrunc(
+      VPValue *CanIV = Builder.createScalarZExtOrTrunc(
           VectorLoop->getCanonicalIV(), IndexTy,
           VectorLoop->getCanonicalIVType(), DebugLoc::getUnknown());
       auto *AddRecPtr = cast<SCEVAddRecExpr>(PtrSCEV);
