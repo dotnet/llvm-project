@@ -22,7 +22,6 @@ variables:
     value: True
   - name: Codeql.BuildIdentifier
     value: $(System.JobDisplayName)
-  # Attribute mirrored source to GitHub without changing the build checkout.
   - ${{ if and(eq(variables['System.TeamProject'], 'internal'), eq(variables['Build.Repository.Name'], 'dotnet-llvm-project')) }}:
     - name: Codeql.ADO.Build.Repository.Provider
       value: GitHub
